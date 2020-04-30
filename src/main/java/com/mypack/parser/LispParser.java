@@ -1,5 +1,10 @@
 package com.mypack.parser;
 
+import com.mypack.exp.EmptySexp;
+import com.mypack.exp.Exp;
+import com.mypack.exp.Sexp;
+import com.mypack.exp.Symbol;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -8,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 public class LispParser {
+
+    public static Exp parse(String input) {
+        return parse(tokens(input));
+    }
 
     static Exp parse(List<Token> input) {
         if (input.isEmpty()) {

@@ -1,5 +1,8 @@
 package com.mypack.parser;
 
+import com.mypack.exp.Exp;
+import com.mypack.exp.Sexp;
+import com.mypack.exp.Symbol;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +12,7 @@ class LispParserTest {
 
     @Test
     void testParse() {
-        Exp exp = LispParser.parse(LispParser.tokens("(car (cdr))"));
+        Exp exp = LispParser.parse("(car (cdr))");
         Assertions.assertTrue(exp instanceof Sexp);
         Assertions.assertTrue(((Sexp) exp).head() instanceof Symbol);
         Assertions.assertEquals("car", ((Symbol) ((Sexp) exp).head()).value());

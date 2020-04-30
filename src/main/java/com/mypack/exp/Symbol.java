@@ -1,4 +1,4 @@
-package com.mypack.parser;
+package com.mypack.exp;
 
 public class Symbol implements Exp {
 
@@ -10,5 +10,10 @@ public class Symbol implements Exp {
 
     public String value() {
         return value;
+    }
+
+    @Override
+    public <R> R accept(ExpVisitor<R> v) {
+        return v.visitSymbol(this);
     }
 }

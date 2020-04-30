@@ -1,4 +1,4 @@
-package com.mypack.parser;
+package com.mypack.exp;
 
 public class EmptySexp implements Exp {
 
@@ -9,5 +9,10 @@ public class EmptySexp implements Exp {
     }
 
     private EmptySexp() {
+    }
+
+    @Override
+    public <R> R accept(ExpVisitor<R> v) {
+        return v.visitEmptySexp(this);
     }
 }
