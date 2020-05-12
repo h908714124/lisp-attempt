@@ -24,14 +24,14 @@ class LispParserTest {
     }
 
     @Test
-    void testStructure() {
-        List<List<Token>> structure = LispParser.structure(LispParser.tokens("(car (cdr))"));
+    void testSegments() {
+        List<List<Token>> structure = LispParser.getSegments(LispParser.tokens("(car (cdr))"));
         Assertions.assertEquals(2, structure.size());
     }
 
     @Test
     void testStructureEmpty() {
-        List<List<Token>> structure = LispParser.structure(LispParser.tokens("()"));
+        List<List<Token>> structure = LispParser.getSegments(LispParser.tokens("()"));
         Assertions.assertTrue(structure.isEmpty());
     }
 

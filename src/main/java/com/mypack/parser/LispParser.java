@@ -31,17 +31,17 @@ public class LispParser {
         if (input.size() == 2) {
             return EmptySexp.instance();
         }
-        List<List<Token>> structure = structure(input);
+        List<List<Token>> segments = getSegments(input);
         List<Exp> tail = new ArrayList<>();
-        for (int i = 1; i < structure.size(); i++) {
-            List<Token> tokens = structure.get(i);
+        for (int i = 1; i < segments.size(); i++) {
+            List<Token> tokens = segments.get(i);
             tail.add(parse(tokens));
         }
-        List<Token> head = structure.get(0);
+        List<Token> head = segments.get(0);
         return new Sexp(parse(head), tail);
     }
 
-    static List<List<Token>> structure(List<Token> input) {
+    static List<List<Token>> getSegments(List<Token> input) {
         Deque<Token> tokens = new LinkedList<>(input);
         tokens.removeFirst();
         tokens.removeLast();
