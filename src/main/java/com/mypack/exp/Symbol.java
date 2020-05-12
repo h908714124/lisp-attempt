@@ -1,6 +1,6 @@
 package com.mypack.exp;
 
-public class Symbol implements Exp {
+public final class Symbol implements Exp {
 
     private final String value;
 
@@ -15,5 +15,10 @@ public class Symbol implements Exp {
     @Override
     public <R> R accept(ExpVisitor<R> v) {
         return v.visitSymbol(this);
+    }
+
+    @Override
+    public String toString() {
+        return value;
     }
 }

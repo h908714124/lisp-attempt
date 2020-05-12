@@ -1,6 +1,6 @@
 package com.mypack.exp;
 
-public class EmptySexp implements Exp {
+public final class EmptySexp implements Exp {
 
     private static final EmptySexp INSTANCE = new EmptySexp();
 
@@ -14,5 +14,10 @@ public class EmptySexp implements Exp {
     @Override
     public <R> R accept(ExpVisitor<R> v) {
         return v.visitEmptySexp(this);
+    }
+
+    @Override
+    public String toString() {
+        return "()";
     }
 }
