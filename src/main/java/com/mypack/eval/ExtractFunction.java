@@ -5,25 +5,38 @@ import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.exp.Value;
+import com.mypack.util.AsSymbol;
+import com.mypack.util.AsValue;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 
-public class ExtractFunction implements ExpVisitor<Function<List<Exp>, BigInteger>> {
+public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
 
     @Override
-    public Function<List<Exp>, BigInteger> visitEmptySexp(EmptySexp emptySexp) {
+    public Function<List<Exp>, Exp> visitEmptySexp(EmptySexp emptySexp) {
         throw new IllegalArgumentException();
     }
 
     @Override
-    public Function<List<Exp>, BigInteger> visitSexp(Sexp sexp) {
-        throw new IllegalArgumentException();
+    public Function<List<Exp>, Exp> visitSexp(Sexp sexp) {
+        Symbol head = AsSymbol.get(sexp.head());
+        if (!head.value().equals("lambda")) {
+            throw new IllegalArgumentException("lambda expected");
+        }
+        return Lambda.createLambda(sexp.tail());
     }
 
     @Override
-    public Function<List<Exp>, BigInteger> visitSymbol(Symbol symbol) {
+    public Function<List<Exp>, Exp> visitValue(Value value) {
+        throw new IllegalArgumentException("can't use value " + value +
+                " as function");
+    }
+
+    @Override
+    public Function<List<Exp>, Exp> visitSymbol(Symbol symbol) {
         if ("+".equals(symbol.value())) {
             return this::evalPlus;
         } else if ("*".equals(symbol.value())) {
@@ -32,19 +45,19 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, BigIntege
         throw new IllegalArgumentException("Unknown symbol: " + symbol);
     }
 
-    private BigInteger evalPlus(List<Exp> tail) {
+    private Exp evalPlus(List<Exp> tail) {
         BigInteger n = BigInteger.ZERO;
         for (Exp exp : tail) {
-            n = n.add(exp.accept(new ExtractNumber()));
+            n = n.add(AsValue.get(exp.accept(new ExtractNumber())).value());
         }
-        return n;
+        return Value.of(n);
     }
 
-    private BigInteger evalTimes(List<Exp> tail) {
+    private Exp evalTimes(List<Exp> tail) {
         BigInteger n = BigInteger.ONE;
         for (Exp exp : tail) {
-            n = n.multiply(exp.accept(new ExtractNumber()));
+            n = n.multiply(AsValue.get(exp.accept(new ExtractNumber())).value());
         }
-        return n;
+        return Value.of(n);
     }
 }

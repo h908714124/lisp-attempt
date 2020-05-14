@@ -4,7 +4,9 @@ import com.mypack.exp.EmptySexp;
 import com.mypack.exp.Exp;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.exp.Value;
 
+import java.math.BigInteger;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -26,7 +28,12 @@ public class LispParser {
             if (input.size() != 1) {
                 throw new IllegalArgumentException();
             }
-            return new Symbol(input.get(0).value());
+            String value = input.get(0).value();
+            if (value.matches("[-]?\\d+")) {
+                return Value.of(new BigInteger(value));
+            } else {
+                return new Symbol(value);
+            }
         }
         if (input.size() == 2) {
             return EmptySexp.instance();

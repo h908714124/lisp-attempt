@@ -5,30 +5,38 @@ import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.exp.Value;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 
-public class ExtractNumber implements ExpVisitor<BigInteger> {
+public class ExtractNumber implements ExpVisitor<Exp> {
 
     @Override
-    public BigInteger visitEmptySexp(EmptySexp emptySexp) {
-        return BigInteger.ZERO;
+    public Exp visitEmptySexp(EmptySexp emptySexp) {
+        return Value.of(BigInteger.ZERO);
     }
 
     @Override
-    public BigInteger visitSexp(Sexp sexp) {
+    public Exp visitSexp(Sexp sexp) {
         if (!(sexp.head() instanceof Symbol)) {
             throw new IllegalArgumentException("Not a symbol: " + sexp.head().getClass());
         }
         Symbol head = (Symbol) sexp.head();
-        Function<List<Exp>, BigInteger> function = head.accept(new ExtractFunction());
+        Function<List<Exp>, Exp> function = head.accept(new ExtractFunction());
         return function.apply(sexp.tail());
     }
 
     @Override
-    public BigInteger visitSymbol(Symbol symbol) {
-        return new BigInteger(symbol.value());
+    public Exp visitValue(Value value) {
+        return value;
     }
+
+    @Override
+    public Exp visitSymbol(Symbol symbol) {
+        return symbol;
+    }
+
+
 }

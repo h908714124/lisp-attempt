@@ -6,5 +6,7 @@ public interface ExpVisitor<R> {
 
     R visitSexp(Sexp sexp);
 
+    R visitValue(Value value);
+
     R visitSymbol(Symbol symbol);
 }
