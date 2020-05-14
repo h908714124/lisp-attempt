@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
-class ExtractNumberTest {
+class EvalTest {
 
     @Test
     void testEvalPlus() {
