@@ -11,7 +11,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.function.Function;
 
-public class ExtractNumber implements ExpVisitor<Exp> {
+public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitEmptySexp(EmptySexp emptySexp) {
@@ -35,8 +35,6 @@ public class ExtractNumber implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSymbol(Symbol symbol) {
-        return symbol;
+        throw new IllegalArgumentException("Can't evaluate a symbol");
     }
-
-
 }

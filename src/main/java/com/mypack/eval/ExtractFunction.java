@@ -48,7 +48,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
     private Exp evalPlus(List<Exp> tail) {
         BigInteger n = BigInteger.ZERO;
         for (Exp exp : tail) {
-            n = n.add(AsValue.get(exp.accept(new ExtractNumber())).value());
+            n = n.add(AsValue.get(exp.accept(new Eval())).value());
         }
         return Value.of(n);
     }
@@ -56,7 +56,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
     private Exp evalTimes(List<Exp> tail) {
         BigInteger n = BigInteger.ONE;
         for (Exp exp : tail) {
-            n = n.multiply(AsValue.get(exp.accept(new ExtractNumber())).value());
+            n = n.multiply(AsValue.get(exp.accept(new Eval())).value());
         }
         return Value.of(n);
     }
