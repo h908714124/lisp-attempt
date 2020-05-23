@@ -40,8 +40,27 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
             return this::evalPlus;
         } else if ("*".equals(symbol.value())) {
             return this::evalTimes;
+        } else if ("zero?".equals(symbol.value())) {
+            return this::isZero;
         }
         throw new IllegalArgumentException("Unknown symbol: " + symbol);
+    }
+
+    private Exp isZero(List<Exp> tail) {
+        if (tail.size() != 3) {
+            throw new IllegalArgumentException();
+        }
+        Exp tail0 = tail.get(0).accept(new Eval());
+        if (tail0 instanceof Value) {
+            Value result = AsValue.get(tail0);
+            if (result.value().equals(BigInteger.ZERO)) {
+                return tail.get(1);
+            } else {
+                return tail.get(2);
+            }
+        } else {
+            return new Sexp(new Symbol("zero?"), tail);
+        }
     }
 
     private Exp evalPlus(List<Exp> tail) {

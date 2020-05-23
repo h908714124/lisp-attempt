@@ -34,6 +34,9 @@ public class Eval implements ExpVisitor<Exp> {
             }
             return new Sexp(Symbol.lambda(), newTail);
         }
+        if (sexp.head() instanceof Symbol) {
+            return sexp.head().accept(new ExtractFunction()).apply(sexp.tail());
+        }
         Exp newHead = sexp.head().accept(this);
         ArrayList<Exp> result = new ArrayList<>();
         for (Exp exp : sexp.tail()) {

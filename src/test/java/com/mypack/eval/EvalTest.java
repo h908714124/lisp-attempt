@@ -25,6 +25,13 @@ class EvalTest {
     }
 
     @Test
+    void testZero() {
+        Exp exp = LispParser.parse("(zero? (+ -4 4) 1  2)");
+        Exp result = exp.accept(new Eval());
+        Assertions.assertEquals(BigInteger.valueOf(1), AsValue.get(result).value());
+    }
+
+    @Test
     void testEvalPlusMore() {
         Exp exp = LispParser.parse("(+ (+ 1 ()) (+ () 2 (+ 3 4 (+ 5 6 (+ 7 8 9)))))");
         Exp result = exp.accept(new Eval());
