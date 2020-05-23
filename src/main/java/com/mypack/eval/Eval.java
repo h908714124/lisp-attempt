@@ -20,11 +20,7 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        if (!(sexp.head() instanceof Symbol)) {
-            throw new IllegalArgumentException("Not a symbol: " + sexp.head().getClass());
-        }
-        Symbol head = (Symbol) sexp.head();
-        Function<List<Exp>, Exp> function = head.accept(new ExtractFunction());
+        Function<List<Exp>, Exp> function = sexp.head().accept(new ExtractFunction());
         return function.apply(sexp.tail());
     }
 
