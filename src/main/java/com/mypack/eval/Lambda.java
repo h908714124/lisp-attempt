@@ -21,6 +21,9 @@ public class Lambda {
         Vars vars = new Vars(variableList);
         Exp body = lambdaTail.get(1);
         return args -> {
+            if (args.isEmpty()) {
+                return new Sexp(Symbol.lambda(), lambdaTail);
+            }
             Map<Symbol, Exp> mapping = vars.createMapping(args);
             return body.accept(new ExpVisitor<Exp>() {
                 @Override

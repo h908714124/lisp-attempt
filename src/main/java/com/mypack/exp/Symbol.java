@@ -2,6 +2,10 @@ package com.mypack.exp;
 
 public final class Symbol implements Exp {
 
+    public static Symbol lambda() {
+        return new Symbol("lambda");
+    }
+
     private final String value;
 
     public Symbol(String value) {

@@ -7,7 +7,7 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.exp.Value;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -15,13 +15,35 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitEmptySexp(EmptySexp emptySexp) {
-        return Value.of(BigInteger.ZERO);
+        return emptySexp;
     }
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        Function<List<Exp>, Exp> function = sexp.head().accept(new ExtractFunction());
-        return function.apply(sexp.tail());
+        if (sexp.head() instanceof Sexp && ((Sexp) sexp.head()).head() instanceof Symbol && ((Symbol) ((Sexp) sexp.head()).head()).value().equals("lambda")) {
+            Function<List<Exp>, Exp> function = sexp.head().accept(new ExtractFunction());
+            return function.apply(sexp.tail());
+        }
+        if (sexp.head() instanceof Symbol && ((Symbol) sexp.head()).value().equals("lambda")) {
+            List<Exp> newTail = new ArrayList<>();
+            List<Exp> tail = sexp.tail();
+            newTail.add(tail.get(0));
+            for (int i = 1; i < tail.size(); i++) {
+                Exp exp = tail.get(i);
+                newTail.add(exp.accept(this));
+            }
+            return new Sexp(Symbol.lambda(), newTail);
+        }
+        Exp newHead = sexp.head().accept(this);
+        ArrayList<Exp> result = new ArrayList<>();
+        for (Exp exp : sexp.tail()) {
+            result.add(exp.accept(this));
+        }
+        if (result.isEmpty()) {
+            return newHead;
+        } else {
+            return new Sexp(newHead, result).accept(this);
+        }
     }
 
     @Override
@@ -31,6 +53,6 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSymbol(Symbol symbol) {
-        throw new IllegalArgumentException("Can't evaluate a symbol");
+        return symbol;
     }
 }

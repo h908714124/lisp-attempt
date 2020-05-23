@@ -17,7 +17,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
 
     @Override
     public Function<List<Exp>, Exp> visitEmptySexp(EmptySexp emptySexp) {
-        throw new IllegalArgumentException();
+        return args -> emptySexp;
     }
 
     @Override
@@ -31,8 +31,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
 
     @Override
     public Function<List<Exp>, Exp> visitValue(Value value) {
-        throw new IllegalArgumentException("can't use value " + value +
-                " as function");
+        return args -> value;
     }
 
     @Override
