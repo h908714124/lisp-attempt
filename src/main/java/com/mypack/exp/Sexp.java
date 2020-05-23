@@ -1,5 +1,6 @@
 package com.mypack.exp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sexp implements Exp {
@@ -23,5 +24,15 @@ public class Sexp implements Exp {
     @Override
     public <R> R accept(ExpVisitor<R> v) {
         return v.visitSexp(this);
+    }
+
+    @Override
+    public String toString() {
+        List<String> strings = new ArrayList<>();
+        strings.add(head.toString());
+        for (Exp exp : tail) {
+            strings.add(exp.toString());
+        }
+        return "(" + String.join(" ", strings) + ')';
     }
 }

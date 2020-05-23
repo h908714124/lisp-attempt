@@ -20,7 +20,7 @@ class LambdaTest {
     @Test
     void testChurchFalse() {
         Exp exp = LispParser.parse("((lambda (a b) b) (+ 1 1) (+ 1 2))");
-        Exp result = exp.accept(new Eval()).accept(new Eval());
-        Assertions.assertEquals(BigInteger.valueOf(3), AsValue.get(result).value());
+        Exp result = exp.accept(new Eval());
+        Assertions.assertEquals("(+ 1 2)", result.toString());
     }
 }
