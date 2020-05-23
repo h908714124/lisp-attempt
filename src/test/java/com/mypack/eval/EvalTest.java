@@ -11,6 +11,13 @@ import java.math.BigInteger;
 class EvalTest {
 
     @Test
+    void testEvalZero() {
+        Exp exp = LispParser.parse("(+)");
+        Exp result = exp.accept(new Eval());
+        Assertions.assertEquals(BigInteger.valueOf(0), AsValue.get(result).value());
+    }
+
+    @Test
     void testEvalPlus() {
         Exp exp = LispParser.parse("(+ 4 5)");
         Exp result = exp.accept(new Eval());

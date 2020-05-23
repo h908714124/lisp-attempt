@@ -9,6 +9,7 @@ import com.mypack.exp.Value;
 import com.mypack.util.AsSexp;
 import com.mypack.vars.Vars;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -17,9 +18,6 @@ public class Lambda {
 
     public static Function<List<Exp>, Exp> createLambda(List<Exp> lambdaTail) {
         Sexp variableList = AsSexp.get(lambdaTail.get(0));
-        if (variableList.tail().size() != 1) {
-            throw new IllegalArgumentException();
-        }
         Vars vars = new Vars(variableList);
         Exp body = lambdaTail.get(1);
         return args -> {
@@ -32,7 +30,12 @@ public class Lambda {
 
                 @Override
                 public Exp visitSexp(Sexp sexp) {
-                    return sexp.accept(this);
+                    Exp newHead = sexp.head().accept(this);
+                    ArrayList<Exp> newTail = new ArrayList<>();
+                    for (Exp exp : sexp.tail()) {
+                        newTail.add(exp.accept(this));
+                    }
+                    return new Sexp(newHead, newTail);
                 }
 
                 @Override

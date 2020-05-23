@@ -24,7 +24,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
     public Function<List<Exp>, Exp> visitSexp(Sexp sexp) {
         Symbol head = AsSymbol.get(sexp.head());
         if (!head.value().equals("lambda")) {
-            throw new IllegalArgumentException("lambda expected");
+            throw new IllegalArgumentException("lambda expected but found " + head);
         }
         return Lambda.createLambda(sexp.tail());
     }
