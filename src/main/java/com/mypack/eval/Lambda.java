@@ -1,8 +1,11 @@
 package com.mypack.eval;
 
+import com.mypack.exp.EmptySexp;
 import com.mypack.exp.Exp;
+import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.exp.Value;
 import com.mypack.util.AsSexp;
 import com.mypack.vars.Vars;
 
@@ -18,10 +21,30 @@ public class Lambda {
             throw new IllegalArgumentException();
         }
         Vars vars = new Vars(variableList);
+        Exp body = lambdaTail.get(1);
         return args -> {
-            Exp body = lambdaTail.get(1);
             Map<Symbol, Exp> mapping = vars.createMapping(args);
-            throw new IllegalArgumentException();
+            return body.accept(new ExpVisitor<Exp>() {
+                @Override
+                public Exp visitEmptySexp(EmptySexp emptySexp) {
+                    return emptySexp;
+                }
+
+                @Override
+                public Exp visitSexp(Sexp sexp) {
+                    return sexp.accept(this);
+                }
+
+                @Override
+                public Exp visitValue(Value value) {
+                    return value;
+                }
+
+                @Override
+                public Exp visitSymbol(Symbol symbol) {
+                    return mapping.getOrDefault(symbol, symbol);
+                }
+            });
         };
     }
 }

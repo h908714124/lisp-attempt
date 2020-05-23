@@ -16,4 +16,11 @@ class LambdaTest {
         Exp result = exp.accept(new Eval());
         Assertions.assertEquals(BigInteger.valueOf(1), AsValue.get(result).value());
     }
+
+    @Test
+    void testChurchFalse() {
+        Exp exp = LispParser.parse("((lambda (a b) b) (+ 1 1) (+ 1 2))");
+        Exp result = exp.accept(new Eval()).accept(new Eval());
+        Assertions.assertEquals(BigInteger.valueOf(3), AsValue.get(result).value());
+    }
 }
