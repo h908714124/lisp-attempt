@@ -45,7 +45,7 @@ public class Eval implements ExpVisitor<Exp> {
         if (result.isEmpty()) {
             return newHead;
         } else {
-            return new Sexp(newHead, result).accept(this);
+            return new Sexp(newHead, result);
         }
     }
 
