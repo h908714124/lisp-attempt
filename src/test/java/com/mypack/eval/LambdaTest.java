@@ -26,27 +26,25 @@ class LambdaTest {
 
     @Test
     void testFPChurchTrue1() {
-        Exp exp = LispParser.parse("((lambda (f) (((lambda (x) (f x x))) ((lambda (x) (f x x))))) (lambda (a b) a))");
-        Exp result = exp.accept(new Eval());
-        Assertions.assertEquals("(((lambda (x) ((lambda (a b) a) x x))) ((lambda (x) ((lambda (a b) a) x x))))", result.toString());
-    }
-
-    @Test
-    void testFPChurchTrue2() {
-        Exp exp = LispParser.parse("(((lambda (x) ((lambda (a b) a) x x))) ((lambda (x) ((lambda (a b) a) x x))))");
+        Exp exp = LispParser.parse("((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) (lambda (a b) a))");
         Exp result = exp.accept(new Eval());
         Assertions.assertEquals("((lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))", result.toString());
     }
 
+    // ((lambda (x) ((lambda (a b) a) x x))
+    //  (lambda (x) ((lambda (a b) a) x x)))
     @Test
-    void testFPChurchTrue3() {
+    void testFPChurchTrue2() {
         Exp exp = LispParser.parse("((lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))");
         Exp result = exp.accept(new Eval());
         Assertions.assertEquals("((lambda (a b) a) (lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))", result.toString());
     }
 
+    // ((lambda (a b) a)
+    //  (lambda (x) ((lambda (a b) a) x x))
+    //  (lambda (x) ((lambda (a b)a) x x)))
     @Test
-    void testFPChurchTrue4() {
+    void testFPChurchTrue3() {
         Exp exp = LispParser.parse("((lambda (a b) a) (lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))");
         Exp result = exp.accept(new Eval());
         Assertions.assertEquals("(lambda (x) ((lambda (a b) a) x x))", result.toString());
