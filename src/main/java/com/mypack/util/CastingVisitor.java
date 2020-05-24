@@ -6,11 +6,11 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.exp.Value;
 
-abstract class DefaultVisitor<E> implements ExpVisitor<E> {
+abstract class CastingVisitor<E> implements ExpVisitor<E> {
 
     final String message;
 
-    DefaultVisitor(String message) {
+    CastingVisitor(String message) {
         this.message = message;
     }
 

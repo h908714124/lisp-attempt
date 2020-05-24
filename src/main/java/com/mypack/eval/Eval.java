@@ -49,6 +49,15 @@ public class Eval implements ExpVisitor<Exp> {
         }
     }
 
+    static Exp iterEval(Exp exp) {
+        String s;
+        do {
+            s = exp.toString();
+            exp = exp.accept(new Eval());
+        } while (!exp.toString().equals(s));
+        return exp;
+    }
+
     @Override
     public Exp visitValue(Value value) {
         return value;

@@ -32,7 +32,7 @@ public class LispParser {
             if (value.matches("[-]?\\d+")) {
                 return Value.of(new BigInteger(value));
             } else {
-                return new Symbol(value);
+                return Symbol.of(value);
             }
         }
         if (input.size() == 2) {

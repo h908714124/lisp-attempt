@@ -8,8 +8,12 @@ public final class Symbol implements Exp {
 
     private final String value;
 
-    public Symbol(String value) {
+    private Symbol(String value) {
         this.value = value;
+    }
+
+    public static Symbol of(String value) {
+        return new Symbol(value);
     }
 
     public String value() {

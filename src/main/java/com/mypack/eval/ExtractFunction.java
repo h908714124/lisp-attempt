@@ -8,6 +8,7 @@ import com.mypack.exp.Symbol;
 import com.mypack.exp.Value;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.AsValue;
+import com.mypack.util.IsValue;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -50,7 +51,7 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
         if (tail.size() != 3) {
             throw new IllegalArgumentException();
         }
-        Exp tail0 = tail.get(0).accept(new Eval());
+        Exp tail0 = Eval.iterEval(tail.get(0));
         if (tail0 instanceof Value) {
             Value result = AsValue.get(tail0);
             if (result.value().equals(BigInteger.ZERO)) {
@@ -59,11 +60,14 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
                 return tail.get(2);
             }
         } else {
-            return new Sexp(new Symbol("zero?"), tail);
+            return tail.get(2);
         }
     }
 
     private Exp evalPlus(List<Exp> tail) {
+        if (!tail.stream().allMatch(IsValue::test)) {
+            return new Sexp(Symbol.of("+"), tail);
+        }
         BigInteger n = BigInteger.ZERO;
         for (Exp exp : tail) {
             n = n.add(AsValue.get(exp.accept(new Eval())).value());
@@ -72,6 +76,9 @@ public class ExtractFunction implements ExpVisitor<Function<List<Exp>, Exp>> {
     }
 
     private Exp evalTimes(List<Exp> tail) {
+        if (!tail.stream().allMatch(IsValue::test)) {
+            return new Sexp(Symbol.of("*"), tail);
+        }
         BigInteger n = BigInteger.ONE;
         for (Exp exp : tail) {
             n = n.multiply(AsValue.get(exp.accept(new Eval())).value());
