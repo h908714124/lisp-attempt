@@ -1,10 +1,8 @@
 package com.mypack.util;
 
-import com.mypack.exp.EmptySexp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.exp.Value;
 
 abstract class CastingVisitor<E> implements ExpVisitor<E> {
 
@@ -15,18 +13,8 @@ abstract class CastingVisitor<E> implements ExpVisitor<E> {
     }
 
     @Override
-    public E visitEmptySexp(EmptySexp emptySexp) {
-        throw new IllegalArgumentException(message + " but found empty sexp");
-    }
-
-    @Override
     public E visitSexp(Sexp sexp) {
         throw new IllegalArgumentException(message + " but found sexp " + sexp);
-    }
-
-    @Override
-    public E visitValue(Value value) {
-        throw new IllegalArgumentException(message + " but found value " + value);
     }
 
     @Override

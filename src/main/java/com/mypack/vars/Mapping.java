@@ -1,26 +1,19 @@
-package com.mypack.eval;
+package com.mypack.vars;
 
-import com.mypack.exp.EmptySexp;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.exp.Value;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-class BetaVisitor implements ExpVisitor<Exp> {
+public class Mapping implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> mapping;
 
-    BetaVisitor(Map<Symbol, Exp> mapping) {
+    public Mapping(Map<Symbol, Exp> mapping) {
         this.mapping = mapping;
-    }
-
-    @Override
-    public Exp visitEmptySexp(EmptySexp emptySexp) {
-        return emptySexp;
     }
 
     @Override
@@ -31,11 +24,6 @@ class BetaVisitor implements ExpVisitor<Exp> {
             newTail.add(exp.accept(this));
         }
         return new Sexp(newHead, newTail);
-    }
-
-    @Override
-    public Exp visitValue(Value value) {
-        return value;
     }
 
     @Override

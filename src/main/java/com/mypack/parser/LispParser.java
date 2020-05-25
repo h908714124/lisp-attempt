@@ -1,12 +1,9 @@
 package com.mypack.parser;
 
-import com.mypack.exp.EmptySexp;
 import com.mypack.exp.Exp;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.exp.Value;
 
-import java.math.BigInteger;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -29,14 +26,10 @@ public class LispParser {
                 throw new IllegalArgumentException();
             }
             String value = input.get(0).value();
-            if (value.matches("[-]?\\d+")) {
-                return Value.of(new BigInteger(value));
-            } else {
-                return Symbol.of(value);
-            }
+            return Symbol.of(value);
         }
         if (input.size() == 2) {
-            return EmptySexp.instance();
+            throw new IllegalArgumentException("Empty");
         }
         List<List<Token>> segments = getSegments(input);
         List<Exp> tail = new ArrayList<>();

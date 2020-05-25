@@ -1,15 +1,15 @@
 package com.mypack.util;
 
 import com.mypack.exp.Exp;
-import com.mypack.exp.Value;
+import com.mypack.exp.Symbol;
 
-public class IsValue {
+public class IsLambda {
 
     public static boolean test(Exp exp) {
         return exp.accept(new TestVisitor() {
             @Override
-            public Boolean visitValue(Value value) {
-                return true;
+            public Boolean visitSymbol(Symbol symbol) {
+                return symbol.value().equals("lambda");
             }
         });
     }

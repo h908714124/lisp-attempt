@@ -22,7 +22,7 @@ public class Vars {
         }
     }
 
-    public Map<Symbol, Exp> createMapping(List<Exp> args) {
+    public Mapping createMapping(List<Exp> args) {
         if (args.size() != symbols.size()) {
             throw new IllegalArgumentException();
         }
@@ -30,6 +30,6 @@ public class Vars {
         for (int i = 0; i < symbols.size(); i++) {
             result.put(symbols.get(i), args.get(i));
         }
-        return result;
+        return new Mapping(result);
     }
 }
