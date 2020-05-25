@@ -6,6 +6,7 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.AsSexp;
 import com.mypack.util.IsLambda;
+import com.mypack.util.IsSexp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +15,17 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        if (sexp.head() instanceof Sexp && IsLambda.test(((Sexp) sexp.head()).head())) {
-            List<Exp> lambdaTail = ((Sexp) sexp.head()).tail();
+        if (IsSexp.test(sexp.head()) && IsLambda.test(AsSexp.get(sexp.head()).head())) {
+            List<Exp> lambdaTail = AsSexp.get(sexp.head()).tail();
             return Apply.betaReduction(AsSexp.get(lambdaTail.get(0)), lambdaTail.get(1), sexp.tail());
         }
         boolean isLambda = IsLambda.test(sexp.head());
         Exp newHead = sexp.head().accept(this);
-        List<Exp> result = new ArrayList<>();
+        List<Exp> result = new ArrayList<>(sexp.tail().size());
         List<Exp> tail = sexp.tail();
         for (int i = 0; i < tail.size(); i++) {
             Exp exp = tail.get(i);
-            if (isLambda && i == 0) {
+            if (isLambda && i == 0) { // Is it an arg list?
                 result.add(exp);
             } else {
                 result.add(exp.accept(this));
