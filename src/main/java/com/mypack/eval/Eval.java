@@ -16,7 +16,7 @@ public class Eval implements ExpVisitor<Exp> {
     public Exp visitSexp(Sexp sexp) {
         if (sexp.head() instanceof Sexp && IsLambda.test(((Sexp) sexp.head()).head())) {
             List<Exp> lambdaTail = ((Sexp) sexp.head()).tail();
-            return Lambda.createLambda(AsSexp.get(lambdaTail.get(0)), lambdaTail.get(1), sexp.tail());
+            return Apply.betaReduction(AsSexp.get(lambdaTail.get(0)), lambdaTail.get(1), sexp.tail());
         }
         boolean isLambda = IsLambda.test(sexp.head());
         Exp newHead = sexp.head().accept(this);
