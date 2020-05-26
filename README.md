@@ -1,6 +1,6 @@
 ## Lisp
 
-It's actually just a lispy skin for lambda calculus.
+Lisp flavoured lambda calculus.
 
 https://en.wikipedia.org/wiki/Church_encoding
 
