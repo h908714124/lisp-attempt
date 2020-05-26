@@ -1,5 +1,8 @@
 package com.mypack.exp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Symbol implements Exp {
 
     private final String value;
@@ -8,8 +11,14 @@ public final class Symbol implements Exp {
         this.value = value;
     }
 
+    private static final Map<String, Symbol> SYMBOLS = new HashMap<>();
+
     public static Symbol of(String value) {
-        return new Symbol(value);
+        return SYMBOLS.computeIfAbsent(value, Symbol::new);
+    }
+
+    public static Symbol lambda() {
+        return of("lambda");
     }
 
     public String value() {

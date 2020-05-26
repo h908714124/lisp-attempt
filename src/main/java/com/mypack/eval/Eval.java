@@ -5,8 +5,7 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.AsSexp;
-import com.mypack.util.IsLambda;
-import com.mypack.util.IsSexp;
+import com.mypack.util.IsLambdaExpression;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,17 +14,22 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        if (IsSexp.test(sexp.head()) && IsLambda.test(AsSexp.get(sexp.head()).head())) {
-            List<Exp> lambdaTail = AsSexp.get(sexp.head()).tail();
-            return Apply.betaReduction(AsSexp.get(lambdaTail.get(0)), lambdaTail.get(1), sexp.tail());
+        if (IsLambdaExpression.test(sexp.head())) {
+            List<? extends Exp> lambdaTail = AsSexp.get(sexp.head()).tail();
+            if (lambdaTail.size() != 2) {
+                throw new IllegalArgumentException("Invalid lambda expression: " + sexp.head());
+            }
+            Sexp variableList = AsSexp.get(lambdaTail.get(0));
+            Exp lambdaBody = lambdaTail.get(1);
+            return Apply.betaReduction(variableList, lambdaBody, sexp.tail());
         }
-        boolean isLambda = IsLambda.test(sexp.head());
+        boolean isLambda = IsLambdaExpression.test(sexp);
         Exp newHead = sexp.head().accept(this);
         List<Exp> result = new ArrayList<>(sexp.tail().size());
-        List<Exp> tail = sexp.tail();
+        List<? extends Exp> tail = sexp.tail();
         for (int i = 0; i < tail.size(); i++) {
             Exp exp = tail.get(i);
-            if (isLambda && i == 0) { // Is it an arg list?
+            if (isLambda && i == 0) { // Is exp a variableList?
                 result.add(exp);
             } else {
                 result.add(exp.accept(this));
@@ -48,7 +52,7 @@ public class Eval implements ExpVisitor<Exp> {
             result.add(exp);
             n += 1;
             exp = newExp;
-        } while (!exp.toString().equals(s) && n < max);
+        } while (!exp.toString().equals(s) && n <= max);
         return result;
     }
 

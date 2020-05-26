@@ -7,15 +7,21 @@ import com.mypack.util.AsSymbol;
 import com.mypack.vars.Mapping;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 class Apply {
 
-    static Exp betaReduction(Sexp variableList, Exp body, List<Exp> args) {
+    static Exp betaReduction(Sexp variableList, Exp body, List<? extends Exp> args) {
         Mapping mapping = createMapping(variableList, args);
-        return body.accept(mapping);
+        Exp result = body.accept(mapping);
+        if (mapping.remainingSymbols().isEmpty()) {
+            return result;
+        } else { // partial application
+            return new Sexp(Symbol.lambda(), Arrays.asList(Sexp.createArgumentList(mapping.remainingSymbols()), result));
+        }
     }
 
     private static List<Symbol> createSymbols(Sexp variableList) {
@@ -27,15 +33,16 @@ class Apply {
         return symbols;
     }
 
-    private static Mapping createMapping(Sexp variableList, List<Exp> args) {
+    private static Mapping createMapping(Sexp variableList, List<? extends Exp> args) {
         List<Symbol> symbols = createSymbols(variableList);
-        if (args.size() != symbols.size()) {
-            throw new IllegalArgumentException();
+        if (args.size() > symbols.size()) {
+            throw new IllegalArgumentException("Expecting " + symbols.size() + " arguments but found " + args.toString());
         }
         Map<Symbol, Exp> result = new HashMap<>(symbols.size());
-        for (int i = 0; i < symbols.size(); i++) {
+        for (int i = 0; i < args.size(); i++) {
             result.put(symbols.get(i), args.get(i));
         }
-        return new Mapping(result);
+        List<Symbol> remainingSymbols = symbols.subList(args.size(), symbols.size());
+        return new Mapping(result, remainingSymbols);
     }
 }

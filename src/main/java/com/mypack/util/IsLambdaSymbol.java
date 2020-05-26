@@ -5,11 +5,11 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-public class IsLambda implements ExpVisitor<Boolean> {
+class IsLambdaSymbol implements ExpVisitor<Boolean> {
 
-    private static final IsLambda INSTANCE = new IsLambda();
+    private static final IsLambdaSymbol INSTANCE = new IsLambdaSymbol();
 
-    public static boolean test(Exp exp) {
+    static boolean test(Exp exp) {
         return exp.accept(INSTANCE);
     }
 
