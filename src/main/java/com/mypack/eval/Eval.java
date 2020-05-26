@@ -21,7 +21,8 @@ public class Eval implements ExpVisitor<Exp> {
             }
             Sexp variableList = AsSexp.get(lambdaTail.get(0));
             Exp lambdaBody = lambdaTail.get(1);
-            return Apply.betaReduction(variableList, lambdaBody, sexp.tail());
+            LambdaExpression lambda = LambdaExpression.create(variableList, lambdaBody);
+            return lambda.betaReduction(sexp.tail());
         }
         boolean isLambda = IsLambdaExpression.test(sexp);
         Exp newHead = sexp.head().accept(this);

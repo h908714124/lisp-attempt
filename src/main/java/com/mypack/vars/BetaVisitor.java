@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Mapping implements ExpVisitor<Exp> {
+public class BetaVisitor implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> mapping;
 
     private final List<Symbol> remainingSymbols;
 
-    public Mapping(Map<Symbol, Exp> mapping, List<Symbol> remainingSymbols) {
+    public BetaVisitor(Map<Symbol, Exp> mapping, List<Symbol> remainingSymbols) {
         this.mapping = mapping;
         this.remainingSymbols = remainingSymbols;
     }
@@ -23,7 +23,7 @@ public class Mapping implements ExpVisitor<Exp> {
     @Override
     public Exp visitSexp(Sexp sexp) {
         Exp newHead = sexp.head().accept(this);
-        ArrayList<Exp> newTail = new ArrayList<>();
+        List<Exp> newTail = new ArrayList<>();
         for (Exp exp : sexp.tail()) {
             newTail.add(exp.accept(this));
         }
