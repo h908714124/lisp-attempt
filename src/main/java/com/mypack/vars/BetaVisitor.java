@@ -13,7 +13,7 @@ public class BetaVisitor implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> mapping;
 
-    private final List<Symbol> remainingSymbols;
+    private final List<Symbol> remainingSymbols; // unfilled vars (partial application)
 
     public BetaVisitor(Map<Symbol, Exp> mapping, List<Symbol> remainingSymbols) {
         this.mapping = mapping;

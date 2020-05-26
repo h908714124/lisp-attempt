@@ -4,7 +4,6 @@ import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.util.AsSexp;
 import com.mypack.util.IsLambdaExpression;
 
 import java.util.ArrayList;
@@ -15,13 +14,7 @@ public class Eval implements ExpVisitor<Exp> {
     @Override
     public Exp visitSexp(Sexp sexp) {
         if (IsLambdaExpression.test(sexp.head())) {
-            List<? extends Exp> lambdaTail = AsSexp.get(sexp.head()).tail();
-            if (lambdaTail.size() != 2) {
-                throw new IllegalArgumentException("Invalid lambda expression: " + sexp.head());
-            }
-            Sexp variableList = AsSexp.get(lambdaTail.get(0));
-            Exp lambdaBody = lambdaTail.get(1);
-            LambdaExpression lambda = LambdaExpression.create(variableList, lambdaBody);
+            LambdaExpression lambda = LambdaExpression.create(sexp.head());
             return lambda.betaReduction(sexp.tail());
         }
         boolean isLambda = IsLambdaExpression.test(sexp);

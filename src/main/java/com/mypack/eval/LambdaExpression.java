@@ -3,7 +3,9 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
+import com.mypack.util.ContainsSymbol;
 import com.mypack.vars.BetaVisitor;
 
 import java.util.ArrayList;
@@ -24,11 +26,48 @@ class LambdaExpression {
         this.body = body;
     }
 
-    static LambdaExpression create(Sexp variableList, Exp body) {
+    private static LambdaExpression create(Sexp variableList, Exp body) {
         return new LambdaExpression(createSymbols(variableList), body);
     }
 
+    static LambdaExpression create(Exp exp) {
+        List<? extends Exp> lambdaTail = AsSexp.get(exp).tail();
+        if (lambdaTail.size() != 2) {
+            throw new IllegalArgumentException("Invalid lambda expression: " + exp);
+        }
+        Sexp variableList = AsSexp.get(lambdaTail.get(0));
+        Exp lambdaBody = lambdaTail.get(1);
+        return create(variableList, lambdaBody);
+    }
+
     Exp betaReduction(List<? extends Exp> args) {
+        List<Exp> newArgs = new ArrayList<>(args.size());
+        for (Exp arg : args) {
+            newArgs.add(cleanup(arg));
+        }
+        return doBeta(newArgs);
+    }
+
+    private Exp cleanup(Exp arg) {
+        for (Symbol symbol : symbols) {
+            if (ContainsSymbol.test(symbol, arg)) {
+                Symbol alternative = findAlternative(symbol);
+                arg = arg.accept(new BetaVisitor(Collections.singletonMap(symbol, alternative), Collections.emptyList()));
+            }
+        }
+        return arg;
+    }
+
+    private Symbol findAlternative(Symbol symbol) {
+        int current = 1;
+        Symbol result;
+        do {
+            result = Symbol.of(symbol.value() + current++);
+        } while (symbols.contains(result));
+        return result;
+    }
+
+    private Exp doBeta(List<? extends Exp> args) {
         BetaVisitor visitor = createBeta(args);
         Exp result = body.accept(visitor);
         if (visitor.remainingSymbols().isEmpty()) {
