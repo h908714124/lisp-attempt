@@ -77,19 +77,6 @@ class LambdaExpression {
         }
     }
 
-    LambdaExpression alphaConversion(Symbol a, Symbol b) {
-        Exp newBody = body.accept(new BetaVisitor(Collections.singletonMap(a, b), Collections.emptyList()));
-        List<Symbol> newSymbols = new ArrayList<>(symbols.size());
-        for (Symbol symbol : symbols) {
-            if (a.equals(symbol)) {
-                newSymbols.add(b);
-            } else {
-                newSymbols.add(symbol);
-            }
-        }
-        return new LambdaExpression(newSymbols, newBody);
-    }
-
     private static List<Symbol> createSymbols(Sexp variableList) {
         List<Symbol> symbols = new ArrayList<>();
         symbols.add(AsSymbol.get(variableList.head()));
