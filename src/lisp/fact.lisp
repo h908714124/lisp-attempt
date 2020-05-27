@@ -1,6 +1,8 @@
-(defn foobar)
+(def true ((lambda (a b) a)))
+(def false ((lambda (a b) b)))
 
-(((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) 
-  (lambda (f n) 
-    (zero? n 1 (* n (f (+ -1 n)))))) 
- (lambda (f x) (f (f x))))
+(def zero? (lambda (n) (n (lambda (x) false) true)))
+
+(zero? (lambda (f x) x))
+
+(zero? (lambda (f x) (f x)))

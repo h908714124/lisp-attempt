@@ -2,6 +2,7 @@ package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.Symbol;
+import com.mypack.parser.LispParser;
 import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsDefExpression;
@@ -14,7 +15,21 @@ public class Environment {
 
     private final Map<Symbol, Exp> definitions = new HashMap<>();
 
-    List<Exp> eval(Exp exp) {
+    public Exp eval(String exp) {
+        return eval(LispParser.parse(exp));
+    }
+
+    public Exp eval(Exp exp) {
+        List<Exp> result = iterEval(exp);
+        return result.get(result.size() - 1);
+    }
+
+    public void load(List<Exp> expressions) {
+        for (Exp expression : expressions) {
+            iterEval(expression);
+        }
+    }
+    public List<Exp> iterEval(Exp exp) {
         if (IsDefExpression.test(exp)) {
             List<? extends Exp> sexp = AsSexp.get(exp).asList();
             if (sexp.size() != 3) {
