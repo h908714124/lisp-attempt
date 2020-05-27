@@ -15,11 +15,11 @@ import java.util.Optional;
 
 public class AlphaEquivalence implements ExpVisitor<Boolean> {
 
-    public static boolean test(Exp exp1, Exp exp2) {
+    public static boolean eq(Exp exp1, Exp exp2) {
         return exp1.accept(new AlphaEquivalence(exp2));
     }
 
-    public static boolean test(String exp1, Exp exp2) {
+    public static boolean eq(String exp1, Exp exp2) {
         return LispParser.parse(exp1).accept(new AlphaEquivalence(exp2));
     }
 
