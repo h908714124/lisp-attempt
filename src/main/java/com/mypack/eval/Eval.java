@@ -29,7 +29,7 @@ public class Eval implements ExpVisitor<Exp> {
                 result.add(exp.accept(this));
             }
         }
-        return new Sexp(newHead, result);
+        return Sexp.create(newHead, result);
     }
 
     static List<Exp> iterEval(Exp exp) {

@@ -27,7 +27,7 @@ public class BetaVisitor implements ExpVisitor<Exp> {
         for (Exp exp : sexp.tail()) {
             newTail.add(exp.accept(this));
         }
-        return new Sexp(newHead, newTail);
+        return Sexp.create(newHead, newTail);
     }
 
     @Override

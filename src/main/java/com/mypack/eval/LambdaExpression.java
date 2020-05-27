@@ -6,14 +6,18 @@ import com.mypack.exp.Symbol;
 import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.ContainsSymbol;
+import com.mypack.vars.AnalysisResult;
+import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class LambdaExpression {
@@ -42,28 +46,36 @@ class LambdaExpression {
 
     Exp betaReduction(List<? extends Exp> args) {
         List<Exp> newArgs = new ArrayList<>(args.size());
+        AnalysisResult bodyResult = AnalysisVisitor.analyse(body);
+        Set<Symbol> bound = new HashSet<>(bodyResult.getBound());
+        bound.addAll(symbols);
         for (Exp arg : args) {
-            newArgs.add(cleanup(arg));
+            newArgs.add(cleanup(arg, bound, bodyResult.getUnbound()));
         }
         return doBeta(newArgs);
     }
 
-    private Exp cleanup(Exp arg) {
-        for (Symbol symbol : symbols) {
-            if (ContainsSymbol.test(symbol, arg)) {
-                Symbol alternative = findAlternative(symbol);
-                arg = arg.accept(new BetaVisitor(Collections.singletonMap(symbol, alternative), Collections.emptyList()));
+    private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
+        for (Symbol boundSymbol : bound) {
+            if (ContainsSymbol.test(boundSymbol, arg)) {
+                HashSet<Symbol> bound2 = new HashSet<>(bound);
+                HashSet<Symbol> unbound2 = new HashSet<>(unbound);
+                AnalysisResult argResult = AnalysisVisitor.analyse(arg);
+                bound2.addAll(argResult.getBound());
+                unbound2.addAll(argResult.getUnbound());
+                Symbol alternative = findAlternative(boundSymbol, bound2, unbound2);
+                arg = arg.accept(new BetaVisitor(Collections.singletonMap(boundSymbol, alternative), Collections.emptyList()));
             }
         }
         return arg;
     }
 
-    private Symbol findAlternative(Symbol symbol) {
+    private static Symbol findAlternative(Symbol symbol, Set<Symbol> bound, Set<Symbol> unbound) {
         int current = 1;
         Symbol result;
         do {
             result = Symbol.of(symbol.value() + current++);
-        } while (symbols.contains(result));
+        } while (bound.contains(result) || unbound.contains(result));
         return result;
     }
 
@@ -73,17 +85,14 @@ class LambdaExpression {
         if (visitor.remainingSymbols().isEmpty()) {
             return result;
         } else { // partial application
-            return new Sexp(Symbol.lambda(), Arrays.asList(Sexp.createArgumentList(visitor.remainingSymbols()), result));
+            return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(visitor.remainingSymbols()), result));
         }
     }
 
     private static List<Symbol> createSymbols(Sexp variableList) {
-        List<Symbol> symbols = new ArrayList<>();
-        symbols.add(AsSymbol.get(variableList.head()));
-        for (Exp exp : variableList.tail()) {
-            symbols.add(AsSymbol.get(exp));
-        }
-        return symbols;
+        return variableList.asList().stream()
+                .map(AsSymbol::get)
+                .collect(Collectors.toList());
     }
 
     private BetaVisitor createBeta(List<? extends Exp> args) {

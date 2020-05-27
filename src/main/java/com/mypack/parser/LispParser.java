@@ -38,7 +38,7 @@ public class LispParser {
             tail.add(parse(tokens));
         }
         List<Token> head = segments.get(0);
-        return new Sexp(parse(head), tail);
+        return Sexp.create(parse(head), tail);
     }
 
     static List<List<Token>> getSegments(List<Token> input) {

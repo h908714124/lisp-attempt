@@ -13,8 +13,12 @@ public class Sexp implements Exp {
         this.tail = tail;
     }
 
-    public static Sexp createArgumentList(List<? extends Exp> symbols) {
-        return new Sexp(symbols.get(0), symbols.subList(1, symbols.size()));
+    public static Sexp create(Exp head, List<? extends Exp> tail) {
+        return new Sexp(head, tail);
+    }
+
+    public static Sexp create(List<? extends Exp> list) {
+        return new Sexp(list.get(0), list.subList(1, list.size()));
     }
 
     public Exp head() {
@@ -23,6 +27,13 @@ public class Sexp implements Exp {
 
     public List<? extends Exp> tail() {
         return tail;
+    }
+
+    public List<? extends Exp> asList() {
+        List<Exp> result = new ArrayList<>(tail.size() + 1);
+        result.add(head);
+        result.addAll(tail);
+        return result;
     }
 
     @Override
