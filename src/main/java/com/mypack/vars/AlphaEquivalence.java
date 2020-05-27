@@ -1,0 +1,64 @@
+package com.mypack.vars;
+
+import com.mypack.eval.LambdaExpression;
+import com.mypack.exp.Exp;
+import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.Sexp;
+import com.mypack.exp.Symbol;
+import com.mypack.parser.LispParser;
+import com.mypack.util.AsSexp;
+import com.mypack.util.IsLambdaExpression;
+import com.mypack.util.IsSexp;
+
+import java.util.List;
+import java.util.Optional;
+
+public class AlphaEquivalence implements ExpVisitor<Boolean> {
+
+    public static boolean test(Exp exp1, Exp exp2) {
+        return exp1.accept(new AlphaEquivalence(exp2));
+    }
+
+    public static boolean test(String exp1, Exp exp2) {
+        return LispParser.parse(exp1).accept(new AlphaEquivalence(exp2));
+    }
+
+    private final Exp target;
+
+    public AlphaEquivalence(Exp target) {
+        this.target = target;
+    }
+
+    @Override
+    public Boolean visitSexp(Sexp sexp) {
+        if (IsLambdaExpression.test(sexp)) {
+            if (!IsLambdaExpression.test(target)) {
+                return false;
+            }
+            LambdaExpression thisLambda = LambdaExpression.create(sexp);
+            LambdaExpression targetLambda = LambdaExpression.create(target);
+            Optional<LambdaExpression> newTarget = targetLambda.alpha(thisLambda.symbols());
+            if (newTarget.isEmpty()) {
+                return false;
+            }
+            return thisLambda.body().accept(new AlphaEquivalence(newTarget.get().body()));
+        }
+        if (!IsSexp.test(target)) {
+            return false;
+        }
+        List<? extends Exp> targetSexp = AsSexp.get(target).asList();
+        List<? extends Exp> asList = sexp.asList();
+        for (int i = 0; i < asList.size(); i++) {
+            Exp exp = asList.get(i);
+            if (!exp.accept(new AlphaEquivalence(targetSexp.get(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public Boolean visitSymbol(Symbol symbol) {
+        return symbol.equals(target);
+    }
+}

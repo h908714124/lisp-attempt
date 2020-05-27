@@ -17,15 +17,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class LambdaExpression {
+public class LambdaExpression {
 
     private final List<Symbol> symbols;
     private final Exp body;
 
     LambdaExpression(List<Symbol> symbols, Exp body) {
+        if (new HashSet<>(symbols).size() < symbols.size()) {
+            throw new IllegalArgumentException("Symbols are not unique: " + symbols);
+        }
         this.symbols = symbols;
         this.body = body;
     }
@@ -34,7 +38,7 @@ class LambdaExpression {
         return new LambdaExpression(createSymbols(variableList), body);
     }
 
-    static LambdaExpression create(Exp exp) {
+    public static LambdaExpression create(Exp exp) {
         List<? extends Exp> lambdaTail = AsSexp.get(exp).tail();
         if (lambdaTail.size() != 2) {
             throw new IllegalArgumentException("Invalid lambda expression: " + exp);
@@ -112,5 +116,31 @@ class LambdaExpression {
         return symbols.stream().map(Symbol::toString)
                 .collect(Collectors.joining(", ", "(lambda (", ") ")) +
                 body + ")";
+    }
+
+    public Optional<LambdaExpression> alpha(List<Symbol> newSymbols) {
+        if (newSymbols.size() != symbols.size()) {
+            return Optional.empty();
+        }
+        Map<Symbol, Exp> map = new HashMap<>();
+        for (int i = 0; i < symbols.size(); i++) {
+            Symbol symbol = symbols.get(i);
+            Symbol newSymbol = newSymbols.get(i);
+            map.put(symbol, newSymbol);
+        }
+        Exp newBody = body.accept(new BetaVisitor(map, Collections.emptyList()));
+        return Optional.of(new LambdaExpression(newSymbols, newBody));
+    }
+
+    public Exp toExp() {
+        return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
+    }
+
+    public List<Symbol> symbols() {
+        return symbols;
+    }
+
+    public Exp body() {
+        return body;
     }
 }
