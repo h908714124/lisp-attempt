@@ -14,7 +14,15 @@ import java.util.Map;
 public class LispParser {
 
     public static Exp parse(String input) {
-        return parse(tokens(input));
+        return parseList(input).get(0);
+    }
+
+    public static List<Exp> parseList(String input) {
+        List<Exp> result = new ArrayList<>();
+        for (List<Token> tokens : tokens(input)) {
+            result.add(parse(tokens));
+        }
+        return result;
     }
 
     static Exp parse(List<Token> input) {
@@ -59,12 +67,18 @@ public class LispParser {
         return result;
     }
 
-    static List<Token> tokens(String input) {
-        List<Token> result = new ArrayList<>();
+    static List<List<Token>> tokens(String input) {
+        List<List<Token>> result = new ArrayList<>();
         while (!input.isEmpty()) {
-            Map.Entry<Token, String> next = readNextToken(input);
-            result.add(next.getKey());
-            input = next.getValue();
+            List<Token> exp = new ArrayList<>();
+            int height = 0;
+            do {
+                Map.Entry<Token, String> next = readNextToken(input);
+                exp.add(next.getKey());
+                input = next.getValue();
+                height += next.getKey().height();
+            } while (height > 0);
+            result.add(exp);
         }
         return result;
     }

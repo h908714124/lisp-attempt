@@ -9,7 +9,7 @@ import java.util.List;
 import static com.mypack.vars.AlphaEquivalence.eq;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TestChurchNumeral {
+class TestIsZero {
 
     @Test
     void testCheckZero0() {
