@@ -15,7 +15,15 @@ public class Eval implements ExpVisitor<Exp> {
     public Exp visitSexp(Sexp sexp) {
         if (IsLambdaExpression.test(sexp.head())) {
             LambdaExpression lambda = LambdaExpression.create(sexp.head());
-            return lambda.apply(sexp.tail());
+            if (lambda.symbols().isEmpty()) {
+                throw new AssertionError("No symbols: " + sexp.head());
+            }
+            List<? extends Exp> args = sexp.tail();
+            try {
+                return lambda.apply(args);
+            } catch (Exception e) {
+                throw new RuntimeException("Bad sexp: " + sexp, e);
+            }
         }
         boolean isLambda = IsLambdaExpression.test(sexp);
         Exp newHead = sexp.head().accept(this);

@@ -41,29 +41,11 @@ class LambdaTest {
 
     @Test
     void testFact1() {
-        Exp exp = LispParser.parse("(((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) (lambda (f n) (zero? n 1 (* n (f (pred n)))))) 2)");
+        Exp exp = LispParser.parse("((lambda (x12) ((lambda (f11 n2) ((n2 (lambda (x10) (lambda (a5 b5) b5)) " +
+                "(lambda (a4 b4) a4)) (lambda (f10 x14) (f10 x14)) (lambda (f4 x11) (n2 ((f11 (lambda (f9 x13) " +
+                "((n2 (lambda (g2 h2) (h2 (g2 f9))) (lambda (u4) x13)) (lambda (u5) u5)))) f4) x11)))) x12 x12)) " +
+                "(lambda (x4) (lambda (a1 b1) b1)) (lambda (a b) a))");
         Exp result = Eval.iterEval(exp).get(1);
-        Assertions.assertEquals("(((lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x))) 2)", result.toString());
-    }
-
-    @Test
-    void testFact2() {
-        Exp exp = LispParser.parse("(((lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x))) 2)");
-        Exp result = Eval.iterEval(exp).get(1);
-        Assertions.assertEquals("(((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x))) 2)", result.toString());
-    }
-
-    @Test
-    void testFact3() {
-        Exp exp = LispParser.parse("(((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x))) 2)");
-        Exp result = Eval.iterEval(exp).get(1);
-        Assertions.assertEquals("((zero? (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) 1 (* (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) ((lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (+ -1 (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)))))) 2)", result.toString());
-    }
-
-    @Test
-    void testFact4() {
-        Exp exp = LispParser.parse("((zero? (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) 1 (* (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) ((lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (+ -1 (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)))))) 2)");
-        Exp result = Eval.iterEval(exp).get(1);
-        Assertions.assertEquals("((* (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) ((lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x)) (+ -1 (lambda (x) ((lambda (f n) (zero? n 1 (* n (f (+ -1 n))))) x x))))) 2)", result.toString());
+        Assertions.assertEquals("", result.toString());
     }
 }

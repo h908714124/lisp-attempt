@@ -35,8 +35,8 @@ public class Environment {
         return iterEval(LispParser.parse(exp), max);
     }
 
-    public List<Exp> iterEval(Exp exp, int max) {
-        exp = resolve(exp);
+    public List<Exp> iterEval(Exp unresolvedExp, int max) {
+        Exp exp = resolve(unresolvedExp);
         if (IsDefExpression.test(exp)) {
             List<? extends Exp> sexp = AsSexp.get(exp).asList();
             if (sexp.size() != 3) {
@@ -50,22 +50,14 @@ public class Environment {
         return Eval.iterEval(exp, max);
     }
 
-    public Exp resolve(String input) {
-        return resolve(LispParser.parse(input));
-    }
-
-    public Exp resolve(Exp exp) {
+    private Exp resolve(Exp exp) {
         for (Map.Entry<Symbol, Exp> e : definitions.entrySet()) {
             exp = resolve(exp, e.getKey());
         }
         return exp;
     }
 
-    public Exp resolve(String exp, String symbol) {
-        return resolve(LispParser.parse(exp), Symbol.of(symbol));
-    }
-
-    public Exp resolve(Exp exp, Symbol symbol) {
+    private Exp resolve(Exp exp, Symbol symbol) {
         return new LambdaExpression(Collections.singletonList(symbol), exp)
                 .apply(Collections.singletonList(definitions.get(symbol)));
     }
