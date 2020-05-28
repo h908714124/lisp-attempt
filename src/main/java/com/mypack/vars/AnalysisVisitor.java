@@ -17,6 +17,9 @@ public class AnalysisVisitor implements ExpVisitor<Void> {
 
     private final Set<Symbol> unbound = new HashSet<>();
 
+    private AnalysisVisitor() {
+    }
+
     @Override
     public Void visitSexp(Sexp sexp) {
         if (IsLambdaExpression.test(sexp)) {

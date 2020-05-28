@@ -15,11 +15,11 @@ public class AnalysisResult {
         this.unbound = Set.copyOf(unbound);
     }
 
-    public Set<Symbol> getBound() {
+    public Set<Symbol> bound() {
         return bound;
     }
 
-    public Set<Symbol> getUnbound() {
+    public Set<Symbol> unbound() {
         return unbound;
     }
 }

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,35 +52,48 @@ public class LambdaExpression {
     Exp betaReduction(List<? extends Exp> args) {
         List<Exp> newArgs = new ArrayList<>(args.size());
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body);
-        Set<Symbol> bound = new HashSet<>(bodyResult.getBound());
+        Set<Symbol> bound = new HashSet<>(bodyResult.bound());
         bound.addAll(symbols);
         for (Exp arg : args) {
-            newArgs.add(cleanup(arg, bound, bodyResult.getUnbound()));
+            newArgs.add(cleanup(arg, bound, bodyResult.unbound()));
         }
         return doBeta(newArgs);
     }
 
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
-        for (Symbol boundSymbol : bound) {
-            if (ContainsSymbol.test(boundSymbol, arg)) {
-                HashSet<Symbol> bound2 = new HashSet<>(bound);
-                HashSet<Symbol> unbound2 = new HashSet<>(unbound);
-                AnalysisResult argResult = AnalysisVisitor.analyse(arg);
-                bound2.addAll(argResult.getBound());
-                unbound2.addAll(argResult.getUnbound());
-                Symbol alternative = findAlternative(boundSymbol, bound2, unbound2);
-                arg = arg.accept(new BetaVisitor(Collections.singletonMap(boundSymbol, alternative), Collections.emptyList()));
-            }
+        Set<Symbol> reserved = union(bound, unbound);
+        for (Symbol symbol : bound) {
+            arg = removeSymbol(arg, symbol, reserved);
         }
         return arg;
     }
 
-    private static Symbol findAlternative(Symbol symbol, Set<Symbol> bound, Set<Symbol> unbound) {
+    static Exp removeSymbol(Exp arg, Symbol symbol, Set<Symbol> reserved) {
+        if (ContainsSymbol.test(symbol, arg)) {
+            AnalysisResult argResult = AnalysisVisitor.analyse(arg);
+            Set<Symbol> reservedArg = union(argResult.bound(), argResult.unbound());
+            Symbol alternative = findAlternative(symbol, union(reserved, reservedArg));
+            arg = arg.accept(new BetaVisitor(Collections.singletonMap(symbol, alternative), Collections.emptyList()));
+        }
+        if (ContainsSymbol.test(symbol, arg)) { // remove this later
+            throw new AssertionError();
+        }
+        return arg;
+    }
+
+    static Set<Symbol> union(Set<Symbol> a, Set<Symbol> b) {
+        Set<Symbol> result = new LinkedHashSet<>(a.size() + b.size());
+        result.addAll(a);
+        result.addAll(b);
+        return result;
+    }
+
+    private static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
         int current = 1;
         Symbol result;
         do {
             result = Symbol.of(symbol.value() + current++);
-        } while (bound.contains(result) || unbound.contains(result));
+        } while (reserved.contains(result));
         return result;
     }
 

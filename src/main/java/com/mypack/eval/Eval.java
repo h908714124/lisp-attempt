@@ -5,19 +5,25 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
+import com.mypack.vars.AnalysisResult;
+import com.mypack.vars.AnalysisVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Eval implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> definitions;
 
-    public Eval(Map<Symbol, Exp> definitions) {
+    public Eval(Map<Symbol, Exp> definitions, Exp exp) {
         this.definitions = definitions;
+        this.exp = exp;
     }
+
+    private final Exp exp;
 
     @Override
     public Exp visitSexp(Sexp sexp) {
@@ -54,7 +60,7 @@ public class Eval implements ExpVisitor<Exp> {
         String s;
         do {
             s = exp.toString();
-            Exp newExp = exp.accept(new Eval(definitions));
+            Exp newExp = exp.accept(new Eval(definitions, exp));
             result.add(exp);
             n += 1;
             exp = newExp;
@@ -66,7 +72,13 @@ public class Eval implements ExpVisitor<Exp> {
     public Exp visitSymbol(Symbol symbol) {
         Exp definition = definitions.get(symbol);
         if (definition != null) {
-            // TODO alpha
+            AnalysisResult r1 = AnalysisVisitor.analyse(exp);
+            AnalysisResult r2 = AnalysisVisitor.analyse(definition);
+            Set<Symbol> reserved = LambdaExpression.union(r1.bound(), r1.unbound());
+            for (Symbol s : reserved) {
+                definition = LambdaExpression.removeSymbol(definition, s,
+                        LambdaExpression.union(reserved, LambdaExpression.union(r2.bound(), r2.unbound())));
+            }
             return definition;
         }
         return symbol;
