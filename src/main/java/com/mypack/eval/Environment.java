@@ -20,26 +20,31 @@ public class Environment {
     }
 
     public Exp eval(Exp exp) {
-        List<Exp> result = iterEval(exp);
+        List<Exp> result = iterEval(exp, 100);
         return result.get(result.size() - 1);
     }
 
     public void load(List<Exp> expressions) {
         for (Exp expression : expressions) {
-            iterEval(expression);
+            iterEval(expression, 100);
         }
     }
-    public List<Exp> iterEval(Exp exp) {
+
+    public List<Exp> iterEval(String exp, int max) {
+        return iterEval(LispParser.parse(exp), max);
+    }
+
+    public List<Exp> iterEval(Exp exp, int max) {
         if (IsDefExpression.test(exp)) {
             List<? extends Exp> sexp = AsSexp.get(exp).asList();
             if (sexp.size() != 3) {
                 throw new IllegalArgumentException("Expecting 2 arguments but found " + (sexp.size() - 1));
             }
             Symbol symbol = AsSymbol.get(sexp.get(1));
-            List<Exp> results = Eval.iterEval(sexp.get(2), 100, definitions);
+            List<Exp> results = Eval.iterEval(sexp.get(2), max, definitions);
             definitions.put(symbol, results.get(results.size() - 1));
             return results;
         }
-        return Eval.iterEval(exp, 100, definitions);
+        return Eval.iterEval(exp, max, definitions);
     }
 }

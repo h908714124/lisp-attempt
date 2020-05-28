@@ -3,6 +3,9 @@
 
 (def zero? (lambda (n) (n (lambda (x) false) true)))
 
-(zero? (lambda (f x) x))
+(def * (lambda (m n) (lambda (f x) (m (n f) x))))
 
-(zero? (lambda (f x) (f x)))
+(def pred (lambda (n) (lambda (f x) ((n (lambda (g h) (h (g f))) (lambda (u) x)) (lambda (u1) u1)))))
+
+(def 1 (lambda (f x) (f x)))
+
