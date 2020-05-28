@@ -10,7 +10,6 @@ import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,15 +48,27 @@ public class LambdaExpression {
         return create(variableList, lambdaBody);
     }
 
-    Exp betaReduction(List<? extends Exp> args) {
-        List<Exp> newArgs = new ArrayList<>(args.size());
+    Exp apply(List<? extends Exp> args) {
+        LambdaExpression result = this;
+        for (Exp arg : args) {
+            Exp newBody = result.apply(arg);
+            List<Symbol> newSymbols = result.symbols.subList(1, result.symbols.size());
+            result = new LambdaExpression(newSymbols, newBody);
+        }
+        return result.toExp();
+    }
+
+    Exp apply(Exp arg) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body);
         Set<Symbol> bound = new HashSet<>(bodyResult.bound());
         bound.addAll(symbols);
-        for (Exp arg : args) {
-            newArgs.add(cleanup(arg, bound, bodyResult.unbound()));
-        }
-        return doBeta(newArgs);
+        Exp cleanArg = cleanup(arg, bound, bodyResult.unbound());
+        return doBeta(cleanArg);
+    }
+
+    private Exp doBeta(Exp arg) {
+        BetaVisitor visitor = createBetaVisitor(arg);
+        return body.accept(visitor);
     }
 
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
@@ -97,31 +108,15 @@ public class LambdaExpression {
         return result;
     }
 
-    private Exp doBeta(List<? extends Exp> args) {
-        BetaVisitor visitor = createBeta(args);
-        Exp result = body.accept(visitor);
-        if (visitor.remainingSymbols().isEmpty()) {
-            return result;
-        } else { // partial application
-            return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(visitor.remainingSymbols()), result));
-        }
-    }
-
     private static List<Symbol> createSymbols(Sexp variableList) {
         return variableList.asList().stream()
                 .map(AsSymbol::get)
                 .collect(Collectors.toList());
     }
 
-    private BetaVisitor createBeta(List<? extends Exp> args) {
-        if (args.size() > symbols.size()) {
-            throw new IllegalArgumentException("Expecting " + symbols.size() + " arguments but found " + args.toString());
-        }
-        Map<Symbol, Exp> result = new HashMap<>(symbols.size());
-        for (int i = 0; i < args.size(); i++) {
-            result.put(symbols.get(i), args.get(i));
-        }
-        List<Symbol> remainingSymbols = symbols.subList(args.size(), symbols.size());
+    private BetaVisitor createBetaVisitor(Exp args) {
+        Map<Symbol, Exp> result = Collections.singletonMap(symbols.get(0), args);
+        List<Symbol> remainingSymbols = symbols.subList(1, symbols.size());
         return new BetaVisitor(result, remainingSymbols);
     }
 
@@ -147,6 +142,9 @@ public class LambdaExpression {
     }
 
     public Exp toExp() {
+        if (symbols.isEmpty()) {
+            return body;
+        }
         return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
     }
 

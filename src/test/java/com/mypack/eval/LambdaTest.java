@@ -18,11 +18,25 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        env.eval("(def fact (lambda (f n) ((zero? n) 1 (* n (f (pred n))))))");
-        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) fact) 2)", 3);
-        Assertions.assertEquals("(((lambda (x) (fact x x)) (lambda (x) (fact x x))) 2)", exp.get(1).toString());
-        Assertions.assertEquals("((fact (lambda (x1) (fact x1 x1)) (lambda (x1) (fact x1 x1))) 2)", exp.get(2).toString());
-        Assertions.assertEquals("(((lambda (f n) ((n (lambda (x) (lambda (a b) b)) (lambda (a b) a)) (lambda (f1 x) (f1 x)) (lambda (f1 x) (n ((f (lambda (f11 x11) ((n (lambda (g h) (h (g f11))) (lambda (u) x11)) (lambda (u1) u1)))) f1) x)))) (lambda (x1) ((lambda (f n) ((n (lambda (x) (lambda (a b) b)) (lambda (a b) a)) (lambda (f1 x) (f1 x)) (lambda (f1 x) (n ((f (lambda (f11 x11) ((n (lambda (g h) (h (g f11))) (lambda (u) x11)) (lambda (u1) u1)))) f1) x)))) x1 x1)) (lambda (x1) ((lambda (f n) ((n (lambda (x) (lambda (a b) b)) (lambda (a b) a)) (lambda (f1 x) (f1 x)) (lambda (f1 x) (n ((f (lambda (f11 x11) ((n (lambda (g h) (h (g f11))) (lambda (u) x11)) (lambda (u1) u1)))) f1) x)))) x1 x1))) 2)", exp.get(3).toString());
+        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x1) (f x1 x1)))) fact) 2)", 19);
+        Assertions.assertEquals("", exp.get(1).toString());
+        Assertions.assertEquals("", exp.get(2).toString());
+        Assertions.assertEquals("", exp.get(3).toString());
+        Assertions.assertEquals("", exp.get(4).toString());
+        Assertions.assertEquals("", exp.get(5).toString());
+        Assertions.assertEquals("", exp.get(7).toString());
+        Assertions.assertEquals("", exp.get(8).toString());
+        Assertions.assertEquals("", exp.get(9).toString());
+        Assertions.assertEquals("", exp.get(10).toString());
+        Assertions.assertEquals("", exp.get(11).toString());
+        Assertions.assertEquals("", exp.get(12).toString());
+        Assertions.assertEquals("", exp.get(13).toString());
+        Assertions.assertEquals("", exp.get(14).toString());
+        Assertions.assertEquals("", exp.get(15).toString());
+        Assertions.assertEquals("", exp.get(16).toString());
+        Assertions.assertEquals("", exp.get(17).toString());
+        Assertions.assertEquals("", exp.get(18).toString());
+        Assertions.assertEquals("", exp.get(19).toString());
     }
 
     @Test

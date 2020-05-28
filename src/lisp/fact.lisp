@@ -9,3 +9,4 @@
 
 (def 1 (lambda (f x) (f x)))
 
+(def fact (lambda (f n) ((zero? n) 1 (* n (f (pred n))))))
