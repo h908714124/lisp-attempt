@@ -18,7 +18,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x1) (f x1 x1)))) fact) 2)", 19);
+        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x1) (f x1 x1)))) fact) 2)", 2);
         Assertions.assertEquals("", exp.get(1).toString());
         Assertions.assertEquals("", exp.get(2).toString());
         Assertions.assertEquals("", exp.get(3).toString());
