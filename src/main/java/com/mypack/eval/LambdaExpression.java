@@ -5,10 +5,10 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
-import com.mypack.util.ContainsSymbol;
 import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
+import com.mypack.vars.Boundness;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public class LambdaExpression {
     Exp apply(Exp arg) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body);
         Set<Symbol> bound = new HashSet<>(bodyResult.bound());
-        bound.addAll(symbols);
+        bound.addAll(symbols.subList(1, symbols.size()));
         Exp cleanArg = cleanup(arg, bound, bodyResult.unbound());
         return doBeta(cleanArg);
     }
@@ -82,13 +82,13 @@ public class LambdaExpression {
     }
 
     static Exp removeSymbol(Exp arg, Symbol symbol, Set<Symbol> reserved) {
-        if (ContainsSymbol.test(symbol, arg)) {
+        if (Boundness.test(arg, symbol)) {
             AnalysisResult argResult = AnalysisVisitor.analyse(arg);
             Set<Symbol> reservedArg = union(argResult.bound(), argResult.unbound());
             Symbol alternative = findAlternative(symbol, union(reserved, reservedArg));
             arg = arg.accept(new BetaVisitor(Collections.singletonMap(symbol, alternative), Collections.emptyList()));
         }
-        if (ContainsSymbol.test(symbol, arg)) { // remove this later
+        if (Boundness.test(arg, symbol)) { // remove this later
             throw new AssertionError();
         }
         return arg;

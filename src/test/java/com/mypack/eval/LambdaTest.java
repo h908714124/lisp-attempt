@@ -18,9 +18,9 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x1) (f x1 x1)))) fact) 2)", 2);
-        Assertions.assertEquals("", exp.get(1).toString());
-        Assertions.assertEquals("", exp.get(2).toString());
+        List<Exp> exp = env.iterEval("(((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) fact) 2)", 2);
+        Assertions.assertEquals("(((lambda (x) ((lambda (f4 n) ((n (lambda (x4) (lambda (a1 b1) b1)) (lambda (a b) a)) (lambda (f3 x3) (f3 x3)) (lambda (f5 x5) (n ((f4 (lambda (f2 x2) ((n (lambda (g h) (h (g f2))) (lambda (u) x2)) (lambda (u1) u1)))) f5) x5)))) x x)) (lambda (x) ((lambda (f4 n) ((n (lambda (x4) (lambda (a1 b1) b1)) (lambda (a b) a)) (lambda (f3 x3) (f3 x3)) (lambda (f5 x5) (n ((f4 (lambda (f2 x2) ((n (lambda (g h) (h (g f2))) (lambda (u) x2)) (lambda (u1) u1)))) f5) x5)))) x x))) (lambda (f1 x1) (f1 (f1 x1))))", exp.get(1).toString());
+        Assertions.assertEquals("(((lambda (f4 n) ((n (lambda (x4) (lambda (a1 b1) b1)) (lambda (a b) a)) (lambda (f3 x3) (f3 x3)) (lambda (f5 x5) (n ((f4 (lambda (f2 x2) ((n (lambda (g h) (h (g f2))) (lambda (u) x2)) (lambda (u1) u1)))) f5) x5)))) (lambda (x) ((lambda (f7 n1) ((n1 (lambda (x7) (lambda (a3 b3) b3)) (lambda (a2 b2) a2)) (lambda (f6 x6) (f6 x6)) (lambda (f8 x8) (n1 ((f7 (lambda (f1 x1) ((n1 (lambda (g1 h1) (h1 (g1 f1))) (lambda (u2) x1)) (lambda (u3) u3)))) f8) x8)))) x x)) (lambda (x) ((lambda (f7 n1) ((n1 (lambda (x7) (lambda (a3 b3) b3)) (lambda (a2 b2) a2)) (lambda (f6 x6) (f6 x6)) (lambda (f8 x8) (n1 ((f7 (lambda (f1 x1) ((n1 (lambda (g1 h1) (h1 (g1 f1))) (lambda (u2) x1)) (lambda (u3) u3)))) f8) x8)))) x x))) (lambda (f1 x1) (f1 (f1 x1))))", exp.get(2).toString());
         Assertions.assertEquals("", exp.get(3).toString());
         Assertions.assertEquals("", exp.get(4).toString());
         Assertions.assertEquals("", exp.get(5).toString());
