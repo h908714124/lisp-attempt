@@ -13,6 +13,9 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
+        if (sexp.size() == 1) {
+            return sexp.head();
+        }
         if (IsLambdaExpression.test(sexp.head())) {
             LambdaExpression lambda = LambdaExpression.create(sexp.head());
             if (lambda.symbols().isEmpty()) {
