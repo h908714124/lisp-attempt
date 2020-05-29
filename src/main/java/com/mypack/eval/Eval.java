@@ -19,11 +19,16 @@ public class Eval implements ExpVisitor<Exp> {
                 throw new AssertionError("No symbols: " + sexp.head());
             }
             List<? extends Exp> args = sexp.tail();
-            try {
-                return lambda.apply(args);
-            } catch (Exception e) {
-                throw new RuntimeException("Bad sexp: " + sexp, e);
+            for (int i = 0; i < args.size(); i++) {
+                Exp arg = args.get(i);
+                Exp newBody = lambda.apply(arg);
+                List<Symbol> newSymbols = lambda.symbols().subList(1, lambda.symbols().size());
+                if (newSymbols.isEmpty()) {
+                    return Sexp.create(newBody, args.subList(i + 1, args.size()));
+                }
+                lambda = new LambdaExpression(newSymbols, newBody);
             }
+            return lambda.toExp();
         }
         boolean isLambda = IsLambdaExpression.test(sexp);
         Exp newHead = sexp.head().accept(this);
