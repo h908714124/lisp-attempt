@@ -1,10 +1,7 @@
 package com.mypack.exp;
 
-import com.mypack.vars.Freshness;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Sexp implements Exp {
 
@@ -18,10 +15,10 @@ public class Sexp implements Exp {
 
     public static Sexp create(Exp head, List<? extends Exp> tail) {
         Sexp result = new Sexp(head, tail);
-        Optional<Symbol> symbol = Freshness.test(result);
-        if (symbol.isPresent()) {
-            throw new AssertionError("Non-fresh in " + result + ": " + symbol.get());
-        }
+//        Optional<Symbol> symbol = Freshness.test(result);
+//        if (symbol.isPresent()) {
+//            throw new AssertionError("Non-fresh in " + result + ": " + symbol.get());
+//        }
         return result;
     }
 

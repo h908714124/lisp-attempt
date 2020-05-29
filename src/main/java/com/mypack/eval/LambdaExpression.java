@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -27,6 +28,9 @@ public class LambdaExpression {
 
     private final List<Symbol> symbols;
     private final Exp body;
+
+    private static AtomicInteger current = new AtomicInteger(1);
+
 
     LambdaExpression(List<Symbol> symbols, Exp body) {
         if (new HashSet<>(symbols).size() < symbols.size()) {
@@ -102,14 +106,13 @@ public class LambdaExpression {
     }
 
     private static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
-        int current = 1;
         Matcher matcher = Pattern.compile("([a-z]+)([0-9]+)").matcher(symbol.value());
         if (matcher.matches()) {
             symbol = Symbol.of(matcher.group(1));
         }
         Symbol result;
         do {
-            result = Symbol.of(symbol.value() + current++);
+            result = Symbol.of(symbol.value() + current.getAndIncrement());
         } while (reserved.contains(result));
         return result;
     }

@@ -20,7 +20,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(((lambda (f) ((lambda (x) (x x)) (lambda (x) (f (x x))))) fact) (lambda (f x) x))");
+        Exp exp = env.eval("((Y fact) (lambda (f x) x))");
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
     }
 
@@ -30,7 +30,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(((lambda (f) ((lambda (x) (x x)) (lambda (x) (f (x x))))) fact) (lambda (f x) (f x)))");
+        Exp exp = env.eval("((Y fact) (lambda (f x) (f x)))");
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
     }
 
@@ -40,7 +40,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(((lambda (f) ((lambda (x) (x x)) (lambda (x) (f (x x))))) fact) (lambda (f x) (f (f x))))");
+        Exp exp = env.eval("((Y fact) (lambda (f x) (f (f x))))");
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f x)))", exp));
     }
 }

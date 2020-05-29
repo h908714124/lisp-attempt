@@ -13,7 +13,7 @@ public class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        if (sexp.size() == 1) {
+        if (sexp.tail().isEmpty()) {
             return sexp.head();
         }
         if (IsLambdaExpression.test(sexp.head())) {
@@ -27,7 +27,12 @@ public class Eval implements ExpVisitor<Exp> {
                 Exp newBody = lambda.apply(arg);
                 List<Symbol> newSymbols = lambda.symbols().subList(1, lambda.symbols().size());
                 if (newSymbols.isEmpty()) {
-                    return Sexp.create(newBody, args.subList(i + 1, args.size()));
+                    List<? extends Exp> newTail = args.subList(i + 1, args.size());
+                    if (newTail.isEmpty()) {
+                        return newBody;
+                    } else {
+                        return Sexp.create(newBody, newTail);
+                    }
                 }
                 lambda = new LambdaExpression(newSymbols, newBody);
             }
