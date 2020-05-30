@@ -7,9 +7,6 @@
 
 (def pred (lambda (n) (lambda (f x) ((n (lambda (g h) (h (g f))) (lambda (u) x)) (lambda (u) u)))))
 
-(def 1 (lambda (f x) (f x)))
-(def 2 (lambda (f x) (f (f x))))
-
 (def Y (lambda (f) ((lambda (x) (x x)) (lambda (x) (f (x x))))))
 
 (def fact1 (lambda (f n) ((zero? n) 1 (* n (f (pred n))))))

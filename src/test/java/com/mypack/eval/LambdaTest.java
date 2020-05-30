@@ -2,15 +2,15 @@ package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import com.mypack.parser.LispParser;
-import com.mypack.vars.AlphaEquivalence;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+
+import static com.mypack.vars.AlphaEquivalence.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LambdaTest {
 
@@ -21,8 +21,8 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(fact (lambda (f x) x))");
-        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
+        Exp exp = env.eval("(fact 0)");
+        assertTrue(eq(env.eval("1"), exp));
     }
 
     @Test
@@ -31,8 +31,8 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(fact (lambda (f x) (f x)))");
-        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
+        Exp exp = env.eval("(fact 1)");
+        assertTrue(eq(env.eval("1"), exp));
     }
 
     @Test
@@ -41,8 +41,8 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval(LispParser.parse("(fact (lambda (f x) (f (f x))))"), 100);
-        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f x)))", exp.get(exp.size() - 1)));
+        Exp exp = env.eval("(fact 2)");
+        assertTrue(eq(env.eval("2"), exp));
     }
 
     @Test
@@ -51,18 +51,17 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("(fact (lambda (f x) (f (f x))))");
-        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f x)))", exp));
+        Exp exp = env.eval("(fact 2)");
+        assertTrue(eq(env.eval("2"), exp));
     }
 
-    @Disabled("slow")
     @Test
     void testFact3() throws IOException {
         String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval(LispParser.parse("((Y fact1) (lambda (f x) (f (f (f x)))))"), 10000);
-        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f (f (f (f (f x)))))))", exp.get(exp.size() - 1)));
+        Exp exp = env.eval("(fact 3)");
+        assertTrue(eq(env.eval("6"), exp));
     }
 }

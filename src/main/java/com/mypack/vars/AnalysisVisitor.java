@@ -30,7 +30,7 @@ public class AnalysisVisitor implements ExpVisitor<Void> {
             variableList.stream()
                     .map(AsSymbol::get)
                     .forEach(bound::add);
-            sexp.tail().get(1).accept(this);
+            lambda.get().body().accept(this);
             return null;
         }
         for (Exp exp : sexp.asList()) {
