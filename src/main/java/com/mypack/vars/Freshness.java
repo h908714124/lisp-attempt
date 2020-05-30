@@ -1,15 +1,16 @@
 package com.mypack.vars;
 
+import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsLambdaExpression;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,10 +29,11 @@ public class Freshness implements ExpVisitor<Optional<Symbol>> {
 
     @Override
     public Optional<Symbol> visitSexp(Sexp sexp) {
-        if (IsLambdaExpression.test(sexp)) {
-            Sexp symbols = AsSexp.get(sexp.tail().get(0));
+        Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
+        if (lambda.isPresent()) {
+            List<Symbol> symbols = lambda.get().symbols();
             Set<Symbol> newSeen = new HashSet<>(seen);
-            for (Exp symbol : symbols.asList()) {
+            for (Exp symbol : symbols) {
                 Symbol sym = AsSymbol.get(symbol);
                 if (!newSeen.add(sym)) {
                     return Optional.of(sym);

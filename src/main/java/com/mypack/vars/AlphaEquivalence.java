@@ -31,17 +31,17 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
 
     @Override
     public Boolean visitSexp(Sexp sexp) {
-        if (IsLambdaExpression.test(sexp)) {
-            if (!IsLambdaExpression.test(target)) {
+        Optional<LambdaExpression> thisLambda = IsLambdaExpression.test(sexp);
+        if (thisLambda.isPresent()) {
+            Optional<LambdaExpression> targetLambda = IsLambdaExpression.test(target);
+            if (targetLambda.isEmpty()) {
                 return false;
             }
-            LambdaExpression thisLambda = LambdaExpression.create(sexp);
-            LambdaExpression targetLambda = LambdaExpression.create(target);
-            Optional<LambdaExpression> newTarget = targetLambda.alpha(thisLambda.symbols());
+            Optional<LambdaExpression> newTarget = targetLambda.get().alpha(thisLambda.get().symbols());
             if (newTarget.isEmpty()) {
                 return false;
             }
-            return thisLambda.body().accept(new AlphaEquivalence(newTarget.get().body()));
+            return thisLambda.get().body().accept(new AlphaEquivalence(newTarget.get().body()));
         }
         if (!IsSexp.test(target)) {
             return false;

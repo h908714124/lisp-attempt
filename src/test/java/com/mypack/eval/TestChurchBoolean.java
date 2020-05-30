@@ -4,11 +4,6 @@ import com.mypack.exp.Exp;
 import com.mypack.parser.LispParser;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
 import static com.mypack.vars.AlphaEquivalence.eq;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,12 +24,9 @@ class TestChurchBoolean {
     }
 
     @Test
-    void testFPChurchTrue1() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
-        List<Exp> expressions = LispParser.parseList(data);
+    void testFPChurchTrue1() {
         Environment env = new Environment();
-        env.load(expressions);
-        Exp result = new Environment().eval("((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) (lambda (a b) a))");
+        Exp result = env.eval("((lambda (f) ((lambda (x) (f x x)) (lambda (x) (f x x)))) (lambda (a b) a))");
         assertTrue(eq("(lambda (x) x)", result));
     }
 
@@ -53,14 +45,14 @@ class TestChurchBoolean {
     @Test
     void testFPChurchTrue3() {
         Exp exp = LispParser.parse("((lambda (a b) a) (lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))");
-        Exp result = Eval.iterEval(exp).get(1);
+        Exp result = Eval.iterEval(exp).get(2);
         assertTrue(eq("(lambda (x) ((lambda (a b) a) x x))", result));
     }
 
     @Test
     void testFPChurchTrue4() {
         Exp exp = LispParser.parse("(lambda (x) ((lambda (a b) a) x x))");
-        Exp result = Eval.iterEval(exp).get(1);
+        Exp result = new Environment().eval(exp);
         assertTrue(eq("(lambda (x) x)", result));
     }
 }

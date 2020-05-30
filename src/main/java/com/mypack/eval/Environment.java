@@ -59,6 +59,6 @@ public class Environment {
 
     private Exp resolve(Exp exp, Symbol symbol) {
         return new LambdaExpression(Collections.singletonList(symbol), exp)
-                .apply(Collections.singletonList(definitions.get(symbol)));
+                .apply(definitions.get(symbol));
     }
 }

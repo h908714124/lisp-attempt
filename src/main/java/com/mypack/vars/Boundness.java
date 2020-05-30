@@ -1,11 +1,14 @@
 package com.mypack.vars;
 
+import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.util.AsSexp;
 import com.mypack.util.IsLambdaExpression;
+
+import java.util.List;
+import java.util.Optional;
 
 public class Boundness implements ExpVisitor<Boolean> {
 
@@ -21,10 +24,11 @@ public class Boundness implements ExpVisitor<Boolean> {
 
     @Override
     public Boolean visitSexp(Sexp sexp) {
-        if (IsLambdaExpression.test(sexp)) {
-            Sexp symbols = AsSexp.get(sexp.tail().get(0));
-            for (Exp symbol : symbols.asList()) {
-                if (symbol.equals(test)) {
+        Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
+        if (lambda.isPresent()) {
+            List<Symbol> symbols = lambda.get().symbols();
+            for (Exp symbol : symbols) {
+                if (symbol.equals(this.test)) {
                     return true;
                 }
             }
