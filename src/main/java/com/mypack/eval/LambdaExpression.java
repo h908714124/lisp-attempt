@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 public class LambdaExpression {
 
+    private static final Pattern SYMBOL_PATTERN = Pattern.compile("([a-z]+)([0-9]+)");
     private final List<Symbol> symbols;
     private final Exp body;
 
@@ -85,7 +86,7 @@ public class LambdaExpression {
     }
 
     static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
-        Matcher matcher = Pattern.compile("([a-z]+)([0-9]+)").matcher(symbol.value());
+        Matcher matcher = SYMBOL_PATTERN.matcher(symbol.value());
         int c = 1;
         if (matcher.matches()) {
             symbol = Symbol.of(matcher.group(1));

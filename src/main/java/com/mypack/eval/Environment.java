@@ -33,7 +33,15 @@ public class Environment {
 
     public void load(List<Exp> expressions) {
         for (Exp expression : expressions) {
-            iterEval(expression, 100);
+            Exp exp = resolve(expression);
+            if (IsDefExpression.test(exp)) {
+                List<? extends Exp> sexp = AsSexp.get(exp).asList();
+                if (sexp.size() != 3) {
+                    throw new IllegalArgumentException("Expecting 2 arguments but found " + (sexp.size() - 1));
+                }
+                Symbol symbol = AsSymbol.get(sexp.get(1));
+                definitions.put(symbol, sexp.get(2));
+            }
         }
     }
 

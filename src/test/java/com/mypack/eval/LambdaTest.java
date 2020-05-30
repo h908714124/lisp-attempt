@@ -21,7 +21,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("((Y fact) (lambda (f x) x))");
+        Exp exp = env.eval("(fact (lambda (f x) x))");
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
     }
 
@@ -31,7 +31,7 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        Exp exp = env.eval("((Y fact) (lambda (f x) (f x)))");
+        Exp exp = env.eval("(fact (lambda (f x) (f x)))");
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f x))", exp));
     }
 
@@ -41,23 +41,28 @@ class LambdaTest {
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval(LispParser.parse("((Y fact) (lambda (f x) (f (f x))))"), 100);
+        List<Exp> exp = env.iterEval(LispParser.parse("(fact (lambda (f x) (f (f x))))"), 100);
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f x)))", exp.get(exp.size() - 1)));
     }
 
-    @Disabled("too slow")
+    @Test
+    void testFactsAboutFact() throws IOException {
+        String data = Files.readString(Paths.get("src/lisp/direct.lisp"));
+        List<Exp> expressions = LispParser.parseList(data);
+        Environment env = new Environment();
+        env.load(expressions);
+        Exp exp = env.eval("(fact (lambda (f x) (f (f x))))");
+        Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f x)))", exp));
+    }
+
+    @Disabled("slow")
     @Test
     void testFact3() throws IOException {
         String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
-        List<Exp> exp = env.iterEval(LispParser.parse("((Y fact) (lambda (f x) (f (f (f x)))))"), 10000);
-//        PrintWriter br = new PrintWriter(new FileWriter("/tmp/out.txt"));
-//        for (Exp e : exp) {
-//            br.println(e);
-//        }
-//        br.close();
+        List<Exp> exp = env.iterEval(LispParser.parse("((Y fact1) (lambda (f x) (f (f (f x)))))"), 10000);
         Assertions.assertTrue(AlphaEquivalence.eq("(lambda (f x) (f (f (f (f (f (f x)))))))", exp.get(exp.size() - 1)));
     }
 }
