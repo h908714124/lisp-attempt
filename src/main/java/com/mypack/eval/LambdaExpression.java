@@ -6,12 +6,10 @@ import com.mypack.exp.Symbol;
 import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
-import com.mypack.vars.Boundness;
 import com.mypack.vars.Freshness;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,18 +27,16 @@ public class LambdaExpression {
     private static AtomicInteger current = new AtomicInteger(1);
 
     public LambdaExpression(List<Symbol> symbols, Exp body) {
-        if (new HashSet<>(symbols).size() < symbols.size()) {
-            throw new IllegalArgumentException("Symbols are not unique: " + symbols);
-        }
         this.symbols = symbols;
         this.body = body;
     }
 
-    Exp apply(Exp arg) {
-        AnalysisResult bodyResult = AnalysisVisitor.analyse(body);
-        Set<Symbol> bound = new HashSet<>(bodyResult.bound());
-        bound.addAll(symbols.subList(1, symbols.size()));
-        Exp cleanArg = cleanup(arg, bound, bodyResult.unbound());
+    public Exp apply(Exp arg) {
+        AnalysisResult bodyResult = AnalysisVisitor.analyse(body());
+        AnalysisResult argResult = AnalysisVisitor.analyse(arg);
+        Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().subList(1, symbols().size())));
+        Set<Symbol> union = union(argResult.all(), union(symbols.subList(1, symbols.size()), bodyResult.all()));
+        Exp cleanArg = cleanup(arg, intersection, union);
         return doBeta(cleanArg);
     }
 
@@ -50,10 +46,9 @@ public class LambdaExpression {
         });
         BetaVisitor visitor = new BetaVisitor(symbols.get(0), arg);
         Exp result = body.accept(visitor);
-        Optional<Symbol> nonFreshSymbol = Freshness.test(result);
-        if (nonFreshSymbol.isPresent()) {
-            throw new IllegalStateException("Non-fresh post: " + nonFreshSymbol.get());
-        }
+        Freshness.test(result).ifPresent(symbol -> {
+            throw new IllegalStateException("Non-fresh post: " + symbol);
+        });
         return result;
     }
 
@@ -65,17 +60,9 @@ public class LambdaExpression {
         return arg;
     }
 
-    static Exp removeSymbol(Exp arg, Symbol symbol, Set<Symbol> reserved) {
-        if (Boundness.test(arg, symbol)) {
-            AnalysisResult argResult = AnalysisVisitor.analyse(arg);
-            Set<Symbol> reservedArg = union(argResult.bound(), argResult.unbound());
-            Symbol alternative = findAlternative(symbol, union(reserved, reservedArg));
-            arg = arg.accept(new BetaVisitor(symbol, alternative));
-        }
-        if (Boundness.test(arg, symbol)) { // remove this later
-            throw new AssertionError();
-        }
-        return arg;
+    static Exp removeSymbol(Exp arg, Symbol symbol, Set<Symbol> union) {
+        Symbol alternative = findAlternative(symbol, union);
+        return arg.accept(new BetaVisitor(symbol, alternative));
     }
 
     public static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
@@ -110,7 +97,7 @@ public class LambdaExpression {
     @Override
     public String toString() {
         return symbols.stream().map(Symbol::toString)
-                .collect(Collectors.joining(", ", "(lambda (", ") ")) +
+                .collect(Collectors.joining(" ", "(lambda (", ") ")) +
                 body + ")";
     }
 
