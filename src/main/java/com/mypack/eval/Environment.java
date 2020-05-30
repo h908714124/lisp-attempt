@@ -6,11 +6,15 @@ import com.mypack.parser.LispParser;
 import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsDefExpression;
+import com.mypack.vars.AnalysisResult;
+import com.mypack.vars.AnalysisVisitor;
+import com.mypack.vars.BetaVisitor;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Environment {
 
@@ -58,7 +62,14 @@ public class Environment {
     }
 
     private Exp resolve(Exp exp, Symbol symbol) {
+        AnalysisResult result = AnalysisVisitor.analyse(exp);
+        Exp definition = definitions.get(symbol);
+        Set<Symbol> reservedSet = LambdaExpression.union(result.bound(), definitions.keySet());
+        for (Symbol reservedSymbol : result.bound()) {
+            Symbol alternative = LambdaExpression.findAlternative(reservedSymbol, reservedSet);
+            definition = definition.accept(new BetaVisitor(Collections.singletonMap(reservedSymbol, alternative), Collections.emptyList()));
+        }
         return new LambdaExpression(Collections.singletonList(symbol), exp)
-                .apply(definitions.get(symbol));
+                .apply(definition);
     }
 }

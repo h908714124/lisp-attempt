@@ -3,13 +3,14 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.util.AsSymbol;
 import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 import com.mypack.vars.Boundness;
+import com.mypack.vars.Freshness;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +31,6 @@ public class LambdaExpression {
 
     private static AtomicInteger current = new AtomicInteger(1);
 
-
     public LambdaExpression(List<Symbol> symbols, Exp body) {
         if (new HashSet<>(symbols).size() < symbols.size()) {
             throw new IllegalArgumentException("Symbols are not unique: " + symbols);
@@ -48,8 +48,16 @@ public class LambdaExpression {
     }
 
     private Exp doBeta(Exp arg) {
+        Freshness.test(arg).ifPresent(symbol -> {
+            throw new IllegalStateException("Non-fresh pre: " + symbol);
+        });
         BetaVisitor visitor = createBetaVisitor(arg);
-        return body.accept(visitor);
+        Exp result = body.accept(visitor);
+        Optional<Symbol> nonFreshSymbol = Freshness.test(result);
+        if (nonFreshSymbol.isPresent()) {
+            throw new IllegalStateException("Non-fresh post: " + nonFreshSymbol.get());
+        }
+        return result;
     }
 
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
@@ -73,14 +81,14 @@ public class LambdaExpression {
         return arg;
     }
 
-    static Set<Symbol> union(Set<Symbol> a, Set<Symbol> b) {
+    static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
         Set<Symbol> result = new LinkedHashSet<>(a.size() + b.size());
         result.addAll(a);
         result.addAll(b);
         return result;
     }
 
-    private static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
+    static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
         Matcher matcher = Pattern.compile("([a-z]+)([0-9]+)").matcher(symbol.value());
         if (matcher.matches()) {
             symbol = Symbol.of(matcher.group(1));
@@ -90,12 +98,6 @@ public class LambdaExpression {
             result = Symbol.of(symbol.value() + current.getAndIncrement());
         } while (reserved.contains(result));
         return result;
-    }
-
-    private static List<Symbol> createSymbols(Sexp variableList) {
-        return variableList.asList().stream()
-                .map(AsSymbol::get)
-                .collect(Collectors.toList());
     }
 
     private BetaVisitor createBetaVisitor(Exp args) {

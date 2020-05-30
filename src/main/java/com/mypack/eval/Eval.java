@@ -7,10 +7,22 @@ import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class Eval implements ExpVisitor<Exp> {
+
+    private final Set<Symbol> reserved;
+
+    private Eval(Set<Symbol> reserved) {
+        this.reserved = reserved;
+    }
+
+    public Eval() {
+        this(Collections.emptySet());
+    }
 
     @Override
     public Exp visitSexp(Sexp sexp) {
@@ -41,7 +53,8 @@ public class Eval implements ExpVisitor<Exp> {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isPresent()) {
             LambdaExpression lambda = isLambda.get();
-            return new LambdaExpression(lambda.symbols(), lambda.body().accept(this)).toExp();
+            Eval newEval = new Eval(LambdaExpression.union(reserved, lambda.symbols()));
+            return new LambdaExpression(lambda.symbols(), lambda.body().accept(newEval)).toExp();
         }
         List<? extends Exp> exps = sexp.asList();
         List<Exp> result = new ArrayList<>(exps.size());
