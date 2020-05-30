@@ -7,7 +7,6 @@ import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +41,7 @@ public class Eval implements ExpVisitor<Exp> {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isPresent()) {
             LambdaExpression lambda = isLambda.get();
-            return Sexp.create(Symbol.lambda(), Arrays.asList(Sexp.create(lambda.symbols()), lambda.body().accept(this)));
+            return new LambdaExpression(lambda.symbols(), lambda.body().accept(this)).toExp();
         }
         List<? extends Exp> exps = sexp.asList();
         List<Exp> result = new ArrayList<>(exps.size());
