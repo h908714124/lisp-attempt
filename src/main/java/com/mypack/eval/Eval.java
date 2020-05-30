@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class Eval implements ExpVisitor<Exp> {
+class Eval implements ExpVisitor<Exp> {
 
     private final Set<Symbol> reserved;
 
@@ -20,7 +20,7 @@ public class Eval implements ExpVisitor<Exp> {
         this.reserved = reserved;
     }
 
-    public Eval() {
+    Eval() {
         this(Collections.emptySet());
     }
 
@@ -62,25 +62,6 @@ public class Eval implements ExpVisitor<Exp> {
             result.add(exp.accept(this));
         }
         return Sexp.create(result);
-    }
-
-    static List<Exp> iterEval(Exp exp) {
-        return iterEval(exp, 100);
-    }
-
-    static List<Exp> iterEval(Exp exp, int max) {
-        Eval eval = new Eval();
-        List<Exp> result = new ArrayList<>(max);
-        int n = 0;
-        String s;
-        do {
-            s = exp.toString();
-            Exp newExp = exp.accept(eval);
-            result.add(exp);
-            n += 1;
-            exp = newExp;
-        } while (!exp.toString().equals(s) && n <= max);
-        return result;
     }
 
     @Override

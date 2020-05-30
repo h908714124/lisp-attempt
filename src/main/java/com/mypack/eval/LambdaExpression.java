@@ -11,12 +11,9 @@ import com.mypack.vars.Freshness;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,7 +48,7 @@ public class LambdaExpression {
         Freshness.test(arg).ifPresent(symbol -> {
             throw new IllegalStateException("Non-fresh pre: " + symbol);
         });
-        BetaVisitor visitor = createBetaVisitor(arg);
+        BetaVisitor visitor = new BetaVisitor(symbols.get(0), arg);
         Exp result = body.accept(visitor);
         Optional<Symbol> nonFreshSymbol = Freshness.test(result);
         if (nonFreshSymbol.isPresent()) {
@@ -73,7 +70,7 @@ public class LambdaExpression {
             AnalysisResult argResult = AnalysisVisitor.analyse(arg);
             Set<Symbol> reservedArg = union(argResult.bound(), argResult.unbound());
             Symbol alternative = findAlternative(symbol, union(reserved, reservedArg));
-            arg = arg.accept(new BetaVisitor(Collections.singletonMap(symbol, alternative), Collections.emptyList()));
+            arg = arg.accept(new BetaVisitor(symbol, alternative));
         }
         if (Boundness.test(arg, symbol)) { // remove this later
             throw new AssertionError();
@@ -81,10 +78,20 @@ public class LambdaExpression {
         return arg;
     }
 
-    static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
+    public static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
         Set<Symbol> result = new LinkedHashSet<>(a.size() + b.size());
         result.addAll(a);
         result.addAll(b);
+        return result;
+    }
+
+    private static Set<Symbol> intersection(Set<Symbol> a, Set<Symbol> b) {
+        Set<Symbol> result = new LinkedHashSet<>();
+        for (Symbol as : a) {
+            if (b.contains(as)) {
+                result.add(as);
+            }
+        }
         return result;
     }
 
@@ -100,12 +107,6 @@ public class LambdaExpression {
         return result;
     }
 
-    private BetaVisitor createBetaVisitor(Exp args) {
-        Map<Symbol, Exp> result = Collections.singletonMap(symbols.get(0), args);
-        List<Symbol> remainingSymbols = symbols.subList(1, symbols.size());
-        return new BetaVisitor(result, remainingSymbols);
-    }
-
     @Override
     public String toString() {
         return symbols.stream().map(Symbol::toString)
@@ -117,13 +118,10 @@ public class LambdaExpression {
         if (newSymbols.size() != symbols.size()) {
             return Optional.empty();
         }
-        Map<Symbol, Exp> map = new HashMap<>();
+        Exp newBody = body;
         for (int i = 0; i < symbols.size(); i++) {
-            Symbol symbol = symbols.get(i);
-            Symbol newSymbol = newSymbols.get(i);
-            map.put(symbol, newSymbol);
+            newBody = newBody.accept(new BetaVisitor(symbols.get(i), newSymbols.get(i)));
         }
-        Exp newBody = body.accept(new BetaVisitor(map, Collections.emptyList()));
         return Optional.of(new LambdaExpression(newSymbols, newBody));
     }
 

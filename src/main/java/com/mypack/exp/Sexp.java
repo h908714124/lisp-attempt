@@ -7,23 +7,29 @@ public class Sexp implements Exp {
 
     private final Exp head;
     private final List<? extends Exp> tail;
+    private final List<? extends Exp> asList;
 
     private Sexp(Exp head, List<? extends Exp> tail) {
         this.head = head;
         this.tail = tail;
+        List<Exp> asList = new ArrayList<>(tail.size() + 1);
+        asList.add(head);
+        asList.addAll(tail);
+        this.asList = asList;
+    }
+
+    private Sexp(Exp head, List<? extends Exp> tail, List<? extends Exp> asList) {
+        this.head = head;
+        this.tail = tail;
+        this.asList = asList;
     }
 
     public static Sexp create(Exp head, List<? extends Exp> tail) {
-        Sexp result = new Sexp(head, tail);
-//        Optional<Symbol> symbol = Freshness.test(result);
-//        if (symbol.isPresent()) {
-//            throw new AssertionError("Non-fresh in " + result + ": " + symbol.get());
-//        }
-        return result;
+        return new Sexp(head, tail);
     }
 
     public static Sexp create(List<? extends Exp> list) {
-        return new Sexp(list.get(0), list.subList(1, list.size()));
+        return new Sexp(list.get(0), list.subList(1, list.size()), list);
     }
 
     public Exp head() {
@@ -35,10 +41,7 @@ public class Sexp implements Exp {
     }
 
     public List<? extends Exp> asList() {
-        List<Exp> result = new ArrayList<>(tail.size() + 1);
-        result.add(head);
-        result.addAll(tail);
-        return result;
+        return asList;
     }
 
     public int size() {
@@ -52,9 +55,8 @@ public class Sexp implements Exp {
 
     @Override
     public String toString() {
-        List<String> strings = new ArrayList<>();
-        strings.add(head.toString());
-        for (Exp exp : tail) {
+        List<String> strings = new ArrayList<>(asList.size());
+        for (Exp exp : asList) {
             strings.add(exp.toString());
         }
         return "(" + String.join(" ", strings) + ')';

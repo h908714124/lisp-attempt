@@ -7,35 +7,31 @@ import com.mypack.exp.Symbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class BetaVisitor implements ExpVisitor<Exp> {
 
-    private final Map<Symbol, Exp> mapping;
+    private final Symbol symbol;
+    private final Exp value;
 
-    private final List<Symbol> remainingSymbols; // unfilled vars (partial application)
-
-    public BetaVisitor(Map<Symbol, Exp> mapping, List<Symbol> remainingSymbols) {
-        this.mapping = mapping;
-        this.remainingSymbols = remainingSymbols;
+    public BetaVisitor(Symbol symbol, Exp value) {
+        this.symbol = symbol;
+        this.value = value;
     }
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        Exp newHead = sexp.head().accept(this);
-        List<Exp> newTail = new ArrayList<>();
-        for (Exp exp : sexp.tail()) {
-            newTail.add(exp.accept(this));
+        List<Exp> result = new ArrayList<>(sexp.size());
+        for (Exp exp : sexp.asList()) {
+            result.add(exp.accept(this));
         }
-        return Sexp.create(newHead, newTail);
+        return Sexp.create(result);
     }
 
     @Override
     public Exp visitSymbol(Symbol symbol) {
-        return mapping.getOrDefault(symbol, symbol);
-    }
-
-    public List<Symbol> remainingSymbols() {
-        return remainingSymbols;
+        if (this.symbol.equals(symbol)) {
+            return value;
+        }
+        return symbol;
     }
 }

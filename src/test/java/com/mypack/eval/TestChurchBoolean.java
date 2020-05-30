@@ -35,7 +35,7 @@ class TestChurchBoolean {
     @Test
     void testFPChurchTrue2() {
         Exp exp = LispParser.parse("((lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))");
-        Exp result = Eval.iterEval(exp).get(1);
+        Exp result = new Environment().iterEval(exp, 1).get(1);
         assertTrue(eq("((lambda (a b) a) (lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))", result));
     }
 
@@ -45,7 +45,7 @@ class TestChurchBoolean {
     @Test
     void testFPChurchTrue3() {
         Exp exp = LispParser.parse("((lambda (a b) a) (lambda (x) ((lambda (a b) a) x x)) (lambda (x) ((lambda (a b) a) x x)))");
-        Exp result = Eval.iterEval(exp).get(2);
+        Exp result = new Environment().iterEval(exp, 2).get(2);
         assertTrue(eq("(lambda (x) ((lambda (a b) a) x x))", result));
     }
 

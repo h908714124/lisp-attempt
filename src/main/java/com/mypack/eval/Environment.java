@@ -10,7 +10,7 @@ import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +35,6 @@ public class Environment {
         }
     }
 
-    public List<Exp> iterEval(String exp, int max) {
-        return iterEval(LispParser.parse(exp), max);
-    }
-
     public List<Exp> iterEval(Exp unresolvedExp, int max) {
         Exp exp = resolve(unresolvedExp);
         if (IsDefExpression.test(exp)) {
@@ -47,11 +43,11 @@ public class Environment {
                 throw new IllegalArgumentException("Expecting 2 arguments but found " + (sexp.size() - 1));
             }
             Symbol symbol = AsSymbol.get(sexp.get(1));
-            List<Exp> results = Eval.iterEval(sexp.get(2), max);
+            List<Exp> results = internalIterEval(sexp.get(2), max);
             definitions.put(symbol, results.get(results.size() - 1));
             return results;
         }
-        return Eval.iterEval(exp, max);
+        return internalIterEval(exp, max);
     }
 
     private Exp resolve(Exp exp) {
@@ -67,9 +63,23 @@ public class Environment {
         Set<Symbol> reservedSet = LambdaExpression.union(result.bound(), definitions.keySet());
         for (Symbol reservedSymbol : result.bound()) {
             Symbol alternative = LambdaExpression.findAlternative(reservedSymbol, reservedSet);
-            definition = definition.accept(new BetaVisitor(Collections.singletonMap(reservedSymbol, alternative), Collections.emptyList()));
+            definition = definition.accept(new BetaVisitor(reservedSymbol, alternative));
         }
-        return new LambdaExpression(Collections.singletonList(symbol), exp)
-                .apply(definition);
+        return exp.accept(new BetaVisitor(symbol, definition));
+    }
+
+    private static List<Exp> internalIterEval(Exp exp, int max) {
+        Eval eval = new Eval();
+        List<Exp> result = new ArrayList<>(max);
+        int n = 0;
+        String s;
+        do {
+            s = exp.toString();
+            Exp newExp = exp.accept(eval);
+            result.add(exp);
+            n += 1;
+            exp = newExp;
+        } while (!exp.toString().equals(s) && n <= max);
+        return result;
     }
 }
