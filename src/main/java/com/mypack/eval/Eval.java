@@ -5,6 +5,7 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
+import com.mypack.vars.Freshness;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +35,7 @@ class Eval implements ExpVisitor<Exp> {
             LambdaExpression lambda = isHeadLambda.get();
             List<? extends Exp> args = sexp.tail();
             List<? extends Exp> newArgs = args.subList(1, args.size());
-            Exp newBody = lambda.apply(args.get(0));
+            Exp newBody = lambda.apply(args.get(0), reserved);
             List<Symbol> newSymbols = lambda.symbols().subList(1, lambda.symbols().size());
             if (newSymbols.isEmpty()) {
                 if (newArgs.isEmpty()) {
@@ -47,7 +48,12 @@ class Eval implements ExpVisitor<Exp> {
             if (newArgs.isEmpty()) {
                 return newLambda;
             } else {
-                return Sexp.create(newLambda, newArgs);
+                Sexp muchReturn = Sexp.create(newLambda, newArgs);
+                Optional<Symbol> fresh0 = Freshness.test(muchReturn);
+                if (fresh0.isPresent()) {
+                    throw new IllegalStateException("Non-fresh pre: " + fresh0.get());
+                }
+                return muchReturn;
             }
         }
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);

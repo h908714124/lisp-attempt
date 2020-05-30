@@ -8,13 +8,14 @@ import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 import com.mypack.vars.Freshness;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -24,26 +25,25 @@ public class LambdaExpression {
     private final List<Symbol> symbols;
     private final Exp body;
 
-    private static AtomicInteger current = new AtomicInteger(1);
-
     public LambdaExpression(List<Symbol> symbols, Exp body) {
         this.symbols = symbols;
         this.body = body;
     }
 
-    public Exp apply(Exp arg) {
+    public Exp apply(Exp arg, Set<Symbol> additionalReserved) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body());
         AnalysisResult argResult = AnalysisVisitor.analyse(arg);
         Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().subList(1, symbols().size())));
-        Set<Symbol> union = union(argResult.all(), union(symbols.subList(1, symbols.size()), bodyResult.all()));
+        Set<Symbol> union = union(additionalReserved, union(argResult.all(), union(symbols.subList(1, symbols.size()), bodyResult.all())));
         Exp cleanArg = cleanup(arg, intersection, union);
         return doBeta(cleanArg);
     }
 
     private Exp doBeta(Exp arg) {
-        Freshness.test(arg).ifPresent(symbol -> {
-            throw new IllegalStateException("Non-fresh pre: " + symbol);
-        });
+        Optional<Symbol> fresh0 = Freshness.test(arg);
+        if (fresh0.isPresent()) {
+            throw new IllegalStateException("Non-fresh pre: " + fresh0.get());
+        }
         BetaVisitor visitor = new BetaVisitor(symbols.get(0), arg);
         Exp result = body.accept(visitor);
         Freshness.test(result).ifPresent(symbol -> {
@@ -55,14 +55,16 @@ public class LambdaExpression {
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
         Set<Symbol> reserved = union(bound, unbound);
         for (Symbol symbol : bound) {
-            arg = removeSymbol(arg, symbol, reserved);
+            Map.Entry<Symbol, Exp> entry = removeSymbol(arg, symbol, reserved);
+            reserved = union(reserved, List.of(entry.getKey()));
+            arg = entry.getValue();
         }
         return arg;
     }
 
-    static Exp removeSymbol(Exp arg, Symbol symbol, Set<Symbol> union) {
+    static Map.Entry<Symbol, Exp> removeSymbol(Exp arg, Symbol symbol, Set<Symbol> union) {
         Symbol alternative = findAlternative(symbol, union);
-        return arg.accept(new BetaVisitor(symbol, alternative));
+        return new AbstractMap.SimpleImmutableEntry<>(alternative, arg.accept(new BetaVisitor(symbol, alternative)));
     }
 
     public static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
@@ -84,12 +86,13 @@ public class LambdaExpression {
 
     static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {
         Matcher matcher = Pattern.compile("([a-z]+)([0-9]+)").matcher(symbol.value());
+        int c = 1;
         if (matcher.matches()) {
             symbol = Symbol.of(matcher.group(1));
         }
         Symbol result;
         do {
-            result = Symbol.of(symbol.value() + current.getAndIncrement());
+            result = Symbol.of(symbol.value() + c++);
         } while (reserved.contains(result));
         return result;
     }
@@ -116,7 +119,12 @@ public class LambdaExpression {
         if (symbols.isEmpty()) {
             return body;
         }
-        return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
+        Sexp result = Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
+        Optional<Symbol> fresh0 = Freshness.test(result);
+        if (fresh0.isPresent()) {
+            throw new IllegalStateException("Non-fresh pre: " + fresh0.get());
+        }
+        return result;
     }
 
     public List<Symbol> symbols() {

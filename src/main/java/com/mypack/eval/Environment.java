@@ -60,8 +60,10 @@ public class Environment {
     private Exp resolve(Exp exp, Symbol symbol) {
         AnalysisResult result = AnalysisVisitor.analyse(exp);
         Exp definition = definitions.get(symbol);
-        Set<Symbol> reservedSet = LambdaExpression.union(result.bound(), definitions.keySet());
+        Set<Symbol> reservedSet = LambdaExpression.union(result.all(), definitions.keySet());
         for (Symbol reservedSymbol : result.bound()) {
+            AnalysisResult definitionResult = AnalysisVisitor.analyse(definition);
+            reservedSet = LambdaExpression.union(reservedSet, definitionResult.all());
             Symbol alternative = LambdaExpression.findAlternative(reservedSymbol, reservedSet);
             definition = definition.accept(new BetaVisitor(reservedSymbol, alternative));
         }
