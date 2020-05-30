@@ -6,9 +6,8 @@ import com.mypack.exp.Symbol;
 import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
-import com.mypack.vars.Freshness;
 
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -37,20 +36,7 @@ public class LambdaExpression {
         Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().subList(1, symbols().size())));
         Set<Symbol> union = union(additionalReserved, union(argResult.all(), union(symbols.subList(1, symbols.size()), bodyResult.all())));
         Exp cleanArg = cleanup(arg, intersection, union);
-        return doBeta(cleanArg);
-    }
-
-    private Exp doBeta(Exp arg) {
-        Optional<Symbol> fresh0 = Freshness.test(arg);
-        if (fresh0.isPresent()) {
-            throw new IllegalStateException("Non-fresh pre: " + fresh0.get());
-        }
-        BetaVisitor visitor = new BetaVisitor(symbols.get(0), arg);
-        Exp result = body.accept(visitor);
-        Freshness.test(result).ifPresent(symbol -> {
-            throw new IllegalStateException("Non-fresh post: " + symbol);
-        });
-        return result;
+        return BetaVisitor.replace(body, symbols.get(0), cleanArg);
     }
 
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
@@ -65,7 +51,7 @@ public class LambdaExpression {
 
     static Map.Entry<Symbol, Exp> removeSymbol(Exp arg, Symbol symbol, Set<Symbol> union) {
         Symbol alternative = findAlternative(symbol, union);
-        return new AbstractMap.SimpleImmutableEntry<>(alternative, arg.accept(new BetaVisitor(symbol, alternative)));
+        return new SimpleImmutableEntry<>(alternative, BetaVisitor.replace(arg, symbol, alternative));
     }
 
     public static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
@@ -111,7 +97,7 @@ public class LambdaExpression {
         }
         Exp newBody = body;
         for (int i = 0; i < symbols.size(); i++) {
-            newBody = newBody.accept(new BetaVisitor(symbols.get(i), newSymbols.get(i)));
+            newBody = BetaVisitor.replace(newBody, symbols.get(i), newSymbols.get(i));
         }
         return Optional.of(new LambdaExpression(newSymbols, newBody));
     }
@@ -120,12 +106,7 @@ public class LambdaExpression {
         if (symbols.isEmpty()) {
             return body;
         }
-        Sexp result = Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
-        Optional<Symbol> fresh0 = Freshness.test(result);
-        if (fresh0.isPresent()) {
-            throw new IllegalStateException("Non-fresh pre: " + fresh0.get());
-        }
-        return result;
+        return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
     }
 
     public List<Symbol> symbols() {

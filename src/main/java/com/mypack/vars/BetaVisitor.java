@@ -13,9 +13,19 @@ public class BetaVisitor implements ExpVisitor<Exp> {
     private final Symbol symbol;
     private final Exp value;
 
-    public BetaVisitor(Symbol symbol, Exp value) {
+    private BetaVisitor(Symbol symbol, Exp value) {
         this.symbol = symbol;
         this.value = value;
+    }
+
+    /**
+     * Replaces all occurrences of the symbol, with no
+     * regard to the symbol's position.
+     * For lambda calculus purposes, the symbol should not occur in
+     * a parameter list anywhere in the expression.
+     */
+    public static Exp replace(Exp exp, Symbol symbol, Exp value) {
+        return exp.accept(new BetaVisitor(symbol, value));
     }
 
     @Override

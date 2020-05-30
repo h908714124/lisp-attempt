@@ -14,6 +14,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+// Useful for detecting bugs that lead to non-fresh expressions.
+// A symbol is fresh in an expression if it's not reused in a parameter list.
+// An expression is fresh if all its symbols are fresh.
+// For example, the following expression is not fresh, because a is reused:
+// (lambda (f a) (f (lambda a) (a a)))
+// Evaluating a fresh expression must always result in another fresh expression.
 public class Freshness implements ExpVisitor<Optional<Symbol>> {
 
     private final Set<Symbol> seen;
@@ -22,7 +28,7 @@ public class Freshness implements ExpVisitor<Optional<Symbol>> {
         this.seen = seen;
     }
 
-    // return empty if exp doesn't bind any non-fresh symbols
+    // return empty if exp is fresh, otherwise return a non-fresh symbol
     public static Optional<Symbol> test(Exp exp) {
         return exp.accept(new Freshness(Collections.emptySet()));
     }

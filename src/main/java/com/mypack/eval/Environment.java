@@ -75,9 +75,9 @@ public class Environment {
         for (Symbol reservedSymbol : result.bound()) {
             Symbol alternative = LambdaExpression.findAlternative(reservedSymbol, reservedSet);
             reservedSet = union(reservedSet, List.of(alternative));
-            definition = definition.accept(new BetaVisitor(reservedSymbol, alternative));
+            definition = BetaVisitor.replace(definition, reservedSymbol, alternative);
         }
-        return exp.accept(new BetaVisitor(symbol, definition));
+        return BetaVisitor.replace(exp, symbol, definition);
     }
 
     private static List<Exp> internalIterEval(Exp exp, int max) {

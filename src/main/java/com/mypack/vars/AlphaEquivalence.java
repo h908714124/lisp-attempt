@@ -25,7 +25,7 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
 
     private final Exp target;
 
-    public AlphaEquivalence(Exp target) {
+    private AlphaEquivalence(Exp target) {
         this.target = target;
     }
 
