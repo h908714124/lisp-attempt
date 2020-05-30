@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.mypack.eval.LambdaExpression.union;
+
 public class Environment {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
@@ -60,11 +62,11 @@ public class Environment {
     private Exp resolve(Exp exp, Symbol symbol) {
         AnalysisResult result = AnalysisVisitor.analyse(exp);
         Exp definition = definitions.get(symbol);
-        Set<Symbol> reservedSet = LambdaExpression.union(result.all(), definitions.keySet());
+        AnalysisResult definitionResult = AnalysisVisitor.analyse(definition);
+        Set<Symbol> reservedSet = union(union(result.all(), definitions.keySet()), definitionResult.all());
         for (Symbol reservedSymbol : result.bound()) {
-            AnalysisResult definitionResult = AnalysisVisitor.analyse(definition);
-            reservedSet = LambdaExpression.union(reservedSet, definitionResult.all());
             Symbol alternative = LambdaExpression.findAlternative(reservedSymbol, reservedSet);
+            reservedSet = union(reservedSet, List.of(alternative));
             definition = definition.accept(new BetaVisitor(reservedSymbol, alternative));
         }
         return exp.accept(new BetaVisitor(symbol, definition));
