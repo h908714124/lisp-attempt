@@ -2,8 +2,12 @@
 
 (defn false [a b] b)
 
+(defn K [x y] x)
+
+(defn I [x] x)
+
 (defn zero? [n]
-  (n (fn [x] false) true))
+  (n (K false) true))
 
 (defn * [m n]
   (fn [f x] (m (n f) x)))
@@ -11,7 +15,7 @@
 (defn pred [n f x]
   ((n (fn [g h] (h (g f)))
       (fn [u] x))
-    (fn [u] u)))
+    I))
 
 (defn Y [f]
   ((fn [x] (x x))
