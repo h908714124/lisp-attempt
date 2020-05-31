@@ -51,16 +51,6 @@ public class Environment {
 
     public List<Exp> iterEval(Exp unresolvedExp, int max) {
         Exp exp = resolve(unresolvedExp);
-        if (IsDefExpression.test(exp)) {
-            List<? extends Exp> sexp = AsSexp.get(exp).asList();
-            if (sexp.size() != 3) {
-                throw new IllegalArgumentException("Expecting 2 arguments but found " + (sexp.size() - 1));
-            }
-            Symbol symbol = AsSymbol.get(sexp.get(1));
-            List<Exp> results = internalIterEval(sexp.get(2), max);
-            definitions.put(symbol, results.get(results.size() - 1));
-            return results;
-        }
         return internalIterEval(exp, max);
     }
 
