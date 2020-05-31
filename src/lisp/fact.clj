@@ -13,7 +13,7 @@
 (defn extract [k]
   (k I))
 
-; not succ
+;; not succ
 (defn inc [f]
   (fn [g h] (h (g f))))
 
@@ -23,10 +23,12 @@
 (defn * [m n]
   (fn [f x] (m (n f) x)))
 
+;; source: https://en.wikipedia.org/wiki/Church_encoding
 (defn pred [n]
   (fn [f x]
     (extract (n (inc f) (K x)))))
 
+;; source: https://tromp.github.io/cl/diagrams.html
 (defn Y [f]
   ((fn [x] (x x))
     (fn [x] (f (x x)))))
