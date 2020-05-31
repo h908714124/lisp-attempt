@@ -2,7 +2,7 @@ package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import com.mypack.parser.LispParser;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,57 +13,39 @@ import java.util.List;
 import static com.mypack.vars.AlphaEquivalence.eq;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class fnTest {
+class LambdaTest {
+
+    private static final Environment ENV = new Environment();
+
+    @BeforeAll
+    private static void setUp() throws IOException {
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
+        List<Exp> expressions = LispParser.parseList(data);
+        ENV.load(expressions);
+    }
 
     // https://tromp.github.io/cl/diagrams.html
     @Test
-    void testFact0() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
-        List<Exp> expressions = LispParser.parseList(data);
-        Environment env = new Environment();
-        env.load(expressions);
-        Exp exp = env.eval("(fact 0)");
-        assertTrue(eq(env.eval("1"), exp));
+    void testFact0() {
+        Exp exp = ENV.eval("(fact 0)");
+        assertTrue(eq(ENV.eval("1"), exp));
     }
 
     @Test
-    void testFact1() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
-        List<Exp> expressions = LispParser.parseList(data);
-        Environment env = new Environment();
-        env.load(expressions);
-        Exp exp = env.eval("(fact 1)");
-        assertTrue(eq(env.eval("1"), exp));
+    void testFact1() {
+        Exp exp = ENV.eval("(fact 1)");
+        assertTrue(eq(ENV.eval("1"), exp));
     }
 
     @Test
-    void testFact2() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
-        List<Exp> expressions = LispParser.parseList(data);
-        Environment env = new Environment();
-        env.load(expressions);
-        Exp exp = env.eval("(fact 2)");
-        assertTrue(eq(env.eval("2"), exp));
-    }
-
-    @Disabled("need to update the lisp file after syntax change")
-    @Test
-    void testDirect() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/direct.lisp"));
-        List<Exp> expressions = LispParser.parseList(data);
-        Environment env = new Environment();
-        env.load(expressions);
-        Exp exp = env.eval("(fact 2)");
-        assertTrue(eq(env.eval("2"), exp));
+    void testFact2() {
+        Exp exp = ENV.eval("(fact 2)");
+        assertTrue(eq(ENV.eval("2"), exp));
     }
 
     @Test
-    void testFact3() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
-        List<Exp> expressions = LispParser.parseList(data);
-        Environment env = new Environment();
-        env.load(expressions);
-        Exp exp = env.eval("(fact 3)");
-        assertTrue(eq(env.eval("6"), exp));
+    void testFact3() {
+        Exp exp = ENV.eval("(fact 3)");
+        assertTrue(eq(ENV.eval("6"), exp));
     }
 }
