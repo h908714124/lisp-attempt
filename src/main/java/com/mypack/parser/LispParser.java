@@ -93,10 +93,14 @@ public class LispParser {
         }
         StringBuilder result = new StringBuilder();
         int i = 0;
-        while (input.length() > i && input.charAt(i) != ' ' && input.charAt(i) != '(' && input.charAt(i) != ')') {
+        while (input.length() > i && !isWhitespace(input.charAt(i)) && input.charAt(i) != '(' && input.charAt(i) != ')') {
             result.append(input.charAt(i));
             i++;
         }
         return new AbstractMap.SimpleImmutableEntry<>(new Token(result.toString()), input.substring(i));
+    }
+
+    private static boolean isWhitespace(char c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
     }
 }

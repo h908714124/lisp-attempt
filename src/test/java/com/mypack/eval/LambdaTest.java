@@ -46,7 +46,7 @@ class LambdaTest {
     }
 
     @Test
-    void testFactsAboutFact() throws IOException {
+    void testDirect() throws IOException {
         String data = Files.readString(Paths.get("src/lisp/direct.lisp"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
