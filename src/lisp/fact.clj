@@ -2,7 +2,8 @@
 
 (defn false [a b] b)
 
-(defn K [x] (fn [u] x))
+(defn K [x]
+  (fn [u] x))
 
 (defn I [x] x)
 
@@ -12,6 +13,7 @@
 (defn extract [k]
   (k I))
 
+; not succ
 (defn inc [f]
   (fn [g h] (h (g f))))
 

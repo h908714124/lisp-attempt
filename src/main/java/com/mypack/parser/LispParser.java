@@ -11,8 +11,12 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LispParser {
+
+    private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\R");
 
     public static Exp parse(String input) {
         return parseList(input).get(0);
@@ -101,6 +105,13 @@ public class LispParser {
 
     static Map.Entry<Token, String> readNextToken(String input) {
         input = input.trim();
+        if (input.startsWith(";")) {
+            Matcher matcher = NEWLINE_PATTERN.matcher(input);
+            if (matcher.matches()) {
+                int linebreak = matcher.end();
+                input = input.substring(linebreak).trim();
+            }
+        }
         if (isBrace(input.charAt(0))) {
             return new AbstractMap.SimpleImmutableEntry<>(new Token(Character.toString(input.charAt(0))), input.substring(1));
         }

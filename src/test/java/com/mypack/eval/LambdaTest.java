@@ -18,7 +18,7 @@ class LambdaTest {
     private static final Environment ENV = new Environment();
 
     @BeforeAll
-    private static void setUp() throws IOException {
+    static void setUp() throws IOException {
         String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         ENV.load(expressions);

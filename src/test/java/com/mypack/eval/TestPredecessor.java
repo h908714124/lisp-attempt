@@ -18,7 +18,7 @@ class TestPredecessor {
     private static final Environment ENV = new Environment();
 
     @BeforeAll
-    private static void setUp() throws IOException {
+    static void setUp() throws IOException {
         String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         ENV.load(expressions);
@@ -45,7 +45,6 @@ class TestPredecessor {
     @Test
     void testK() {
         Exp result = ENV.eval("((K 2) 1)");
-        System.out.println(result);
         assertTrue(eq(ENV.eval("2"), result));
     }
 }
