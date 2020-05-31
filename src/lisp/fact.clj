@@ -1,32 +1,25 @@
-(def true
-  (fn [a b] a))
+(defn true [a b] a)
 
-(def false
-  (fn [a b] b))
+(defn false [a b] b)
 
-(def zero?
-  (fn [n]
-    (n (fn [x] false) true)))
+(defn zero? [n]
+  (n (fn [x] false) true))
 
-(def *
-  (fn [m n]
-    (fn [f x] (m (n f) x))))
+(defn * [m n]
+  (fn [f x] (m (n f) x)))
 
-(def pred
-  (fn [n f x]
-    ((n (fn [g h] (h (g f)))
-        (fn [u] x))
-      (fn [u] u))))
+(defn pred [n f x]
+  ((n (fn [g h] (h (g f)))
+      (fn [u] x))
+    (fn [u] u)))
 
-(def Y
-  (fn [f]
-    ((fn [x] (x x))
-      (fn [x] (f (x x))))))
+(defn Y [f]
+  ((fn [x] (x x))
+    (fn [x] (f (x x)))))
 
-(def fact1
-  (fn [f n]
-    ((zero? n)
-      1
-      (* n (f (pred n))))))
+(defn fact1 [f n]
+  ((zero? n)
+    1
+    (* n (f (pred n)))))
 
 (def fact (Y fact1))

@@ -5,18 +5,15 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.parser.LispParser;
-import com.mypack.util.AsSexp;
-import com.mypack.util.AsSymbol;
-import com.mypack.util.DefExpression;
 import com.mypack.util.FindNumbers;
 import com.mypack.util.IsDefExpression;
+import com.mypack.util.IsDefnExpression;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class Environment {
@@ -39,11 +36,15 @@ public class Environment {
     }
 
     private void load(Exp exp) {
-        Optional<DefExpression> defExpression = IsDefExpression.test(exp);
-        if (defExpression.isPresent()) {
-            Exp definition = resolve(defExpression.get().definition());
-            definitions.put(defExpression.get().name(), definition);
-        }
+        IsDefExpression.test(exp).ifPresent(defExpression -> {
+            Exp definition = resolve(defExpression.definition());
+            definitions.put(defExpression.name(), definition);
+        });
+        IsDefnExpression.test(exp).ifPresent(defnExpression -> {
+            LambdaExpression lambda = new LambdaExpression(defnExpression.params(), defnExpression.body());
+            Exp definition = resolve(lambda.toExp());
+            definitions.put(defnExpression.name(), definition);
+        });
     }
 
     public List<Exp> iterEval(Exp unresolvedExp, int max) {

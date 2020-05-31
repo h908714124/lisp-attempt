@@ -12,13 +12,15 @@ public class IsDefExpression implements ExpVisitor<Optional<DefExpression>> {
 
     private static final IsDefExpression INSTANCE = new IsDefExpression();
 
+    private static final IsSpecificSymbolVisitor IS_DEF_SYMBOL = new IsSpecificSymbolVisitor(Symbol.of("def"));
+
     public static Optional<DefExpression> test(Exp exp) {
         return exp.accept(INSTANCE);
     }
 
     @Override
     public Optional<DefExpression> visitSexp(Sexp sexp) {
-        if (!IsDefSymbol.test(sexp.head())) {
+        if (!sexp.head().accept(IS_DEF_SYMBOL)) {
             return Optional.empty();
         }
         if (sexp.size() != 3) {

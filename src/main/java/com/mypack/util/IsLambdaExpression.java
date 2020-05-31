@@ -13,13 +13,15 @@ public class IsLambdaExpression implements ExpVisitor<Optional<LambdaExpression>
 
     private static final IsLambdaExpression INSTANCE = new IsLambdaExpression();
 
+    private static final IsSpecificSymbolVisitor IS_LAMBDA = new IsSpecificSymbolVisitor(Symbol.lambda());
+
     public static Optional<LambdaExpression> test(Exp exp) {
         return exp.accept(INSTANCE);
     }
 
     @Override
     public Optional<LambdaExpression> visitSexp(Sexp sexp) {
-        if (!IsLambdaSymbol.test(sexp.head())) {
+        if (!sexp.head().accept(IS_LAMBDA)) {
             return Optional.empty();
         }
         if (sexp.tail().size() != 2) {
