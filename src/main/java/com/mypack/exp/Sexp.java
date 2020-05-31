@@ -48,6 +48,10 @@ public class Sexp implements Exp {
         return 1 + tail.size();
     }
 
+    public Exp get(int i) {
+        return asList.get(i);
+    }
+
     @Override
     public <R> R accept(ExpVisitor<R> v) {
         return v.visitSexp(this);
