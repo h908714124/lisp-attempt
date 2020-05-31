@@ -18,7 +18,7 @@ class fnTest {
     // https://tromp.github.io/cl/diagrams.html
     @Test
     void testFact0() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
@@ -28,7 +28,7 @@ class fnTest {
 
     @Test
     void testFact1() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
@@ -38,7 +38,7 @@ class fnTest {
 
     @Test
     void testFact2() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
@@ -59,7 +59,7 @@ class fnTest {
 
     @Test
     void testFact3() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);

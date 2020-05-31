@@ -30,7 +30,7 @@ class TestIsZero {
 
     @Test
     void testDef() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.lisp"));
+        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
         List<Exp> expressions = LispParser.parseList(data);
         Environment env = new Environment();
         env.load(expressions);
