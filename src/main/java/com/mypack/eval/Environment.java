@@ -9,7 +9,10 @@ import com.mypack.util.FindNumbers;
 import com.mypack.util.IsDefExpression;
 import com.mypack.util.IsDefnExpression;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,18 +23,31 @@ public class Environment {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
 
+    private final PrintStream out;
+
+    private boolean printing;
+
+    public Environment(PrintStream out) {
+        this.out = out;
+    }
+
+    public Environment() {
+        this(System.out);
+    }
+
     public Exp eval(String exp) {
-        return eval(LispParser.parse(exp));
+        return eval(LispParser.parse(exp), 10000);
     }
 
-    public Exp eval(Exp exp) {
-        List<Exp> result = iterEval(exp, 10000);
-        return result.get(result.size() - 1);
-    }
-
-    public void load(List<Exp> expressions) {
-        for (Exp expression : expressions) {
-            load(expression);
+    public void load(Path path) {
+        try {
+            String data = Files.readString(path);
+            List<Exp> expressions = LispParser.parseList(data);
+            for (Exp expression : expressions) {
+                load(expression);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -47,9 +63,23 @@ public class Environment {
         });
     }
 
-    public List<Exp> iterEval(Exp unresolvedExp, int max) {
+    public Exp eval(String unresolvedExp, int maxSteps) {
+        return eval(LispParser.parse(unresolvedExp), maxSteps);
+    }
+
+    private Exp eval(Exp unresolvedExp, int maxSteps) {
+        if (printing) {
+            out.println(unresolvedExp.toString());
+        }
         Exp exp = resolve(unresolvedExp);
-        return internalIterEval(exp, max);
+        if (printing) {
+            out.println(exp.toString());
+        }
+        Exp result = internalIterEval(exp, maxSteps);
+        if (printing) {
+            out.flush();
+        }
+        return result;
     }
 
     private Exp resolve(Exp exp) {
@@ -76,18 +106,23 @@ public class Environment {
         return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
     }
 
-    private static List<Exp> internalIterEval(Exp exp, int max) {
+    private Exp internalIterEval(Exp exp, int max) {
         Eval eval = new Eval();
-        List<Exp> result = new ArrayList<>(max);
         int n = 0;
         String s;
         do {
             s = exp.toString();
             Exp newExp = exp.accept(eval);
-            result.add(exp);
             n += 1;
             exp = newExp;
-        } while (!exp.toString().equals(s) && n <= max);
-        return result;
+            if (printing) {
+                out.println(exp.toString());
+            }
+        } while (!exp.toString().equals(s) && n < max);
+        return exp;
+    }
+
+    public void setPrinting(boolean printing) {
+        this.printing = printing;
     }
 }

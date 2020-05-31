@@ -1,14 +1,10 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
-import com.mypack.parser.LispParser;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 import static com.mypack.vars.AlphaEquivalence.eq;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,10 +14,8 @@ class TestPredecessor {
     private static final Environment ENV = new Environment();
 
     @BeforeAll
-    static void setUp() throws IOException {
-        String data = Files.readString(Paths.get("src/lisp/fact.clj"));
-        List<Exp> expressions = LispParser.parseList(data);
-        ENV.load(expressions);
+    static void setUp() {
+        ENV.load(Paths.get("src/lisp/fact.clj"));
     }
 
     @Test
