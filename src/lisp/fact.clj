@@ -2,7 +2,7 @@
 
 (defn false [a b] b)
 
-(defn K [x] (lambda [y] x))
+(defn K [x] (fn [u] x))
 
 (defn I [x] x)
 
@@ -13,7 +13,7 @@
   (k I))
 
 (defn inc [f]
-  (fn [g h] (h (f g))))
+  (fn [g h] (h (g f))))
 
 (defn zero? [n]
   (n (K false) true))
@@ -23,9 +23,7 @@
 
 (defn pred [n]
   (fn [f x]
-    ((n (fn [g h] (h (g f)))
-        (fn [u] x))
-      I)))
+    (extract (n (inc f) (K x)))))
 
 (defn Y [f]
   ((fn [x] (x x))

@@ -41,4 +41,11 @@ class TestPredecessor {
         Exp result = ENV.eval("(pred 2)");
         assertTrue(eq(ENV.eval("1"), result));
     }
+
+    @Test
+    void testK() {
+        Exp result = ENV.eval("((K 2) 1)");
+        System.out.println(result);
+        assertTrue(eq(ENV.eval("2"), result));
+    }
 }
