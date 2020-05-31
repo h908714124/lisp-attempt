@@ -3,6 +3,7 @@ package com.mypack.vars;
 import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.parser.LispParser;
@@ -37,7 +38,7 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
             if (targetLambda.isEmpty()) {
                 return false;
             }
-            Optional<LambdaExpression> newTarget = targetLambda.get().alpha(thisLambda.get().symbols());
+            Optional<LambdaExpression> newTarget = alpha(targetLambda.get(), thisLambda.get().symbols().symbols());
             if (newTarget.isEmpty()) {
                 return false;
             }
@@ -57,8 +58,24 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
         return true;
     }
 
+    private static Optional<LambdaExpression> alpha(LambdaExpression lambda, List<Symbol> newSymbols) {
+        if (newSymbols.size() != lambda.symbols().size()) {
+            return Optional.empty();
+        }
+        Exp newBody = lambda.body();
+        for (int i = 0; i < lambda.symbols().size(); i++) {
+            newBody = BetaVisitor.replace(newBody, lambda.symbols().symbols().get(i), newSymbols.get(i));
+        }
+        return Optional.of(new LambdaExpression(ParamBlock.create(newSymbols), newBody));
+    }
+
     @Override
     public Boolean visitSymbol(Symbol symbol) {
         return symbol.equals(target);
+    }
+
+    @Override
+    public Boolean visitParamBlock(ParamBlock paramBlock) {
+        return paramBlock.equals(target);
     }
 }

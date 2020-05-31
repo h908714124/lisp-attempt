@@ -13,21 +13,47 @@ public class Token {
     }
 
     public boolean isOpeningParentheses() {
-        return "(".equals(value);
+        return '(' == value.charAt(0);
+    }
+
+    public boolean isOpeningBracket() {
+        return '[' == value.charAt(0);
     }
 
     public boolean isClosingParentheses() {
-        return ")".equals(value);
+        return ')' == value.charAt(0);
+    }
+
+    public boolean isClosingBracket() {
+        return ']' == value.charAt(0);
     }
 
     public int height() {
-        if (isOpeningParentheses()) {
+        return pheight() + bheight();
+    }
+
+    private int pheight() {
+        if ('(' == value.charAt(0)) {
             return 1;
         }
-        if (isClosingParentheses()) {
+        if (')' == value.charAt(0)) {
             return -1;
         }
         return 0;
+    }
+
+    private int bheight() {
+        if ('[' == value.charAt(0)) {
+            return 1;
+        }
+        if (']' == value.charAt(0)) {
+            return -1;
+        }
+        return 0;
+    }
+
+    public boolean isBrace() {
+        return isOpeningParentheses() || isClosingParentheses() || isOpeningBracket() || isClosingBracket();
     }
 
     @Override

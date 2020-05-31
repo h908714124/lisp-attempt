@@ -2,8 +2,10 @@ package com.mypack.vars;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.AsSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +23,6 @@ public class BetaVisitor implements ExpVisitor<Exp> {
     /**
      * Replaces all occurrences of the symbol, with no
      * regard to the symbol's position.
-     * For lambda calculus purposes, the symbol should not occur in
-     * a parameter list anywhere in the expression.
      */
     public static Exp replace(Exp exp, Symbol symbol, Exp value) {
         return exp.accept(new BetaVisitor(symbol, value));
@@ -43,5 +43,18 @@ public class BetaVisitor implements ExpVisitor<Exp> {
             return value;
         }
         return symbol;
+    }
+
+    @Override
+    public Exp visitParamBlock(ParamBlock paramBlock) {
+        List<Symbol> result = new ArrayList<>(paramBlock.size());
+        for (Symbol s : paramBlock.symbols()) {
+            if (symbol.equals(s)) {
+                result.add(AsSymbol.get(value));
+            } else {
+                result.add(s);
+            }
+        }
+        return ParamBlock.create(result);
     }
 }

@@ -1,6 +1,7 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.vars.AnalysisResult;
@@ -13,7 +14,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 public class LambdaExpression {
 
     private static final Pattern SYMBOL_PATTERN = Pattern.compile("([a-z]+)([0-9]+)");
-    private final List<Symbol> symbols;
+    private final ParamBlock symbols;
     private final Exp body;
 
-    public LambdaExpression(List<Symbol> symbols, Exp body) {
+    public LambdaExpression(ParamBlock symbols, Exp body) {
         this.symbols = symbols;
         this.body = body;
     }
@@ -33,10 +33,10 @@ public class LambdaExpression {
     public Exp apply(Exp arg, Set<Symbol> additionalReserved) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body());
         AnalysisResult argResult = AnalysisVisitor.analyse(arg);
-        Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().subList(1, symbols().size())));
-        Set<Symbol> union = union(additionalReserved, union(argResult.all(), union(symbols.subList(1, symbols.size()), bodyResult.all())));
+        Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().tail()));
+        Set<Symbol> union = union(additionalReserved, union(argResult.all(), union(symbols.tail(), bodyResult.all())));
         Exp cleanArg = cleanup(arg, intersection, union);
-        return BetaVisitor.replace(body, symbols.get(0), cleanArg);
+        return BetaVisitor.replace(body, symbols.head(), cleanArg);
     }
 
     private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
@@ -86,30 +86,21 @@ public class LambdaExpression {
 
     @Override
     public String toString() {
-        return symbols.stream().map(Symbol::toString)
-                .collect(Collectors.joining(" ", "(lambda (", ") ")) +
+        return symbols.symbols().stream().map(Symbol::toString)
+                .collect(Collectors.joining(" ", "(" +
+                        Symbol.lambda() +
+                        " [", "] ")) +
                 body + ")";
-    }
-
-    public Optional<LambdaExpression> alpha(List<Symbol> newSymbols) {
-        if (newSymbols.size() != symbols.size()) {
-            return Optional.empty();
-        }
-        Exp newBody = body;
-        for (int i = 0; i < symbols.size(); i++) {
-            newBody = BetaVisitor.replace(newBody, symbols.get(i), newSymbols.get(i));
-        }
-        return Optional.of(new LambdaExpression(newSymbols, newBody));
     }
 
     public Exp toExp() {
         if (symbols.isEmpty()) {
             return body;
         }
-        return Sexp.create(Arrays.asList(Symbol.lambda(), Sexp.create(symbols), body));
+        return Sexp.create(Arrays.asList(Symbol.lambda(), symbols, body));
     }
 
-    public List<Symbol> symbols() {
+    public ParamBlock symbols() {
         return symbols;
     }
 

@@ -1,6 +1,7 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.parser.LispParser;
@@ -10,7 +11,6 @@ import com.mypack.util.FindNumbers;
 import com.mypack.util.IsDefExpression;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -68,11 +68,11 @@ public class Environment {
         Exp result = exp;
         Set<Symbol> numbers = FindNumbers.search(exp);
         for (Symbol number : numbers) {
-            LambdaExpression lambda = new LambdaExpression(Collections.singletonList(number), result);
+            LambdaExpression lambda = new LambdaExpression(ParamBlock.create(number), result);
             result = lambda.apply(churchNumeral(Integer.parseInt(number.value())), definitions.keySet());
         }
         for (Map.Entry<Symbol, Exp> e : definitions.entrySet()) {
-            LambdaExpression lambda = new LambdaExpression(Collections.singletonList(e.getKey()), result);
+            LambdaExpression lambda = new LambdaExpression(ParamBlock.create(e.getKey()), result);
             result = lambda.apply(e.getValue(), definitions.keySet());
         }
         return result;
@@ -85,7 +85,7 @@ public class Environment {
         for (int i = 0; i < n; i++) {
             result = Sexp.create(f, Collections.singletonList(result));
         }
-        return new LambdaExpression(Arrays.asList(f, x), result).toExp();
+        return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
     }
 
     private static List<Exp> internalIterEval(Exp exp, int max) {

@@ -3,6 +3,7 @@ package com.mypack.util;
 import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
@@ -31,7 +32,7 @@ public class FindNumbers implements ExpVisitor<Void> {
     public Void visitSexp(Sexp sexp) {
         Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
         if (lambda.isPresent()) {
-            List<Symbol> variableList = lambda.get().symbols();
+            List<Symbol> variableList = lambda.get().symbols().symbols();
             for (Symbol symbol : variableList) {
                 if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
                     throw new IllegalArgumentException("Not a symbol: " + symbol);
@@ -51,6 +52,11 @@ public class FindNumbers implements ExpVisitor<Void> {
         if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
             result.add(symbol);
         }
+        return null;
+    }
+
+    @Override
+    public Void visitParamBlock(ParamBlock paramBlock) {
         return null;
     }
 }

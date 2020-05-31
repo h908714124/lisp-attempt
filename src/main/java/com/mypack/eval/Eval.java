@@ -2,6 +2,7 @@ package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
@@ -35,7 +36,7 @@ class Eval implements ExpVisitor<Exp> {
             List<? extends Exp> args = sexp.tail();
             List<? extends Exp> newArgs = args.subList(1, args.size());
             Exp newBody = lambda.apply(args.get(0), reserved);
-            List<Symbol> newSymbols = lambda.symbols().subList(1, lambda.symbols().size());
+            List<Symbol> newSymbols = lambda.symbols().tail();
             if (newSymbols.isEmpty()) {
                 if (newArgs.isEmpty()) {
                     return newBody;
@@ -43,7 +44,7 @@ class Eval implements ExpVisitor<Exp> {
                     return Sexp.create(newBody, newArgs);
                 }
             }
-            Exp newLambda = new LambdaExpression(newSymbols, newBody).toExp();
+            Exp newLambda = new LambdaExpression(ParamBlock.create(newSymbols), newBody).toExp();
             if (newArgs.isEmpty()) {
                 return newLambda;
             } else {
@@ -53,7 +54,7 @@ class Eval implements ExpVisitor<Exp> {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isPresent()) {
             LambdaExpression lambda = isLambda.get();
-            Eval newEval = new Eval(LambdaExpression.union(reserved, lambda.symbols()));
+            Eval newEval = new Eval(LambdaExpression.union(reserved, lambda.symbols().symbols()));
             return new LambdaExpression(lambda.symbols(), lambda.body().accept(newEval)).toExp();
         }
         List<? extends Exp> exps = sexp.asList();
@@ -67,5 +68,10 @@ class Eval implements ExpVisitor<Exp> {
     @Override
     public Exp visitSymbol(Symbol symbol) {
         return symbol;
+    }
+
+    @Override
+    public Exp visitParamBlock(ParamBlock paramBlock) {
+        return paramBlock;
     }
 }

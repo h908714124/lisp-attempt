@@ -1,6 +1,7 @@
 package com.mypack.parser;
 
 import com.mypack.exp.Exp;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import org.junit.jupiter.api.Assertions;
@@ -12,26 +13,24 @@ class LispParserTest {
 
     @Test
     void testParse() {
-        Exp exp = LispParser.parse("(car (cdr))");
+        Exp exp = LispParser.parse("(car [cdr])");
         Assertions.assertTrue(exp instanceof Sexp);
         Assertions.assertTrue(((Sexp) exp).head() instanceof Symbol);
         Assertions.assertEquals("car", ((Symbol) ((Sexp) exp).head()).value());
         Assertions.assertEquals(1, ((Sexp) exp).tail().size());
-        Assertions.assertTrue(((Sexp) exp).tail().get(0) instanceof Sexp);
-        Assertions.assertTrue(((Sexp) ((Sexp) exp).tail().get(0)).head() instanceof Symbol);
-        Assertions.assertEquals("cdr", ((Symbol) ((Sexp) ((Sexp) exp).tail().get(0)).head()).value());
-        Assertions.assertTrue(((Sexp) ((Sexp) exp).tail().get(0)).tail().isEmpty());
+        Assertions.assertTrue(((Sexp) exp).tail().get(0) instanceof ParamBlock);
+        Assertions.assertEquals("cdr", ((ParamBlock) ((Sexp) exp).tail().get(0)).head().value());
     }
 
     @Test
     void testSegments() {
-        List<List<Token>> structure = LispParser.getSegments(LispParser.tokens("(car (cdr))").get(0));
+        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.tokens("(car (cdr))").get(0));
         Assertions.assertEquals(2, structure.size());
     }
 
     @Test
     void testStructureEmpty() {
-        List<List<Token>> structure = LispParser.getSegments(LispParser.tokens("()").get(0));
+        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.tokens("()").get(0));
         Assertions.assertTrue(structure.isEmpty());
     }
 

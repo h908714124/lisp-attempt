@@ -2,6 +2,7 @@ package com.mypack.util;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
+import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
@@ -21,5 +22,10 @@ public class AsSexp implements ExpVisitor<Sexp> {
     @Override
     public Sexp visitSymbol(Symbol symbol) {
         throw new IllegalArgumentException("sexp expected but found symbol " + symbol);
+    }
+
+    @Override
+    public Sexp visitParamBlock(ParamBlock paramBlock) {
+        throw new IllegalArgumentException("sexp expected but found param block " + paramBlock);
     }
 }
