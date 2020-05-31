@@ -13,14 +13,14 @@ class FreshnessTest {
 
     @Test
     void testFresh() {
-        Exp exp = LispParser.parse("((lambda [a b] b) (lambda [a b] a) (lambda [a b] b))");
+        Exp exp = LispParser.parse("((fn [a b] b) (fn [a b] a) (fn [a b] b))");
         Optional<Symbol> test = Freshness.test(exp);
         Assertions.assertTrue(test.isEmpty());
     }
 
     @Test
     void testNotFresh() {
-        Exp exp = LispParser.parse("((lambda [a b] (lambda [a x] a)) (lambda [a b] a) (lambda [a b] b))");
+        Exp exp = LispParser.parse("((fn [a b] (fn [a x] a)) (fn [a b] a) (fn [a b] b))");
         Optional<Symbol> test = Freshness.test(exp);
         Assertions.assertEquals(Optional.of(Symbol.of("a")), test);
     }

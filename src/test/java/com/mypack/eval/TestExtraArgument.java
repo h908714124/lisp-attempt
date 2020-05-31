@@ -10,7 +10,7 @@ class TestExtraArgument {
 
     @Test
     void testExtraArgument() {
-        Exp exp = new Environment().eval("((lambda [x] (lambda [n] n)) (lambda [a b] a) (lambda [a b] b))");
-        assertTrue(eq("(lambda [a b] b)", exp));
+        Exp exp = new Environment().eval("((fn [x] (fn [n] n)) (fn [a b] a) (fn [a b] b))");
+        assertTrue(eq("(fn [a b] b)", exp));
     }
 }

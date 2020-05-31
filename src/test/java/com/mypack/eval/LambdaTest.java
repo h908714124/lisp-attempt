@@ -13,7 +13,7 @@ import java.util.List;
 import static com.mypack.vars.AlphaEquivalence.eq;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class LambdaTest {
+class fnTest {
 
     // https://tromp.github.io/cl/diagrams.html
     @Test

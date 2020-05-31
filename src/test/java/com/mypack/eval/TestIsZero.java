@@ -16,16 +16,16 @@ class TestIsZero {
 
     @Test
     void testCheckZero0() {
-        Exp exp = LispParser.parse("((lambda [n] (n (lambda [x] (lambda [a b] b)) (lambda [a b] a))) (lambda [f x] x))");
+        Exp exp = LispParser.parse("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] x))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [a b] a)", result));
+        assertTrue(eq("(fn [a b] a)", result));
     }
 
     @Test
     void testCheckZero1() {
-        Exp exp = LispParser.parse("((lambda [n] (n (lambda [x] (lambda [a b] b)) (lambda [a b] a))) (lambda [f x] (f x)))");
+        Exp exp = LispParser.parse("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] (f x)))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [a b] b)", result));
+        assertTrue(eq("(fn [a b] b)", result));
     }
 
     @Test

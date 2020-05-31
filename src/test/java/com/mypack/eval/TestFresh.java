@@ -11,8 +11,8 @@ class TestFresh {
 
     @Test
     void testBadStuff() {
-        Exp exp = LispParser.parse("((lambda [n] (lambda [f x] ((n (lambda [g h] (h (g f))) (lambda [u] x)) (lambda [u] u)))) (lambda [f x] (f (f x))))");
+        Exp exp = LispParser.parse("((fn [n] (fn [f x] ((n (fn [g h] (h (g f))) (fn [u] x)) (fn [u] u)))) (fn [f x] (f (f x))))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [f x] (f x))", result));
+        assertTrue(eq("(fn [f x] (f x))", result));
     }
 }

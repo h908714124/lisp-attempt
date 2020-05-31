@@ -13,8 +13,8 @@ class TestPartialApplication {
 
     @Test
     void testPartialApplication() {
-        Exp exp = LispParser.parse("((lambda [f x] (f x)) (lambda [n] n))");
+        Exp exp = LispParser.parse("((fn [f x] (f x)) (fn [n] n))");
         List<Exp> result = new Environment().iterEval(exp, 1);
-        assertTrue(eq("(lambda [x] ((lambda [n] n) x))", result.get(1)));
+        assertTrue(eq("(fn [x] ((fn [n] n) x))", result.get(1)));
     }
 }

@@ -18,7 +18,7 @@ public final class Symbol implements Exp {
     }
 
     public static Symbol lambda() {
-        return of("lambda");
+        return of("fn");
     }
 
     public String value() {

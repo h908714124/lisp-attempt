@@ -11,22 +11,22 @@ class TestPredecessor {
 
     @Test
     void testPredecessorOfZero() {
-        Exp exp = LispParser.parse("((lambda [n] (lambda [f x] ((n (lambda [g h] (h (g f))) (lambda [u] x)) (lambda [u1] u1)))) (lambda [f1 x1] x1))");
+        Exp exp = LispParser.parse("((fn [n] (fn [f x] ((n (fn [g h] (h (g f))) (fn [u] x)) (fn [u1] u1)))) (fn [f1 x1] x1))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [f x] x)", result));
+        assertTrue(eq("(fn [f x] x)", result));
     }
 
     @Test
     void testPredecessorOfOne() {
-        Exp exp = LispParser.parse("((lambda [n] (lambda [f x] ((n (lambda [g h] (h (g f))) (lambda [u] x)) (lambda [u1] u1)))) (lambda [f1 x1] (f1 x1)))");
+        Exp exp = LispParser.parse("((fn [n] (fn [f x] ((n (fn [g h] (h (g f))) (fn [u] x)) (fn [u1] u1)))) (fn [f1 x1] (f1 x1)))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [f x] x)", result));
+        assertTrue(eq("(fn [f x] x)", result));
     }
 
     @Test
     void testPredecessorOfTwo() {
-        Exp exp = LispParser.parse("((lambda [n] (lambda [f x] ((n (lambda [g h] (h (g f))) (lambda [u] x)) (lambda [u1] u1)))) (lambda [f1 x1] (f1 (f1 x1))))");
+        Exp exp = LispParser.parse("((fn [n] (fn [f x] ((n (fn [g h] (h (g f))) (fn [u] x)) (fn [u1] u1)))) (fn [f1 x1] (f1 (f1 x1))))");
         Exp result = new Environment().eval(exp);
-        assertTrue(eq("(lambda [f x] (f x))", result));
+        assertTrue(eq("(fn [f x] (f x))", result));
     }
 }
