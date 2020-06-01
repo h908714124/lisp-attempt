@@ -87,9 +87,6 @@ public class Environment implements ExpVisitor<Exp> {
     }
 
     private Exp eval(Exp exp, int maxSteps) {
-        if (printing) {
-            out.println(exp.toString());
-        }
         Exp result = internalIterEval(exp, maxSteps);
         if (printing) {
             out.flush();
@@ -110,17 +107,17 @@ public class Environment implements ExpVisitor<Exp> {
     private Exp internalIterEval(Exp exp, int max) {
         Eval eval = new Eval(this);
         int n = 0;
-        String s_exp = "";
-        String s_newExp = "a";
+        String s_exp = ")(";
+        String s_newExp = exp.toString();
         while (!s_exp.equals(s_newExp) && n < max) {
+            if (printing) {
+                out.println(s_newExp);
+            }
             s_exp = s_newExp;
             Exp newExp = exp.accept(eval);
             n += 1;
             exp = newExp;
             s_newExp = newExp.toString();
-            if (printing && !s_exp.equals(s_newExp)) {
-                out.println(s_newExp);
-            }
         }
         return exp;
     }
