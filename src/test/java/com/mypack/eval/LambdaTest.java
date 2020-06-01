@@ -17,7 +17,6 @@ class LambdaTest {
         ENV.load(Path.of("src/lisp/fact.clj"));
     }
 
-    // https://tromp.github.io/cl/diagrams.html
     @Test
     void testFact0() {
         Exp exp = ENV.eval("(fact 0)");

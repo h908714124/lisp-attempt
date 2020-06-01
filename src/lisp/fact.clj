@@ -1,3 +1,5 @@
+;; Most of these definitiona are from here:
+;; https://en.wikipedia.org/wiki/Church_encoding
 (defn true [a b] a)
 
 (defn false [a b] b)
@@ -13,7 +15,6 @@
 (defn extract [k]
   (k I))
 
-;; not succ
 (defn inc [f]
   (fn [g h] (h (g f))))
 
@@ -23,19 +24,22 @@
 (defn * [m n]
   (fn [f x] (m (n f) x)))
 
-;; source: https://en.wikipedia.org/wiki/Church_encoding
+;; Predecessor function, returns (n - 1), or 0 if n == 0,
 (defn pred [n]
   (fn [f x]
     (extract (n (inc f) (K x)))))
 
-;; source: https://tromp.github.io/cl/diagrams.html
+;; A slightly shorter way to write the fixed-point combinator Y.
+;; Reduces to the "normal" Y in one step.
 (defn Y [f]
   ((fn [x] (x x))
     (fn [x] (f (x x)))))
 
-(defn fact1 [f n]
+(defn fact_ [f n]
   ((zero? n)
     1
     (* n (f (pred n)))))
 
-(def fact (Y fact1))
+;; Recursively defined factorial function.
+;; Takes a single numeral argument.
+(def fact (Y fact_))
