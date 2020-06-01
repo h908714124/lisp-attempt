@@ -20,24 +20,24 @@ class TestPredecessor {
     @Test
     void testPredecessorOfZero() {
         Exp result = ENV.eval("(pred 0)");
-        assertEq(ENV.eval("0"), result);
+        assertEq(ENV, "0", result);
     }
 
     @Test
     void testPredecessorOfOne() {
         Exp result = ENV.eval("(pred 1)");
-        assertEq(ENV.eval("0"), result);
+        assertEq(ENV, "0", result);
     }
 
     @Test
     void testPredecessorOfTwo() {
         Exp result = ENV.eval("(pred 2)");
-        assertEq(ENV.eval("1"), result);
+        assertEq(ENV, "1", result);
     }
 
     @Test
     void testK() {
         Exp result = ENV.eval("((K 2) 1)");
-        assertEq(ENV.eval("2"), result);
+        assertEq(ENV, "2", result);
     }
 }

@@ -12,24 +12,24 @@ class TestChurchPlus {
     @Test
     void testZeroPlusZero() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m f (n f x)))) (fn [f x] x) (fn [f x] x))");
-        assertEq(env.eval("(fn [f x] x)"), result);
+        assertEq(env, env.eval("(fn [f x] x)"), result);
     }
 
     @Test
     void testZeroPlusOne() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m f (n f x)))) (fn [f x] x) (fn [f x] (f x)))");
-        assertEq(env.eval("(fn [f x] (f x))"), result);
+        assertEq(env, env.eval("(fn [f x] (f x))"), result);
     }
 
     @Test
     void testOnePlusZero() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m f (n f x)))) (fn [f x] (f x)) (fn [f x] x))");
-        assertEq(env.eval("(fn [f x] (f x))"), result);
+        assertEq(env, env.eval("(fn [f x] (f x))"), result);
     }
 
     @Test
     void testOnePlusOne() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m f (n f x)))) (fn [f x] (f x)) (fn [f x] (f x)))");
-        assertEq(env.eval("(fn [f x] (f (f x)))"), result);
+        assertEq(env, env.eval("(fn [f x] (f (f x)))"), result);
     }
 }

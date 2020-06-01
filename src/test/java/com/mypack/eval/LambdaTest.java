@@ -20,24 +20,24 @@ class LambdaTest {
     @Test
     void testFact0() {
         Exp exp = ENV.eval("(fact 0)");
-        assertEq(ENV.eval("1"), exp);
+        assertEq(ENV, "1", exp);
     }
 
     @Test
     void testFact1() {
         Exp exp = ENV.eval("(fact 1)");
-        assertEq(ENV.eval("1"), exp);
+        assertEq(ENV, "1", exp);
     }
 
     @Test
     void testFact2() {
         Exp exp = ENV.eval("(fact 2)");
-        assertEq(ENV.eval("2"), exp);
+        assertEq(ENV, "2", exp);
     }
 
     @Test
     void testFact3() {
         Exp exp = ENV.eval("(fact 3)");
-        assertEq(ENV.eval("6"), exp);
+        assertEq(ENV, "6", exp);
     }
 }

@@ -12,6 +12,6 @@ class TestPartialApplication {
     @Test
     void testPartialApplication() {
         Exp result = env.eval("((fn [f x] (f x)) (fn [n] n))", 1);
-        assertEq(env.eval("(fn [x] ((fn [n] n) x))", 0), result);
+        assertEq(env, env.eval("(fn [x] ((fn [n] n) x))", 0), result);
     }
 }

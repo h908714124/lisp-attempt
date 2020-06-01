@@ -5,7 +5,9 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.AsSymbol;
 import com.mypack.util.IsLambdaExpression;
+import com.mypack.util.IsSymbol;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,12 +19,15 @@ class Eval implements ExpVisitor<Exp> {
 
     private final Set<Symbol> reserved;
 
-    private Eval(Set<Symbol> reserved) {
+    private final Environment env;
+
+    private Eval(Environment env, Set<Symbol> reserved) {
         this.reserved = reserved;
+        this.env = env;
     }
 
-    Eval() {
-        this(Collections.emptySet());
+    Eval(Environment env) {
+        this(env, Collections.emptySet());
     }
 
     @Override
@@ -54,8 +59,15 @@ class Eval implements ExpVisitor<Exp> {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isPresent()) {
             LambdaExpression lambda = isLambda.get();
-            Eval newEval = new Eval(LambdaExpression.union(reserved, lambda.symbols().symbols()));
+            Eval newEval = new Eval(env, LambdaExpression.union(reserved, lambda.symbols().symbols()));
             return new LambdaExpression(lambda.symbols(), lambda.body().accept(newEval)).toExp();
+        }
+        if (IsSymbol.test(sexp.head())) {
+            Symbol symbol = AsSymbol.get(sexp.head());
+            Exp definition = env.lookup(symbol);
+            if (definition != null) {
+                return new LambdaExpression(ParamBlock.create(symbol), sexp).apply(definition, reserved);
+            }
         }
         List<? extends Exp> exps = sexp.asList();
         List<Exp> result = new ArrayList<>(exps.size());

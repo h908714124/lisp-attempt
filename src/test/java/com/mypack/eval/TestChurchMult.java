@@ -12,12 +12,12 @@ class TestChurchMult {
     @Test
     void testTwoTimesTwo() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m (n f) x))) (fn [f x] (f (f x))) (fn [f x] (f (f x))))");
-        assertEq(env.eval("(fn [f x] (f (f (f (f x)))))"), result);
+        assertEq(env, env.eval("(fn [f x] (f (f (f (f x)))))"), result);
     }
 
     @Test
     void testTwoTimesThree() {
         Exp result = env.eval("((fn [m n] (fn [f x] (m (n f) x))) (fn [f x] (f (f x))) (fn [f x] (f (f (f x)))))");
-        assertEq(env.eval("(fn [f x] (f (f (f (f (f (f x)))))))"), result);
+        assertEq(env, env.eval("(fn [f x] (f (f (f (f (f (f x)))))))"), result);
     }
 }

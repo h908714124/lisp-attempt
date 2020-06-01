@@ -12,6 +12,6 @@ class TestExtraArgument {
     @Test
     void testExtraArgument() {
         Exp exp = env.eval("((fn [x] (fn [n] n)) (fn [a b] a) (fn [a b] b))");
-        assertEq(env.eval("(fn [a b] b)"), exp);
+        assertEq(env, env.eval("(fn [a b] b)"), exp);
     }
 }

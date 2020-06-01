@@ -20,19 +20,19 @@ class TestIsZero {
     @Test
     void testCheckZero0() {
         Exp result = ENV.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] x))");
-        assertEq(ENV.eval("(fn [a b] a)"), result);
+        assertEq(ENV, ENV.eval("(fn [a b] a)"), result);
     }
 
     @Test
     void testCheckZero1() {
         Exp result = ENV.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] (f x)))");
-        assertEq(ENV.eval("(fn [a b] b)"), result);
+        assertEq(ENV, ENV.eval("(fn [a b] b)"), result);
     }
 
     @Test
     void testDef() {
-        assertEq(ENV.eval("true"), ENV.eval("(zero? 0)"));
-        assertEq(ENV.eval("false"), ENV.eval("(zero? 1)"));
-        assertEq(ENV.eval("false"), ENV.eval("(zero? 2)"));
+        assertEq(ENV, "true", ENV.eval("(zero? 0)"));
+        assertEq(ENV, "false", ENV.eval("(zero? 1)"));
+        assertEq(ENV, "false", ENV.eval("(zero? 2)"));
     }
 }

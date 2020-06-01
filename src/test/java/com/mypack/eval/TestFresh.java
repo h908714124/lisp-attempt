@@ -12,6 +12,6 @@ class TestFresh {
     @Test
     void testBadStuff() {
         Exp result = env.eval("((fn [n] (fn [f x] ((n (fn [g h] (h (g f))) (fn [u] x)) (fn [u] u)))) (fn [f x] (f (f x))))");
-        assertEq(env.eval("(fn [f x] (f x))"), result);
+        assertEq(env, env.eval("(fn [f x] (f x))"), result);
     }
 }

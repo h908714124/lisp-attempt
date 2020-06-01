@@ -1,10 +1,10 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
+import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.util.FindNumbers;
 import com.mypack.util.IsDefExpression;
 import com.mypack.util.IsDefnExpression;
 
@@ -15,11 +15,13 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.regex.Pattern;
 
-public class Environment {
+public class Environment implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
     private final PrintStream out;
 
@@ -37,6 +39,7 @@ public class Environment {
         return eval(LispParser.parse(exp), 10000);
     }
 
+
     public void load(Path path) {
         try {
             String data = Files.readString(path);
@@ -51,45 +54,45 @@ public class Environment {
 
     private void load(Exp exp) {
         IsDefExpression.test(exp).ifPresent(defExpression -> {
-            Exp definition = resolve(defExpression.definition());
+            Exp definition = defExpression.definition();
             definitions.put(defExpression.name(), definition);
         });
         IsDefnExpression.test(exp).ifPresent(defnExpression -> {
             LambdaExpression lambda = new LambdaExpression(defnExpression.params(), defnExpression.body());
-            Exp definition = resolve(lambda.toExp());
-            definitions.put(defnExpression.name(), definition);
+            definitions.put(defnExpression.name(), lambda.toExp());
         });
+    }
+
+    public Exp lookup(String symbol) {
+        return lookup(Symbol.of(symbol));
+    }
+
+    public Exp lookup(Exp exp) {
+        return exp.accept(this);
+    }
+
+    Exp lookup(Symbol symbol) {
+        Exp definition = definitions.get(symbol);
+        if (definition != null) {
+            return definition;
+        }
+        if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
+            return Environment.churchNumeral(Integer.parseInt(symbol.value()));
+        }
+        return null;
     }
 
     public Exp eval(String unresolvedExp, int maxSteps) {
         return eval(LispParser.parse(unresolvedExp), maxSteps);
     }
 
-    private Exp eval(Exp unresolvedExp, int maxSteps) {
-        if (printing) {
-            out.println(unresolvedExp.toString());
-        }
-        Exp exp = resolve(unresolvedExp);
+    private Exp eval(Exp exp, int maxSteps) {
         if (printing) {
             out.println(exp.toString());
         }
         Exp result = internalIterEval(exp, maxSteps);
         if (printing) {
             out.flush();
-        }
-        return result;
-    }
-
-    private Exp resolve(Exp exp) {
-        Exp result = exp;
-        Set<Symbol> numbers = FindNumbers.search(exp);
-        for (Symbol number : numbers) {
-            LambdaExpression lambda = new LambdaExpression(ParamBlock.create(number), result);
-            result = lambda.apply(churchNumeral(Integer.parseInt(number.value())), definitions.keySet());
-        }
-        for (Map.Entry<Symbol, Exp> e : definitions.entrySet()) {
-            LambdaExpression lambda = new LambdaExpression(ParamBlock.create(e.getKey()), result);
-            result = lambda.apply(e.getValue(), definitions.keySet());
         }
         return result;
     }
@@ -105,7 +108,7 @@ public class Environment {
     }
 
     private Exp internalIterEval(Exp exp, int max) {
-        Eval eval = new Eval();
+        Eval eval = new Eval(this);
         int n = 0;
         String s_exp = "";
         String s_newExp = "";
@@ -123,5 +126,23 @@ public class Environment {
 
     public void setPrinting(boolean printing) {
         this.printing = printing;
+    }
+
+    // lookup
+    @Override
+    public Exp visitSexp(Sexp sexp) {
+        return sexp;
+    }
+
+    // lookup
+    @Override
+    public Exp visitSymbol(Symbol symbol) {
+        return lookup(symbol);
+    }
+
+    // lookup
+    @Override
+    public Exp visitParamBlock(ParamBlock paramBlock) {
+        return paramBlock;
     }
 }

@@ -1,5 +1,6 @@
 package com.mypack.test;
 
+import com.mypack.eval.Environment;
 import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
@@ -21,12 +22,16 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
         return exp1.accept(new AlphaEquivalence(exp2));
     }
 
-    public static void assertEq(Exp exp1, Exp exp2) {
-        Boolean result = eq(exp1, exp2);
+    public static void assertEq(Environment env, Exp exp1, Exp exp2) {
+        Boolean result = eq(exp1, env.lookup(exp2));
         if (!result) {
             String message = String.format("expected: %s but was: %s", exp1, exp2);
             Assertions.fail(message);
         }
+    }
+
+    public static void assertEq(Environment env, String exp1, Exp exp2) {
+        assertEq(env, env.lookup(exp1), exp2);
     }
 
     private final Exp target;
