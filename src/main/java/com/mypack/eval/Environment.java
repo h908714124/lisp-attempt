@@ -4,7 +4,6 @@ import com.mypack.exp.Exp;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.parser.LispParser;
 import com.mypack.util.FindNumbers;
 import com.mypack.util.IsDefExpression;
 import com.mypack.util.IsDefnExpression;
@@ -13,7 +12,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +99,7 @@ public class Environment {
         Symbol f = Symbol.of("f");
         Exp result = x;
         for (int i = 0; i < n; i++) {
-            result = Sexp.create(f, Collections.singletonList(result));
+            result = Sexp.create(f, result);
         }
         return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
     }
@@ -109,16 +107,17 @@ public class Environment {
     private Exp internalIterEval(Exp exp, int max) {
         Eval eval = new Eval();
         int n = 0;
-        String s;
-        do {
-            s = exp.toString();
+        String s_exp = "";
+        String s_newExp = "";
+        while (!s_exp.equals(s_newExp = exp.toString()) && n < max) {
+            s_exp = s_newExp;
             Exp newExp = exp.accept(eval);
             n += 1;
             exp = newExp;
             if (printing) {
                 out.println(exp.toString());
             }
-        } while (!exp.toString().equals(s) && n < max);
+        }
         return exp;
     }
 

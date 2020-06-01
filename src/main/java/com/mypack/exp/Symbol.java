@@ -17,7 +17,7 @@ public final class Symbol implements Exp {
         return SYMBOLS.computeIfAbsent(value, Symbol::new);
     }
 
-    public static Symbol lambda() {
+    public static Symbol fn() {
         return of("fn");
     }
 

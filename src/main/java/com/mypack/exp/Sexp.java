@@ -32,6 +32,14 @@ public class Sexp implements Exp {
         return new Sexp(list.get(0), list.subList(1, list.size()), list);
     }
 
+    public static Sexp create(Exp head, Exp tail) {
+        return new Sexp(head, List.of(tail));
+    }
+
+    public static Sexp create(Exp head, Exp tail1, Exp tail2) {
+        return new Sexp(head, List.of(tail1, tail2));
+    }
+
     public Exp head() {
         return head;
     }

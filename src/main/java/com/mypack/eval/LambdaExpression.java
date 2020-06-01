@@ -9,7 +9,6 @@ import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -87,9 +86,7 @@ public class LambdaExpression {
     @Override
     public String toString() {
         return symbols.symbols().stream().map(Symbol::toString)
-                .collect(Collectors.joining(" ", "(" +
-                        Symbol.lambda() +
-                        " [", "] ")) +
+                .collect(Collectors.joining(" ", "(fn [", "] ")) +
                 body + ")";
     }
 
@@ -97,7 +94,7 @@ public class LambdaExpression {
         if (symbols.isEmpty()) {
             return body;
         }
-        return Sexp.create(Arrays.asList(Symbol.lambda(), symbols, body));
+        return Sexp.create(Symbol.fn(), symbols, body);
     }
 
     public ParamBlock symbols() {

@@ -1,4 +1,4 @@
-package com.mypack.vars;
+package com.mypack.test;
 
 import com.mypack.eval.LambdaExpression;
 import com.mypack.exp.Exp;
@@ -6,10 +6,11 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
-import com.mypack.parser.LispParser;
 import com.mypack.util.AsSexp;
 import com.mypack.util.IsLambdaExpression;
 import com.mypack.util.IsSexp;
+import com.mypack.vars.BetaVisitor;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +21,12 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
         return exp1.accept(new AlphaEquivalence(exp2));
     }
 
-    public static boolean eq(String exp1, Exp exp2) {
-        return LispParser.parse(exp1).accept(new AlphaEquivalence(exp2));
+    public static void assertEq(Exp exp1, Exp exp2) {
+        Boolean result = eq(exp1, exp2);
+        if (!result) {
+            String message = String.format("expected: %s but was: %s", exp1, exp2);
+            Assertions.fail(message);
+        }
     }
 
     private final Exp target;

@@ -3,8 +3,7 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import org.junit.jupiter.api.Test;
 
-import static com.mypack.vars.AlphaEquivalence.eq;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.mypack.test.AlphaEquivalence.assertEq;
 
 class TestPartialApplication {
 
@@ -13,6 +12,6 @@ class TestPartialApplication {
     @Test
     void testPartialApplication() {
         Exp result = env.eval("((fn [f x] (f x)) (fn [n] n))", 1);
-        assertTrue(eq("(fn [x] ((fn [n] n) x))", result));
+        assertEq(env.eval("(fn [x] ((fn [n] n) x))", 0), result);
     }
 }

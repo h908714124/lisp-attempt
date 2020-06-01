@@ -1,6 +1,6 @@
-package com.mypack.parser;
+package com.mypack.eval;
 
-public class Token {
+class Token {
 
     private final String value;
 
@@ -8,27 +8,27 @@ public class Token {
         this.value = value;
     }
 
-    public String value() {
+    String value() {
         return value;
     }
 
-    public boolean isOpeningParentheses() {
+    boolean isOpeningParentheses() {
         return '(' == value.charAt(0);
     }
 
-    public boolean isOpeningBracket() {
+    boolean isOpeningBracket() {
         return '[' == value.charAt(0);
     }
 
-    public boolean isClosingParentheses() {
+    boolean isClosingParentheses() {
         return ')' == value.charAt(0);
     }
 
-    public boolean isClosingBracket() {
+    boolean isClosingBracket() {
         return ']' == value.charAt(0);
     }
 
-    public int height() {
+    int height() {
         return pheight() + bheight();
     }
 
@@ -52,7 +52,7 @@ public class Token {
         return 0;
     }
 
-    public boolean isBrace() {
+    boolean isBrace() {
         return isOpeningParentheses() || isClosingParentheses() || isOpeningBracket() || isClosingBracket();
     }
 

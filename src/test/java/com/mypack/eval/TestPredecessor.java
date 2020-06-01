@@ -4,10 +4,9 @@ import com.mypack.exp.Exp;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
-import static com.mypack.vars.AlphaEquivalence.eq;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.mypack.test.AlphaEquivalence.assertEq;
 
 class TestPredecessor {
 
@@ -15,30 +14,30 @@ class TestPredecessor {
 
     @BeforeAll
     static void setUp() {
-        ENV.load(Paths.get("src/lisp/fact.clj"));
+        ENV.load(Path.of("src/lisp/fact.clj"));
     }
 
     @Test
     void testPredecessorOfZero() {
         Exp result = ENV.eval("(pred 0)");
-        assertTrue(eq(ENV.eval("0"), result));
+        assertEq(ENV.eval("0"), result);
     }
 
     @Test
     void testPredecessorOfOne() {
         Exp result = ENV.eval("(pred 1)");
-        assertTrue(eq(ENV.eval("0"), result));
+        assertEq(ENV.eval("0"), result);
     }
 
     @Test
     void testPredecessorOfTwo() {
         Exp result = ENV.eval("(pred 2)");
-        assertTrue(eq(ENV.eval("1"), result));
+        assertEq(ENV.eval("1"), result);
     }
 
     @Test
     void testK() {
         Exp result = ENV.eval("((K 2) 1)");
-        assertTrue(eq(ENV.eval("2"), result));
+        assertEq(ENV.eval("2"), result);
     }
 }

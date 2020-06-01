@@ -13,7 +13,7 @@ public class IsLambdaExpression implements ExpVisitor<Optional<LambdaExpression>
 
     private static final IsLambdaExpression INSTANCE = new IsLambdaExpression();
 
-    private static final IsSpecificSymbolVisitor IS_LAMBDA = new IsSpecificSymbolVisitor(Symbol.lambda());
+    private static final IsSpecificSymbolVisitor IS_LAMBDA = new IsSpecificSymbolVisitor(Symbol.fn());
 
     public static Optional<LambdaExpression> test(Exp exp) {
         return exp.accept(INSTANCE);

@@ -1,4 +1,4 @@
-package com.mypack.parser;
+package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.ParamBlock;
@@ -14,15 +14,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LispParser {
+class LispParser {
 
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\R");
 
-    public static Exp parse(String input) {
+    static Exp parse(String input) {
         return parseList(input).get(0);
     }
 
-    public static List<Exp> parseList(String input) {
+    static List<Exp> parseList(String input) {
         List<Exp> result = new ArrayList<>();
         for (List<Token> tokens : tokens(input)) {
             result.add(group(tokens));
