@@ -14,7 +14,7 @@ class LambdaTest {
 
     @BeforeAll
     static void setUp() {
-        ENV.load(Path.of("src/lisp/fact.clj"));
+        ENV.load(Path.of("src/clj/fact.clj"));
     }
 
     @Test
