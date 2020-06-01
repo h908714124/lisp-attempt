@@ -111,14 +111,15 @@ public class Environment implements ExpVisitor<Exp> {
         Eval eval = new Eval(this);
         int n = 0;
         String s_exp = "";
-        String s_newExp = "";
-        while (!s_exp.equals(s_newExp = exp.toString()) && n < max) {
+        String s_newExp = "a";
+        while (!s_exp.equals(s_newExp) && n < max) {
             s_exp = s_newExp;
             Exp newExp = exp.accept(eval);
             n += 1;
             exp = newExp;
-            if (printing) {
-                out.println(exp.toString());
+            s_newExp = newExp.toString();
+            if (printing && !s_exp.equals(s_newExp)) {
+                out.println(s_newExp);
             }
         }
         return exp;
