@@ -8,6 +8,7 @@ import com.mypack.exp.Symbol;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsLambdaExpression;
 import com.mypack.util.IsSymbol;
+import com.mypack.vars.AnalysisVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +23,7 @@ class Eval implements ExpVisitor<Exp> {
     private final Environment env;
 
     private Eval(Environment env, Set<Symbol> reserved) {
-        this.reserved = reserved;
+        this.reserved = LambdaExpression.union(reserved, env.keySet());
         this.env = env;
     }
 
@@ -66,15 +67,30 @@ class Eval implements ExpVisitor<Exp> {
             Symbol symbol = AsSymbol.get(sexp.head());
             Exp definition = env.lookup(symbol);
             if (definition != null) {
-                return new LambdaExpression(ParamBlock.create(symbol), sexp).apply(definition, reserved);
+                return insertDefinition(sexp, symbol, definition);
             }
         }
         List<? extends Exp> exps = sexp.asList();
-        List<Exp> result = new ArrayList<>(exps.size());
-        for (Exp exp : exps) {
-            result.add(exp.accept(this));
+        for (int i = 0; i < exps.size(); i++) {
+            Exp exp = exps.get(i);
+            Exp newExp = exp.accept(this);
+            if (!newExp.toString().equals(exp.toString())) {
+                List<Exp> result = new ArrayList<>(exps);
+                result.set(i, newExp);
+                return Sexp.create(result);
+            }
         }
-        return Sexp.create(result);
+        return sexp;
+    }
+
+    private Exp insertDefinition(Sexp sexp, Symbol symbol, Exp definition) {
+        Set<Symbol> all = LambdaExpression.union(AnalysisVisitor.analyse(sexp).all(), reserved);
+        Symbol newSymbol = symbol;
+        while (all.contains(newSymbol)) {
+            newSymbol = Symbol.of(newSymbol.value() + "_");
+        }
+        Sexp newSexp = Sexp.create(newSymbol, sexp.tail());
+        return new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
     }
 
     @Override

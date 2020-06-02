@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Environment implements ExpVisitor<Exp> {
@@ -113,10 +114,10 @@ public class Environment implements ExpVisitor<Exp> {
             if (printing) {
                 out.println(s_newExp);
             }
-            s_exp = s_newExp;
             Exp newExp = exp.accept(eval);
             n += 1;
             exp = newExp;
+            s_exp = s_newExp;
             s_newExp = newExp.toString();
         }
         return exp;
@@ -142,5 +143,9 @@ public class Environment implements ExpVisitor<Exp> {
     @Override
     public Exp visitParamBlock(ParamBlock paramBlock) {
         return paramBlock;
+    }
+
+    public Set<Symbol> keySet() {
+        return definitions.keySet();
     }
 }
