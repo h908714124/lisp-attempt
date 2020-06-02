@@ -108,17 +108,16 @@ public class Environment implements ExpVisitor<Exp> {
     private Exp internalIterEval(Exp exp, int max) {
         Eval eval = new Eval(this);
         int n = 0;
-        String s_exp = ")(";
-        String s_newExp = exp.toString();
-        while (!s_exp.equals(s_newExp) && n < max) {
+        while (n < max) {
             if (printing) {
-                out.println(s_newExp);
+                out.println(exp.toString());
             }
             Exp newExp = exp.accept(eval);
+            if (newExp == exp) {
+                break;
+            }
             n += 1;
             exp = newExp;
-            s_exp = s_newExp;
-            s_newExp = newExp.toString();
         }
         return exp;
     }

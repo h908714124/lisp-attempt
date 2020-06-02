@@ -74,7 +74,7 @@ class Eval implements ExpVisitor<Exp> {
         for (int i = 0; i < exps.size(); i++) {
             Exp exp = exps.get(i);
             Exp newExp = exp.accept(this);
-            if (!newExp.toString().equals(exp.toString())) {
+            if (newExp != exp) {
                 List<Exp> result = new ArrayList<>(exps);
                 result.set(i, newExp);
                 return Sexp.create(result);
