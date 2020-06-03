@@ -66,9 +66,21 @@ class Eval implements ExpVisitor<Exp> {
         if (IsSymbol.test(head, "I") && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (IsSymbol.test(head, "pred") && sexp.size() == 2 && IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
-            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
-            return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
+        boolean isPred = IsSymbol.test(head, "pred");
+        if (isPred) {
+            if (sexp.size() != 2) {
+                return Optional.empty();
+            }
+            if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
+                int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
+                return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
+            } else if (IsSexp.test(sexp.get(1))) {
+                Optional<Exp> predArg = checkShortcuts(AsSexp.get(sexp.get(1)));
+                if (predArg.isEmpty()) {
+                    return Optional.empty();
+                }
+                return Optional.of(Sexp.create(Symbol.of("pred"), predArg.get()));
+            }
         }
         if (isFalse(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));
