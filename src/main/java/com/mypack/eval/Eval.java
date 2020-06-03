@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mypack.eval.LambdaExpression.union;
+
 class Eval implements ExpVisitor<Exp> {
 
     private final Set<Symbol> reserved;
@@ -23,7 +25,7 @@ class Eval implements ExpVisitor<Exp> {
     private final Environment env;
 
     private Eval(Environment env, Set<Symbol> reserved) {
-        this.reserved = LambdaExpression.union(reserved, env.keySet());
+        this.reserved = union(reserved, env.keySet());
         this.env = env;
     }
 
@@ -33,9 +35,6 @@ class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        if (sexp.tail().isEmpty()) {
-            return sexp.head();
-        }
         Optional<LambdaExpression> isHeadLambda = IsLambdaExpression.test(sexp.head());
         if (isHeadLambda.isPresent() && !sexp.tail().isEmpty()) {
             LambdaExpression lambda = isHeadLambda.get();
@@ -60,8 +59,12 @@ class Eval implements ExpVisitor<Exp> {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isPresent()) {
             LambdaExpression lambda = isLambda.get();
-            Eval newEval = new Eval(env, LambdaExpression.union(reserved, lambda.symbols().symbols()));
-            return new LambdaExpression(lambda.symbols(), lambda.body().accept(newEval)).toExp();
+            Eval newEval = new Eval(env, union(reserved, lambda.symbols().symbols()));
+            Exp newBody = lambda.body().accept(newEval);
+            if (newBody == lambda.body()) {
+                return sexp;
+            }
+            return Sexp.create(Symbol.fn(), lambda.symbols(), newBody);
         }
         if (IsSymbol.test(sexp.head())) {
             Symbol symbol = AsSymbol.get(sexp.head());
@@ -84,7 +87,7 @@ class Eval implements ExpVisitor<Exp> {
     }
 
     private Exp insertDefinition(Sexp sexp, Symbol symbol, Exp definition) {
-        Set<Symbol> all = LambdaExpression.union(AnalysisVisitor.analyse(sexp).all(), reserved);
+        Set<Symbol> all = union(AnalysisVisitor.analyse(sexp).all(), reserved);
         Symbol newSymbol = symbol;
         while (all.contains(newSymbol)) {
             newSymbol = Symbol.of(newSymbol.value() + "_");
