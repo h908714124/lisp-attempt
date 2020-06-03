@@ -7,6 +7,7 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.IsDefExpression;
 import com.mypack.util.IsDefnExpression;
+import com.mypack.vars.Freshness;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -88,6 +89,9 @@ public class Environment implements ExpVisitor<Exp> {
     }
 
     private Exp eval(Exp exp, int maxSteps) {
+        Freshness.test(exp).ifPresent(symbol -> {
+            throw new IllegalArgumentException("Non-fresh symbol in input: " + symbol);
+        });
         Exp result = internalIterEval(exp, maxSteps);
         if (printing) {
             out.flush();
