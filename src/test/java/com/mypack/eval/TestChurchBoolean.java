@@ -3,7 +3,7 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import org.junit.jupiter.api.Test;
 
-import static com.mypack.test.AlphaEquivalence.assertEq;
+import static com.mypack.test.TestUtil.assertEq;
 
 class TestChurchBoolean {
 

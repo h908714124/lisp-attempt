@@ -29,6 +29,8 @@ public class Environment implements ExpVisitor<Exp> {
 
     private boolean printing;
 
+    private final Map<Exp, Exp> substitutionMap = new LinkedHashMap<>();
+
     public Environment(PrintStream out) {
         this.out = out;
     }
@@ -150,5 +152,13 @@ public class Environment implements ExpVisitor<Exp> {
 
     public Set<Symbol> keySet() {
         return definitions.keySet();
+    }
+
+    public void addSubstitution(Exp exp1, Exp exp2) {
+        substitutionMap.put(exp1, exp2);
+    }
+
+    public Set<Map.Entry<Exp, Exp>> substitutionEntries() {
+        return substitutionMap.entrySet();
     }
 }

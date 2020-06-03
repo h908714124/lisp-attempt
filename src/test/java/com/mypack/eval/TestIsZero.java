@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
-import static com.mypack.test.AlphaEquivalence.assertEq;
+import static com.mypack.test.TestUtil.assertEq;
 
 class TestIsZero {
 

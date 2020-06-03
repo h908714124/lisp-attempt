@@ -8,11 +8,13 @@ import com.mypack.exp.Symbol;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsLambdaExpression;
 import com.mypack.util.IsSymbol;
+import com.mypack.vars.AlphaEquivalence;
 import com.mypack.vars.AnalysisVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -36,8 +38,8 @@ class Eval implements ExpVisitor<Exp> {
     @Override
     public Exp visitSexp(Sexp sexp) {
         return checkHeadLambda(sexp)
-                .or(() -> checkLambda(sexp))
                 .or(() -> checkHeadSymbol(sexp))
+                .or(() -> recurseLambda(sexp))
                 .or(() -> recurseParts(sexp.asList()))
                 .orElse(sexp);
     }
@@ -62,6 +64,10 @@ class Eval implements ExpVisitor<Exp> {
         }
         LambdaExpression lambda = isHeadLambda.get();
         List<? extends Exp> args = sexp.tail();
+        Optional<List<Exp>> subst = tailSubstitute(args);
+        if (subst.isPresent()) {
+            return Optional.of(Sexp.create(sexp.head(), subst.get()));
+        }
         List<? extends Exp> newArgs = args.subList(1, args.size());
         Exp newBody = lambda.apply(args.get(0), reserved);
         List<Symbol> newSymbols = lambda.symbols().tail();
@@ -80,7 +86,7 @@ class Eval implements ExpVisitor<Exp> {
         }
     }
 
-    private Optional<Exp> checkLambda(Sexp sexp) {
+    private Optional<Exp> recurseLambda(Sexp sexp) {
         Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
         if (isLambda.isEmpty()) {
             return Optional.empty();
@@ -115,6 +121,29 @@ class Eval implements ExpVisitor<Exp> {
         Sexp newSexp = Sexp.create(newSymbol, sexp.tail());
         return new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
     }
+
+    private Optional<Exp> substitute(Exp exp) {
+        for (Map.Entry<Exp, Exp> alphaEntry : env.substitutionEntries()) {
+            if (AlphaEquivalence.eq(alphaEntry.getKey(), exp)) {
+                return Optional.of(alphaEntry.getValue());
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<List<Exp>> tailSubstitute(List<? extends Exp> args) {
+        List<Exp> result = new ArrayList<>(args);
+        for (int i = 0; i < args.size(); i++) {
+            Exp arg = args.get(i);
+            Optional<Exp> subst = substitute(arg);
+            if (subst.isPresent()) {
+                result.set(i, subst.get());
+                return Optional.of(result);
+            }
+        }
+        return Optional.empty();
+    }
+
 
     @Override
     public Exp visitSymbol(Symbol symbol) {
