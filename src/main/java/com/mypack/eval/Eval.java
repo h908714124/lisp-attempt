@@ -35,55 +35,75 @@ class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        Optional<LambdaExpression> isHeadLambda = IsLambdaExpression.test(sexp.head());
-        if (isHeadLambda.isPresent() && !sexp.tail().isEmpty()) {
-            LambdaExpression lambda = isHeadLambda.get();
-            List<? extends Exp> args = sexp.tail();
-            List<? extends Exp> newArgs = args.subList(1, args.size());
-            Exp newBody = lambda.apply(args.get(0), reserved);
-            List<Symbol> newSymbols = lambda.symbols().tail();
-            if (newSymbols.isEmpty()) {
-                if (newArgs.isEmpty()) {
-                    return newBody;
-                } else {
-                    return Sexp.create(newBody, newArgs);
-                }
-            }
-            Exp newLambda = new LambdaExpression(ParamBlock.create(newSymbols), newBody).toExp();
-            if (newArgs.isEmpty()) {
-                return newLambda;
-            } else {
-                return Sexp.create(newLambda, newArgs);
-            }
-        }
-        Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
-        if (isLambda.isPresent()) {
-            LambdaExpression lambda = isLambda.get();
-            Eval newEval = new Eval(env, union(reserved, lambda.symbols().symbols()));
-            Exp newBody = lambda.body().accept(newEval);
-            if (newBody == lambda.body()) {
-                return sexp;
-            }
-            return Sexp.create(Symbol.fn(), lambda.symbols(), newBody);
-        }
-        if (IsSymbol.test(sexp.head())) {
-            Symbol symbol = AsSymbol.get(sexp.head());
-            Exp definition = env.lookup(symbol);
-            if (definition != null) {
-                return insertDefinition(sexp, symbol, definition);
-            }
-        }
-        List<? extends Exp> exps = sexp.asList();
+        return checkHeadLambda(sexp)
+                .or(() -> checkLambda(sexp))
+                .or(() -> checkHeadSymbol(sexp))
+                .or(() -> recurseParts(sexp.asList()))
+                .orElse(sexp);
+    }
+
+    private Optional<Exp> recurseParts(List<? extends Exp> exps) {
         for (int i = 0; i < exps.size(); i++) {
             Exp exp = exps.get(i);
             Exp newExp = exp.accept(this);
             if (newExp != exp) {
                 List<Exp> result = new ArrayList<>(exps);
                 result.set(i, newExp);
-                return Sexp.create(result);
+                return Optional.of(Sexp.create(result));
             }
         }
-        return sexp;
+        return Optional.empty();
+    }
+
+    private Optional<Exp> checkHeadLambda(Sexp sexp) {
+        Optional<LambdaExpression> isHeadLambda = IsLambdaExpression.test(sexp.head());
+        if (isHeadLambda.isEmpty() || sexp.tail().isEmpty()) {
+            return Optional.empty();
+        }
+        LambdaExpression lambda = isHeadLambda.get();
+        List<? extends Exp> args = sexp.tail();
+        List<? extends Exp> newArgs = args.subList(1, args.size());
+        Exp newBody = lambda.apply(args.get(0), reserved);
+        List<Symbol> newSymbols = lambda.symbols().tail();
+        if (newSymbols.isEmpty()) {
+            if (newArgs.isEmpty()) {
+                return Optional.of(newBody);
+            } else {
+                return Optional.of(Sexp.create(newBody, newArgs));
+            }
+        }
+        Exp newLambda = new LambdaExpression(ParamBlock.create(newSymbols), newBody).toExp();
+        if (newArgs.isEmpty()) {
+            return Optional.of(newLambda);
+        } else {
+            return Optional.of(Sexp.create(newLambda, newArgs));
+        }
+    }
+
+    private Optional<Exp> checkLambda(Sexp sexp) {
+        Optional<LambdaExpression> isLambda = IsLambdaExpression.test(sexp);
+        if (isLambda.isEmpty()) {
+            return Optional.empty();
+        }
+        LambdaExpression lambda = isLambda.get();
+        Eval newEval = new Eval(env, union(reserved, lambda.symbols().symbols()));
+        Exp newBody = lambda.body().accept(newEval);
+        if (newBody == lambda.body()) {
+            return Optional.of(sexp);
+        }
+        return Optional.of(Sexp.create(Symbol.fn(), lambda.symbols(), newBody));
+    }
+
+    private Optional<Exp> checkHeadSymbol(Sexp sexp) {
+        if (!IsSymbol.test(sexp.head())) {
+            return Optional.empty();
+        }
+        Symbol symbol = AsSymbol.get(sexp.head());
+        Exp definition = env.lookup(symbol);
+        if (definition == null) {
+            return Optional.empty();
+        }
+        return Optional.of(insertDefinition(sexp, symbol, definition));
     }
 
     private Exp insertDefinition(Sexp sexp, Symbol symbol, Exp definition) {
