@@ -9,9 +9,6 @@
 
 (defn I [x] x)
 
-(defn value [v]
-  (fn [h] (h v)))
-
 (defn extract [k]
   (k I))
 
