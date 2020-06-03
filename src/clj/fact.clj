@@ -26,10 +26,8 @@
   (fn [f x]
     (extract (n (inc f) (K x)))))
 
-;; A slightly shorter way to write the fixed-point combinator Y.
-;; Reduces to the "normal" Y in one step.
 (defn Y [f]
-  ((fn [x] (x x))
+  ((fn [x] (f (x x)))
     (fn [x] (f (x x)))))
 
 (defn fact_ [f n]
