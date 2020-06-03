@@ -10,9 +10,5 @@
 ((zero? 0) 1 (* 0 ((Y fact_) (pred 0))))
 (((fn [n] (n (K false) true)) 0) 1 (* 0 ((Y fact_) (pred 0))))
 ((0 (K false) true) 1 (* 0 ((Y fact_) (pred 0))))
-(((fn [f x] x) (K false) true) 1 (* 0 ((Y fact_) (pred 0))))
-(((fn [x] x) true) 1 (* 0 ((Y fact_) (pred 0))))
 (true 1 (* 0 ((Y fact_) (pred 0))))
-((fn [a b] a) 1 (* 0 ((Y fact_) (pred 0))))
-((fn [b] 1) (* 0 ((Y fact_) (pred 0))))
 1

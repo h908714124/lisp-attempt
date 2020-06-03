@@ -14,6 +14,10 @@ public class IsSymbol implements ExpVisitor<Boolean> {
         return exp.accept(INSTANCE);
     }
 
+    public static boolean test(Exp exp, String test) {
+        return exp.accept(INSTANCE) && AsSymbol.get(exp).value().equals(test);
+    }
+
     @Override
     public Boolean visitSexp(Sexp sexp) {
         return false;

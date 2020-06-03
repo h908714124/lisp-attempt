@@ -5,8 +5,10 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
 import com.mypack.util.IsLambdaExpression;
+import com.mypack.util.IsSexp;
 import com.mypack.util.IsSymbol;
 import com.mypack.vars.AlphaEquivalence;
 import com.mypack.vars.AnalysisVisitor;
@@ -37,7 +39,8 @@ class Eval implements ExpVisitor<Exp> {
 
     @Override
     public Exp visitSexp(Sexp sexp) {
-        return checkHeadLambda(sexp)
+        return checkShortcuts(sexp)
+                .or(() -> checkHeadLambda(sexp))
                 .or(() -> checkHeadSymbol(sexp))
                 .or(() -> recurseLambda(sexp))
                 .or(() -> recurseParts(sexp.asList()))
@@ -55,6 +58,38 @@ class Eval implements ExpVisitor<Exp> {
             }
         }
         return Optional.empty();
+    }
+
+    private Optional<Exp> checkShortcuts(Sexp sexp) {
+        Exp head = sexp.head();
+        if (IsSymbol.test(head, "I") && sexp.size() == 2) {
+            return Optional.of(sexp.get(1));
+        }
+        if (isFalse(head) && sexp.size() == 3) {
+            return Optional.of(sexp.get(2));
+        }
+        if (IsSymbol.test(head, "true") && sexp.size() == 3) {
+            return Optional.of(sexp.get(1));
+        }
+        if (!IsSexp.test(head)) {
+            return Optional.empty();
+        }
+        Sexp headSexp = AsSexp.get(head);
+        if (isFalse(headSexp) && headSexp.size() == 2 && sexp.size() == 2) {
+            return Optional.of(sexp.get(1));
+        }
+        if (IsSymbol.test(headSexp, "true") && headSexp.size() == 2 && sexp.size() == 2) {
+            return Optional.of(headSexp.get(1));
+        }
+        return Optional.empty();
+    }
+
+    private boolean isFalse(Exp exp) {
+        if (!IsSymbol.test(exp)) {
+            return false;
+        }
+        String symbol = AsSymbol.get(exp).value();
+        return symbol.equals("K") || symbol.equals("false") || symbol.equals("0");
     }
 
     private Optional<Exp> checkHeadLambda(Sexp sexp) {

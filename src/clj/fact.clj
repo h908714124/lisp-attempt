@@ -1,4 +1,4 @@
-;; Most of these definitiona are from here:
+;; Most of these definitions are from here:
 ;; https://en.wikipedia.org/wiki/Church_encoding
 (defn true [a b] a)
 
