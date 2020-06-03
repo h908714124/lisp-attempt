@@ -73,20 +73,28 @@ class Eval implements ExpVisitor<Exp> {
         if (isFalse(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));
         }
-        if (IsSymbol.test(head, "true") && sexp.size() == 3) {
+        if (isTrue(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(1));
         }
         if (!IsSexp.test(head)) {
             return Optional.empty();
         }
         Sexp headSexp = AsSexp.get(head);
-        if (isFalse(headSexp) && headSexp.size() == 2 && sexp.size() == 2) {
+        if (isFalse(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (IsSymbol.test(headSexp, "true") && headSexp.size() == 2 && sexp.size() == 2) {
+        if (isTrue(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
             return Optional.of(headSexp.get(1));
         }
         return Optional.empty();
+    }
+
+    private boolean isTrue(Exp exp) {
+        if (!IsSymbol.test(exp)) {
+            return false;
+        }
+        String symbol = AsSymbol.get(exp).value();
+        return symbol.equals("K") || symbol.equals("true");
     }
 
     private boolean isFalse(Exp exp) {
@@ -94,7 +102,7 @@ class Eval implements ExpVisitor<Exp> {
             return false;
         }
         String symbol = AsSymbol.get(exp).value();
-        return symbol.equals("K") || symbol.equals("false") || symbol.equals("0");
+        return symbol.equals("false") || symbol.equals("0");
     }
 
     private Optional<Exp> checkHeadLambda(Sexp sexp) {

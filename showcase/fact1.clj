@@ -13,8 +13,6 @@
 (((fn [f x] (f x)) (K false) true) 1 (* 1 ((Y fact_) (pred 1))))
 (((fn [x] ((K false) x)) true) 1 (* 1 ((Y fact_) (pred 1))))
 (((K false) true) 1 (* 1 ((Y fact_) (pred 1))))
-((((fn [x] (fn [u] x)) false) true) 1 (* 1 ((Y fact_) (pred 1))))
-(((fn [u] false) true) 1 (* 1 ((Y fact_) (pred 1))))
 (false 1 (* 1 ((Y fact_) (pred 1))))
 (* 1 ((Y fact_) (pred 1)))
 ((fn [m n] (fn [f x] (m (n f) x))) 1 ((Y fact_) (pred 1)))
