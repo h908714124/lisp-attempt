@@ -1,10 +1,13 @@
 package com.mypack.eval;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class FreshnessTest {
 
     private final Environment env = new Environment();

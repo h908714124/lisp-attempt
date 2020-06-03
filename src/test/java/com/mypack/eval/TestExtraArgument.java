@@ -2,9 +2,12 @@ package com.mypack.eval;
 
 import com.mypack.exp.Exp;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static com.mypack.test.TestUtil.assertEq;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class TestExtraArgument {
 
     private final Environment env = new Environment();

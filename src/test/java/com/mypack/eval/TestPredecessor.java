@@ -3,41 +3,44 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.nio.file.Path;
 
 import static com.mypack.test.TestUtil.assertEq;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class TestPredecessor {
 
-    private static final Environment ENV = new Environment();
+    private final Environment env = new Environment();
 
     @BeforeAll
-    static void setUp() {
-        ENV.load(Path.of("src/clj/fact.clj"));
+    void setUp() {
+        env.load(Path.of("src/clj/fact.clj"));
     }
 
     @Test
     void testPredecessorOfZero() {
-        Exp result = ENV.eval("(pred 0)");
-        assertEq(ENV, "0", result);
+        Exp result = env.eval("(pred 0)");
+        assertEq(env, "0", result);
     }
 
     @Test
     void testPredecessorOfOne() {
-        Exp result = ENV.eval("(pred 1)");
-        assertEq(ENV, "0", result);
+        Exp result = env.eval("(pred 1)");
+        assertEq(env, "0", result);
     }
 
     @Test
     void testPredecessorOfTwo() {
-        Exp result = ENV.eval("(pred 2)");
-        assertEq(ENV, "1", result);
+        Exp result = env.eval("(pred 2)");
+        assertEq(env, "1", result);
     }
 
     @Test
     void testK() {
-        Exp result = ENV.eval("((K 2) 1)");
-        assertEq(ENV, "2", result);
+        Exp result = env.eval("((K 2) 1)");
+        assertEq(env, "2", result);
     }
 }

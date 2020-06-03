@@ -3,36 +3,39 @@ package com.mypack.eval;
 import com.mypack.exp.Exp;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.nio.file.Path;
 
 import static com.mypack.test.TestUtil.assertEq;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class TestIsZero {
 
-    private static final Environment ENV = new Environment();
+    private final Environment env = new Environment();
 
     @BeforeAll
-    static void setUp() {
-        ENV.load(Path.of("src/clj/fact.clj"));
+    void setUp() {
+        env.load(Path.of("src/clj/fact.clj"));
     }
 
     @Test
     void testCheckZero0() {
-        Exp result = ENV.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] x))");
-        assertEq(ENV, ENV.eval("(fn [a b] a)"), result);
+        Exp result = env.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] x))");
+        assertEq(env, env.eval("(fn [a b] a)"), result);
     }
 
     @Test
     void testCheckZero1() {
-        Exp result = ENV.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] (f x)))");
-        assertEq(ENV, ENV.eval("(fn [a b] b)"), result);
+        Exp result = env.eval("((fn [n] (n (fn [x] (fn [a b] b)) (fn [a b] a))) (fn [f x] (f x)))");
+        assertEq(env, env.eval("(fn [a b] b)"), result);
     }
 
     @Test
     void testDef() {
-        assertEq(ENV, "true", ENV.eval("(zero? 0)"));
-        assertEq(ENV, "false", ENV.eval("(zero? 1)"));
-        assertEq(ENV, "false", ENV.eval("(zero? 2)"));
+        assertEq(env, "true", env.eval("(zero? 0)"));
+        assertEq(env, "false", env.eval("(zero? 1)"));
+        assertEq(env, "false", env.eval("(zero? 2)"));
     }
 }
