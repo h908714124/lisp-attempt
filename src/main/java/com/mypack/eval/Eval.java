@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.mypack.eval.Environment.NUMBER_PATTERN;
 import static com.mypack.eval.LambdaExpression.union;
 
 class Eval implements ExpVisitor<Exp> {
@@ -64,6 +65,10 @@ class Eval implements ExpVisitor<Exp> {
         Exp head = sexp.head();
         if (IsSymbol.test(head, "I") && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
+        }
+        if (IsSymbol.test(head, "pred") && sexp.size() == 2 && IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
+            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
+            return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
         }
         if (isFalse(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));

@@ -10,6 +10,7 @@ import com.mypack.util.IsDefnExpression;
 import com.mypack.vars.Freshness;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +24,7 @@ public class Environment implements ExpVisitor<Exp> {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
 
-    private static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
+    static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
     private final PrintStream out;
 
@@ -36,7 +37,7 @@ public class Environment implements ExpVisitor<Exp> {
     }
 
     public Environment() {
-        this(System.out);
+        this(new PrintStream(OutputStream.nullOutputStream()));
     }
 
     public Exp eval(String exp) {

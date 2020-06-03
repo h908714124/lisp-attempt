@@ -6,6 +6,8 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
+import java.util.regex.Pattern;
+
 public class IsSymbol implements ExpVisitor<Boolean> {
 
     private static final IsSymbol INSTANCE = new IsSymbol();
@@ -16,6 +18,10 @@ public class IsSymbol implements ExpVisitor<Boolean> {
 
     public static boolean test(Exp exp, String test) {
         return exp.accept(INSTANCE) && AsSymbol.get(exp).value().equals(test);
+    }
+
+    public static boolean test(Exp exp, Pattern test) {
+        return exp.accept(INSTANCE) && test.matcher(AsSymbol.get(exp).value()).matches();
     }
 
     @Override
