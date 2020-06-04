@@ -5,7 +5,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static com.mypack.test.TestUtil.assertEq;
 
@@ -15,8 +19,8 @@ class LambdaTest {
     private Environment env;
 
     @BeforeAll
-    void setUp() {
-        env = new Environment();
+    void setUp() throws IOException {
+        env = new Environment(new PrintStream(new FileOutputStream(Paths.get("/tmp/foo.txt").toFile())));
         env.load(Path.of("src/clj/fact.clj"));
         Exp yfact = env.eval("((fn [x] (fact_ (x x))) (fn [x] (fact_ (x x))))", 0);
         Exp def = env.eval("(Y fact_)", 0);

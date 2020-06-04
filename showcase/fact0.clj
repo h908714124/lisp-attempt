@@ -1,7 +1,6 @@
 (fact 0)
 ((Y fact_) 0)
-(((fn [f] ((fn [x] (x x)) (fn [x] (f (x x))))) fact_) 0)
-(((fn [x] (x x)) (fn [x] (fact_ (x x)))) 0)
+(((fn [f] ((fn [x] (f (x x))) (fn [x] (f (x x))))) fact_) 0)
 (((fn [x] (fact_ (x x))) (fn [x] (fact_ (x x)))) 0)
 ((fact_ ((fn [x] (fact_ (x x))) (fn [x] (fact_ (x x))))) 0)
 (((fn [f n] ((zero? n) 1 (* n (f (pred n))))) ((fn [x] (fact_ (x x))) (fn [x] (fact_ (x x))))) 0)
