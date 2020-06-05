@@ -66,42 +66,72 @@ class Eval implements ExpVisitor<Exp> {
         if (IsSymbol.test(head, "I") && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        boolean isPred = IsSymbol.test(head, "pred");
-        if (isPred) {
-            if (sexp.size() != 2) {
-                return Optional.empty();
-            }
-            if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
-                int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
-                return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
-            } else if (IsSexp.test(sexp.get(1))) {
-                Optional<Exp> predArg = checkShortcuts(AsSexp.get(sexp.get(1)));
-                if (predArg.isEmpty()) {
-                    return Optional.empty();
-                }
-                return Optional.of(Sexp.create(Symbol.of("pred"), predArg.get()));
-            }
+        if (IsSymbol.test(head, "pred")) {
+            return predShortcut(sexp);
         }
-        if (isFalse(head) && sexp.size() == 3) {
+        if (IsSymbol.test(head, "zero?")) {
+            return zeroShortcut(sexp);
+        }
+        if (isFalseSymbol(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));
         }
-        if (isTrue(head) && sexp.size() == 3) {
+        if (isTrueSymbol(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(1));
         }
-        if (!IsSexp.test(head)) {
-            return Optional.empty();
+        if (IsSexp.test(head)) {
+            return headSexpShortcut(sexp);
         }
-        Sexp headSexp = AsSexp.get(head);
-        if (isFalse(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
+        return Optional.empty();
+    }
+
+    private Optional<Exp> headSexpShortcut(Sexp sexp) {
+        Sexp headSexp = AsSexp.get(sexp.head());
+        if (isFalseSymbol(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (isTrue(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
+        if (isTrueSymbol(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
             return Optional.of(headSexp.get(1));
         }
         return Optional.empty();
     }
 
-    private boolean isTrue(Exp exp) {
+    private Optional<Exp> zeroShortcut(Sexp sexp) {
+        if (sexp.size() != 2) {
+            return Optional.empty();
+        }
+        if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
+            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
+            return Optional.of(i == 0 ? Symbol.of("true") : Symbol.of("false"));
+        } else if (IsSexp.test(sexp.get(1))) {
+            Optional<Exp> arg = checkShortcuts(AsSexp.get(sexp.get(1)));
+            if (arg.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(Sexp.create(Symbol.of("zero?"), arg.get()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<Exp> predShortcut(Sexp sexp) {
+        if (sexp.size() != 2) {
+            return Optional.empty();
+        }
+        if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
+            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
+            return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
+        } else if (IsSexp.test(sexp.get(1))) {
+            Optional<Exp> arg = checkShortcuts(AsSexp.get(sexp.get(1)));
+            if (arg.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(Sexp.create(Symbol.of("pred"), arg.get()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private boolean isTrueSymbol(Exp exp) {
         if (!IsSymbol.test(exp)) {
             return false;
         }
@@ -109,7 +139,7 @@ class Eval implements ExpVisitor<Exp> {
         return symbol.equals("K") || symbol.equals("true");
     }
 
-    private boolean isFalse(Exp exp) {
+    private boolean isFalseSymbol(Exp exp) {
         if (!IsSymbol.test(exp)) {
             return false;
         }
