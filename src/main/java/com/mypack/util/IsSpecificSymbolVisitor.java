@@ -5,7 +5,7 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-final class IsSpecificSymbolVisitor implements ExpVisitor<Boolean> {
+final class IsSpecificSymbolVisitor implements ExpVisitor<Boolean, Void> {
 
     private final Symbol test;
 
@@ -14,7 +14,7 @@ final class IsSpecificSymbolVisitor implements ExpVisitor<Boolean> {
     }
 
     @Override
-    public final Boolean visitSexp(Sexp sexp) {
+    public final Boolean visitSexp(Sexp sexp, Void _null) {
         return false;
     }
 

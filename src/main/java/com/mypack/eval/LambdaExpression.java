@@ -4,19 +4,20 @@ import com.mypack.exp.Exp;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.SetUtil;
 import com.mypack.vars.AnalysisResult;
 import com.mypack.vars.AnalysisVisitor;
 import com.mypack.vars.BetaVisitor;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.mypack.util.SetUtil.union;
 
 public class LambdaExpression {
 
@@ -32,7 +33,7 @@ public class LambdaExpression {
     public Exp apply(Exp arg, Set<Symbol> additionalReserved) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body());
         AnalysisResult argResult = AnalysisVisitor.analyse(arg);
-        Set<Symbol> nonFresh = intersection(argResult.bound(), union(additionalReserved, union(bodyResult.bound(), symbols().tail())));
+        Set<Symbol> nonFresh = SetUtil.intersection(argResult.bound(), union(additionalReserved, union(bodyResult.bound(), symbols().tail())));
         Set<Symbol> reserved = union(additionalReserved, union(argResult.all(), union(symbols.tail(), bodyResult.all())));
         Exp cleanArg = cleanup(arg, nonFresh, reserved);
         return BetaVisitor.replace(body, symbols.head(), cleanArg);
@@ -50,23 +51,6 @@ public class LambdaExpression {
     static Map.Entry<Symbol, Exp> removeSymbol(Exp arg, Symbol symbol, Set<Symbol> reserved) {
         Symbol alternative = findAlternative(symbol, reserved);
         return new SimpleImmutableEntry<>(alternative, BetaVisitor.replace(arg, symbol, alternative));
-    }
-
-    public static Set<Symbol> union(Collection<Symbol> a, Collection<Symbol> b) {
-        Set<Symbol> result = new LinkedHashSet<>(a.size() + b.size());
-        result.addAll(a);
-        result.addAll(b);
-        return result;
-    }
-
-    private static Set<Symbol> intersection(Set<Symbol> a, Set<Symbol> b) {
-        Set<Symbol> result = new LinkedHashSet<>();
-        for (Symbol as : a) {
-            if (b.contains(as)) {
-                result.add(as);
-            }
-        }
-        return result;
     }
 
     static Symbol findAlternative(Symbol symbol, Set<Symbol> reserved) {

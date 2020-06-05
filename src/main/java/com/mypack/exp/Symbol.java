@@ -26,7 +26,7 @@ public final class Symbol implements Exp {
     }
 
     @Override
-    public <R> R accept(ExpVisitor<R> v) {
+    public <R, P> R accept(ExpVisitor<R, P> v, P p) {
         return v.visitSymbol(this);
     }
 

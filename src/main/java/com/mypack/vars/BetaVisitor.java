@@ -10,7 +10,7 @@ import com.mypack.util.AsSymbol;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BetaVisitor implements ExpVisitor<Exp> {
+public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
     private final Symbol symbol;
     private final Exp value;
@@ -25,14 +25,14 @@ public class BetaVisitor implements ExpVisitor<Exp> {
      * regard to the symbol's position.
      */
     public static Exp replace(Exp exp, Symbol symbol, Exp value) {
-        return exp.accept(new BetaVisitor(symbol, value));
+        return exp.accept(new BetaVisitor(symbol, value), null);
     }
 
     @Override
-    public Exp visitSexp(Sexp sexp) {
+    public Exp visitSexp(Sexp sexp, Void _null) {
         List<Exp> result = new ArrayList<>(sexp.size());
         for (Exp exp : sexp.asList()) {
-            result.add(exp.accept(this));
+            result.add(exp.accept(this, _null));
         }
         return Sexp.create(result);
     }

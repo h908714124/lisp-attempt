@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class AnalysisVisitor implements ExpVisitor<Void> {
+public class AnalysisVisitor implements ExpVisitor<Void, Void> {
 
     private final Set<Symbol> bound = new HashSet<>();
 
@@ -22,15 +22,15 @@ public class AnalysisVisitor implements ExpVisitor<Void> {
     }
 
     @Override
-    public Void visitSexp(Sexp sexp) {
+    public Void visitSexp(Sexp sexp, Void _null) {
         Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
         if (lambda.isPresent()) {
             bound.addAll(lambda.get().symbols().symbols());
-            lambda.get().body().accept(this);
+            lambda.get().body().accept(this, null);
             return null;
         }
         for (Exp exp : sexp.asList()) {
-            exp.accept(this);
+            exp.accept(this, null);
         }
         return null;
     }
@@ -46,14 +46,14 @@ public class AnalysisVisitor implements ExpVisitor<Void> {
     @Override
     public Void visitParamBlock(ParamBlock paramBlock) {
         for (Symbol symbol : paramBlock.symbols()) {
-            symbol.accept(this);
+            symbol.accept(this, null);
         }
         return null;
     }
 
     public static AnalysisResult analyse(Exp exp) {
         AnalysisVisitor visitor = new AnalysisVisitor();
-        exp.accept(visitor);
+        exp.accept(visitor, null);
         return new AnalysisResult(visitor.bound, visitor.unbound);
     }
 }

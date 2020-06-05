@@ -2,5 +2,5 @@ package com.mypack.exp;
 
 public interface Exp {
 
-    <R> R accept(ExpVisitor<R> v);
+    <R, P> R accept(ExpVisitor<R, P> v, P p);
 }

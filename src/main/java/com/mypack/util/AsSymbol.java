@@ -6,16 +6,16 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-public class AsSymbol implements ExpVisitor<Symbol> {
+public class AsSymbol implements ExpVisitor<Symbol, Void> {
 
     private static final AsSymbol INSTANCE = new AsSymbol();
 
     public static Symbol get(Exp exp) {
-        return exp.accept(INSTANCE);
+        return exp.accept(INSTANCE, null);
     }
 
     @Override
-    public Symbol visitSexp(Sexp sexp) {
+    public Symbol visitSexp(Sexp sexp, Void _null) {
         throw new IllegalArgumentException("symbol expected but found sexp " + sexp);
     }
 

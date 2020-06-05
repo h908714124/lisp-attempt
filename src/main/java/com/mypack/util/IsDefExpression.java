@@ -8,19 +8,19 @@ import com.mypack.exp.Symbol;
 
 import java.util.Optional;
 
-public class IsDefExpression implements ExpVisitor<Optional<DefExpression>> {
+public class IsDefExpression implements ExpVisitor<Optional<DefExpression>, Void> {
 
     private static final IsDefExpression INSTANCE = new IsDefExpression();
 
     private static final IsSpecificSymbolVisitor IS_DEF_SYMBOL = new IsSpecificSymbolVisitor(Symbol.of("def"));
 
     public static Optional<DefExpression> test(Exp exp) {
-        return exp.accept(INSTANCE);
+        return exp.accept(INSTANCE, null);
     }
 
     @Override
-    public Optional<DefExpression> visitSexp(Sexp sexp) {
-        if (!sexp.head().accept(IS_DEF_SYMBOL)) {
+    public Optional<DefExpression> visitSexp(Sexp sexp, Void _null) {
+        if (!sexp.head().accept(IS_DEF_SYMBOL, null)) {
             return Optional.empty();
         }
         if (sexp.size() != 3) {

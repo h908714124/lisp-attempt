@@ -1,4 +1,4 @@
-package com.mypack.util;
+package com.mypack.builtin;
 
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
@@ -6,9 +6,15 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-public class IsSexp implements ExpVisitor<Boolean, Void> {
+import static com.mypack.builtin.Constants.FALSE;
+import static com.mypack.builtin.Constants.ZERO;
 
-    private static final IsSexp INSTANCE = new IsSexp();
+public class IsFalse implements ExpVisitor<Boolean, Void> {
+
+    private IsFalse() {
+    }
+
+    private static final IsFalse INSTANCE = new IsFalse();
 
     public static boolean test(Exp exp) {
         return exp.accept(INSTANCE, null);
@@ -16,12 +22,12 @@ public class IsSexp implements ExpVisitor<Boolean, Void> {
 
     @Override
     public Boolean visitSexp(Sexp sexp, Void _null) {
-        return true;
+        return false;
     }
 
     @Override
     public Boolean visitSymbol(Symbol symbol) {
-        return false;
+        return symbol.equals(FALSE) || symbol.equals(ZERO);
     }
 
     @Override

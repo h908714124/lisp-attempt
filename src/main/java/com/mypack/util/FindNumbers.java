@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class FindNumbers implements ExpVisitor<Void> {
+public class FindNumbers implements ExpVisitor<Void, Void> {
 
     private static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
@@ -24,12 +24,12 @@ public class FindNumbers implements ExpVisitor<Void> {
 
     public static Set<Symbol> search(Exp exp) {
         FindNumbers visitor = new FindNumbers();
-        exp.accept(visitor);
+        exp.accept(visitor, null);
         return visitor.result;
     }
 
     @Override
-    public Void visitSexp(Sexp sexp) {
+    public Void visitSexp(Sexp sexp, Void _null) {
         Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
         if (lambda.isPresent()) {
             List<Symbol> variableList = lambda.get().symbols().symbols();
@@ -38,11 +38,11 @@ public class FindNumbers implements ExpVisitor<Void> {
                     throw new IllegalArgumentException("Not a symbol: " + symbol);
                 }
             }
-            lambda.get().body().accept(this);
+            lambda.get().body().accept(this, _null);
             return null;
         }
         for (Exp exp : sexp.asList()) {
-            exp.accept(this);
+            exp.accept(this, _null);
         }
         return null;
     }

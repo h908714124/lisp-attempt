@@ -9,19 +9,19 @@ import com.mypack.exp.Symbol;
 
 import java.util.Optional;
 
-public class IsLambdaExpression implements ExpVisitor<Optional<LambdaExpression>> {
+public class IsLambdaExpression implements ExpVisitor<Optional<LambdaExpression>, Void> {
 
     private static final IsLambdaExpression INSTANCE = new IsLambdaExpression();
 
     private static final IsSpecificSymbolVisitor IS_LAMBDA = new IsSpecificSymbolVisitor(Symbol.fn());
 
     public static Optional<LambdaExpression> test(Exp exp) {
-        return exp.accept(INSTANCE);
+        return exp.accept(INSTANCE, null);
     }
 
     @Override
-    public Optional<LambdaExpression> visitSexp(Sexp sexp) {
-        if (!sexp.head().accept(IS_LAMBDA)) {
+    public Optional<LambdaExpression> visitSexp(Sexp sexp, Void _null) {
+        if (!sexp.head().accept(IS_LAMBDA, _null)) {
             return Optional.empty();
         }
         if (sexp.tail().size() != 2) {

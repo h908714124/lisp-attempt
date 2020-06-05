@@ -68,8 +68,8 @@ public class Sexp implements Exp {
     }
 
     @Override
-    public <R> R accept(ExpVisitor<R> v) {
-        return v.visitSexp(this);
+    public <R, P> R accept(ExpVisitor<R, P> v, P p) {
+        return v.visitSexp(this, p);
     }
 
     @Override

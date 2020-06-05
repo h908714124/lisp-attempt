@@ -1,5 +1,6 @@
 package com.mypack.eval;
 
+import com.mypack.builtin.EvalContext;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
@@ -20,11 +21,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class Environment implements ExpVisitor<Exp> {
+public class Environment implements ExpVisitor<Exp, Void> {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
 
-    static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
+    public static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
     private final PrintStream out;
 
@@ -71,7 +72,7 @@ public class Environment implements ExpVisitor<Exp> {
     }
 
     public Exp lookup(Exp exp) {
-        return exp.accept(this);
+        return exp.accept(this, null);
     }
 
     Exp lookup(Symbol symbol) {
@@ -107,7 +108,7 @@ public class Environment implements ExpVisitor<Exp> {
         return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
     }
 
-    static Exp nestedInvocations(int n, Exp f, Exp x) {
+    public static Exp nestedInvocations(int n, Exp f, Exp x) {
         Exp result = x;
         for (int i = 0; i < n; i++) {
             result = Sexp.create(f, result);
@@ -116,13 +117,12 @@ public class Environment implements ExpVisitor<Exp> {
     }
 
     private Exp internalIterEval(Exp exp, int max) {
-        Eval eval = new Eval(this);
         int n = 0;
         while (n < max) {
             if (printing) {
                 out.println(exp.toString());
             }
-            Exp newExp = exp.accept(eval);
+            Exp newExp = exp.accept(Eval.get(), new EvalContext(this, Set.of()));
             if (newExp == exp) {
                 break;
             }
@@ -138,7 +138,7 @@ public class Environment implements ExpVisitor<Exp> {
 
     // lookup
     @Override
-    public Exp visitSexp(Sexp sexp) {
+    public Exp visitSexp(Sexp sexp, Void _null) {
         return sexp;
     }
 

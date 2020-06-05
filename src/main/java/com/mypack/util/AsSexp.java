@@ -6,16 +6,16 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-public class AsSexp implements ExpVisitor<Sexp> {
+public class AsSexp implements ExpVisitor<Sexp, Void> {
 
     private static final AsSexp INSTANCE = new AsSexp();
 
     public static Sexp get(Exp exp) {
-        return exp.accept(INSTANCE);
+        return exp.accept(INSTANCE, null);
     }
 
     @Override
-    public Sexp visitSexp(Sexp sexp) {
+    public Sexp visitSexp(Sexp sexp, Void _null) {
         return sexp;
     }
 

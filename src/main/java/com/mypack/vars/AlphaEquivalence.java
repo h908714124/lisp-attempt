@@ -13,7 +13,7 @@ import com.mypack.util.IsSexp;
 import java.util.List;
 import java.util.Optional;
 
-public class AlphaEquivalence implements ExpVisitor<Boolean> {
+public class AlphaEquivalence implements ExpVisitor<Boolean, Void> {
 
     private final Exp target;
 
@@ -22,11 +22,11 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
     }
 
     public static boolean eq(Exp exp1, Exp exp2) {
-        return exp1.accept(new AlphaEquivalence(exp2));
+        return exp1.accept(new AlphaEquivalence(exp2), null);
     }
 
     @Override
-    public Boolean visitSexp(Sexp sexp) {
+    public Boolean visitSexp(Sexp sexp, Void _null) {
         Optional<LambdaExpression> thisLambda = IsLambdaExpression.test(sexp);
         if (thisLambda.isPresent()) {
             Optional<LambdaExpression> targetLambda = IsLambdaExpression.test(target);
@@ -37,7 +37,7 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
             if (newTarget.isEmpty()) {
                 return false;
             }
-            return thisLambda.get().body().accept(new AlphaEquivalence(newTarget.get().body()));
+            return thisLambda.get().body().accept(new AlphaEquivalence(newTarget.get().body()), null);
         }
         if (!IsSexp.test(target)) {
             return false;
@@ -46,7 +46,7 @@ public class AlphaEquivalence implements ExpVisitor<Boolean> {
         List<? extends Exp> asList = sexp.asList();
         for (int i = 0; i < asList.size(); i++) {
             Exp exp = asList.get(i);
-            if (!exp.accept(new AlphaEquivalence(targetSexp.get(i)))) {
+            if (!exp.accept(new AlphaEquivalence(targetSexp.get(i)), null)) {
                 return false;
             }
         }

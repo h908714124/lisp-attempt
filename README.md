@@ -1,10 +1,11 @@
 ## Lisp attempt
 
-Not proper Lisp, but rather a clojure-esque representation of lambda calculus. This is a hobby project to teach myself some functional programming basics.
+Un calculador de lambdaos.
+Puede imprimar los pasos de los evaluaciones.
 
-The first goal was to define the factorial function, see [LambdaTest](https://github.com/h908714124/lisp-attempt/blob/master/src/test/java/com/mypack/eval/LambdaTest.java) and [fact.clj](https://github.com/h908714124/lisp-attempt/blob/master/src/clj/fact.clj).
-
-````sh
-fgrep -n '(((Y fact_) (pred 2)) f) x)' showcase/fact2.clj
-````
-
+* built-ins: {`true`, `false`, `K`, `I`, `0`, `1`, `2` etc}
+* [Definitions of basic functions and the factorial function](https://github.com/h908714124/lisp-attempt/blob/master/src/clj/fact.clj)
+* [Evaluation of (fact 0)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact0.clj)
+* [Evaluation of (fact 1)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact1.clj)
+* [Evaluation of (fact 2)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact2.clj)
+* [Evaluation (fact 3)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact3.clj)

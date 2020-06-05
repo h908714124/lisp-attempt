@@ -19,7 +19,7 @@ import java.util.Set;
 // For example, the following expression is not fresh, because a is reused:
 // (lambda (f a) (f (lambda a) (a a)))
 // Evaluating a fresh expression must always result in another fresh expression.
-public class Freshness implements ExpVisitor<Optional<Symbol>> {
+public class Freshness implements ExpVisitor<Optional<Symbol>, Void> {
 
     private final Set<Symbol> seen;
 
@@ -29,11 +29,11 @@ public class Freshness implements ExpVisitor<Optional<Symbol>> {
 
     // return empty if exp is fresh, otherwise return a non-fresh symbol
     public static Optional<Symbol> test(Exp exp) {
-        return exp.accept(new Freshness(Set.of()));
+        return exp.accept(new Freshness(Set.of()), null);
     }
 
     @Override
-    public Optional<Symbol> visitSexp(Sexp sexp) {
+    public Optional<Symbol> visitSexp(Sexp sexp, Void _null) {
         Optional<LambdaExpression> lambda = IsLambdaExpression.test(sexp);
         if (lambda.isPresent()) {
             List<Symbol> symbols = lambda.get().symbols().symbols();
@@ -43,10 +43,10 @@ public class Freshness implements ExpVisitor<Optional<Symbol>> {
                     return Optional.of(symbol);
                 }
             }
-            return sexp.tail().get(1).accept(new Freshness(newSeen));
+            return sexp.tail().get(1).accept(new Freshness(newSeen), _null);
         }
         for (Exp exp : sexp.asList()) {
-            Optional<Symbol> test = exp.accept(this);
+            Optional<Symbol> test = exp.accept(this, _null);
             if (test.isPresent()) {
                 return test;
             }
@@ -63,7 +63,7 @@ public class Freshness implements ExpVisitor<Optional<Symbol>> {
     public Optional<Symbol> visitParamBlock(ParamBlock paramBlock) {
         List<Symbol> symbols = paramBlock.symbols();
         for (Symbol symbol : symbols) {
-            Optional<Symbol> test = symbol.accept(this);
+            Optional<Symbol> test = symbol.accept(this, null);
             if (test.isPresent()) {
                 return test;
             }
