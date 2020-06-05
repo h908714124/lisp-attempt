@@ -40,6 +40,13 @@ public class Sexp implements Exp {
         return new Sexp(head, List.of(tail1, tail2));
     }
 
+    public static Sexp create(Exp head, Exp tail1, List<? extends Exp> tail2) {
+        List<Exp> list = new ArrayList<>(tail2.size() + 1);
+        list.add(tail1);
+        list.addAll(tail2);
+        return new Sexp(head, list);
+    }
+
     public Exp head() {
         return head;
     }

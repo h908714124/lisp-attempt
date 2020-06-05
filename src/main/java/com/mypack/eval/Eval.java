@@ -91,12 +91,15 @@ class Eval implements ExpVisitor<Exp> {
     }
 
     private Optional<Exp> headSexpShortcut(Sexp sexp) {
-        Sexp headSexp = AsSexp.get(sexp.head());
-        if (isFalseSymbol(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
+        Sexp head = AsSexp.get(sexp.head());
+        if (isFalseSymbol(head.head()) && head.size() == 2 && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (isTrueSymbol(headSexp.head()) && headSexp.size() == 2 && sexp.size() == 2) {
-            return Optional.of(headSexp.get(1));
+        if (isTrueSymbol(head.head()) && head.size() == 2 && sexp.size() == 2) {
+            return Optional.of(head.get(1));
+        }
+        if (IsSymbol.test(head.head(), "Y") && head.size() == 2) {
+            return Optional.of(Sexp.create(head.get(1), head, sexp.tail()));
         }
         return Optional.empty();
     }
