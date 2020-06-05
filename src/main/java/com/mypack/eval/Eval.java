@@ -72,6 +72,12 @@ class Eval implements ExpVisitor<Exp> {
         if (IsSymbol.test(head, "zero?")) {
             return zeroShortcut(sexp);
         }
+        if (IsSymbol.test(head, "1") && sexp.size() == 2) {
+            return Optional.of(sexp.get(1));
+        }
+        if (IsSymbol.test(head, "1") && sexp.size() == 3) {
+            return Optional.of(Sexp.create(sexp.get(1), sexp.get(2)));
+        }
         if (isFalseSymbol(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));
         }
