@@ -32,15 +32,14 @@ public class LambdaExpression {
     public Exp apply(Exp arg, Set<Symbol> additionalReserved) {
         AnalysisResult bodyResult = AnalysisVisitor.analyse(body());
         AnalysisResult argResult = AnalysisVisitor.analyse(arg);
-        Set<Symbol> intersection = intersection(argResult.bound(), union(bodyResult.bound(), symbols().tail()));
-        Set<Symbol> union = union(additionalReserved, union(argResult.all(), union(symbols.tail(), bodyResult.all())));
-        Exp cleanArg = cleanup(arg, intersection, union);
+        Set<Symbol> nonFresh = intersection(argResult.bound(), union(additionalReserved, union(bodyResult.bound(), symbols().tail())));
+        Set<Symbol> reserved = union(additionalReserved, union(argResult.all(), union(symbols.tail(), bodyResult.all())));
+        Exp cleanArg = cleanup(arg, nonFresh, reserved);
         return BetaVisitor.replace(body, symbols.head(), cleanArg);
     }
 
-    private static Exp cleanup(Exp arg, Set<Symbol> bound, Set<Symbol> unbound) {
-        Set<Symbol> reserved = union(bound, unbound);
-        for (Symbol symbol : bound) {
+    private static Exp cleanup(Exp arg, Set<Symbol> nonFresh, Set<Symbol> reserved) {
+        for (Symbol symbol : nonFresh) {
             Map.Entry<Symbol, Exp> entry = removeSymbol(arg, symbol, reserved);
             reserved = union(reserved, List.of(entry.getKey()));
             arg = entry.getValue();
@@ -48,8 +47,8 @@ public class LambdaExpression {
         return arg;
     }
 
-    static Map.Entry<Symbol, Exp> removeSymbol(Exp arg, Symbol symbol, Set<Symbol> union) {
-        Symbol alternative = findAlternative(symbol, union);
+    static Map.Entry<Symbol, Exp> removeSymbol(Exp arg, Symbol symbol, Set<Symbol> reserved) {
+        Symbol alternative = findAlternative(symbol, reserved);
         return new SimpleImmutableEntry<>(alternative, BetaVisitor.replace(arg, symbol, alternative));
     }
 

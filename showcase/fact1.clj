@@ -11,7 +11,7 @@
 (fn [f x] (1 (((Y fact_) (pred 1)) f) x))
 (fn [f x] ((((Y fact_) (pred 1)) f) x))
 (fn [f x] (((fact_ (Y fact_) (pred 1)) f) x))
-(fn [f x] ((((fn [f n] ((zero? n) 1 (* n (f (pred n))))) (Y fact_) (pred 1)) f) x))
+(fn [f x] ((((fn [f1 n] ((zero? n) 1 (* n (f1 (pred n))))) (Y fact_) (pred 1)) f) x))
 (fn [f x] ((((fn [n] ((zero? n) 1 (* n ((Y fact_) (pred n))))) (pred 1)) f) x))
 (fn [f x] ((((zero? (pred 1)) 1 (* (pred 1) ((Y fact_) (pred (pred 1))))) f) x))
 (fn [f x] ((((zero? 0) 1 (* (pred 1) ((Y fact_) (pred (pred 1))))) f) x))
