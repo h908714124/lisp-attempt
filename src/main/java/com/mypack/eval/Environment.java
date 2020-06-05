@@ -91,7 +91,7 @@ public class Environment implements ExpVisitor<Exp> {
         return eval(LispParser.parse(unresolvedExp), maxSteps);
     }
 
-    private Exp eval(Exp exp, int maxSteps) {
+    public Exp eval(Exp exp, int maxSteps) {
         Freshness.test(exp).ifPresent(symbol -> {
             throw new IllegalArgumentException("Non-fresh symbol in input: " + symbol);
         });
