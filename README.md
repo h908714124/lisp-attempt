@@ -11,5 +11,5 @@ Puede imprimar los pasos de los evaluaciones.
 * [Evaluation (fact 3)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact3.clj)
 
 ````
-fgrep -n '(fn [f x] (1 (((Y fact_) (pred 1)) f) x))' showcase/fact1.clj
+fgrep -n -A1 '(fn [f x] (1 (((Y fact_) (pred 1)) f) x))' showcase/fact1.clj
 ````
