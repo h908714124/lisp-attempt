@@ -105,11 +105,16 @@ public class Environment implements ExpVisitor<Exp> {
     static Exp churchNumeral(int n) {
         Symbol x = Symbol.of("x");
         Symbol f = Symbol.of("f");
+        Exp result = nestedInvocations(n, f, x);
+        return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
+    }
+
+    static Exp nestedInvocations(int n, Exp f, Exp x) {
         Exp result = x;
         for (int i = 0; i < n; i++) {
             result = Sexp.create(f, result);
         }
-        return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
+        return result;
     }
 
     private Exp internalIterEval(Exp exp, int max) {

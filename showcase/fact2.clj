@@ -9,8 +9,6 @@
 ((fn [m n] (fn [f x] (m (n f) x))) 2 ((Y fact_) (pred 2)))
 ((fn [n] (fn [f x] (2 (n f) x))) ((Y fact_) (pred 2)))
 (fn [f x] (2 (((Y fact_) (pred 2)) f) x))
-(fn [f x] ((fn [f x] (f (f x))) (((Y fact_) (pred 2)) f) x))
-(fn [f x] ((fn [x] ((((Y fact_) (pred 2)) f) ((((Y fact_) (pred 2)) f) x))) x))
 (fn [f x] ((((Y fact_) (pred 2)) f) ((((Y fact_) (pred 2)) f) x)))
 (fn [f x] (((fact_ (Y fact_) (pred 2)) f) ((((Y fact_) (pred 2)) f) x)))
 (fn [f x] ((((fn [f n] ((zero? n) 1 (* n (f (pred n))))) (Y fact_) (pred 2)) f) ((((Y fact_) (pred 2)) f) x)))

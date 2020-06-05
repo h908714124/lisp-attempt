@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.mypack.eval.Environment.NUMBER_PATTERN;
+import static com.mypack.eval.Environment.nestedInvocations;
 import static com.mypack.eval.LambdaExpression.union;
 
 class Eval implements ExpVisitor<Exp> {
@@ -70,13 +71,14 @@ class Eval implements ExpVisitor<Exp> {
             return predShortcut(sexp);
         }
         if (IsSymbol.test(head, "zero?")) {
-            return zeroShortcut(sexp);
+            return isZeroShortcut(sexp);
         }
         if (IsSymbol.test(head, "1") && sexp.size() == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (IsSymbol.test(head, "1") && sexp.size() == 3) {
-            return Optional.of(Sexp.create(sexp.get(1), sexp.get(2)));
+        if (IsSymbol.test(head, NUMBER_PATTERN) && sexp.size() == 3) {
+            return Optional.of(nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
+                    sexp.get(1), sexp.get(2)));
         }
         if (isFalseSymbol(head) && sexp.size() == 3) {
             return Optional.of(sexp.get(2));
@@ -104,7 +106,7 @@ class Eval implements ExpVisitor<Exp> {
         return Optional.empty();
     }
 
-    private Optional<Exp> zeroShortcut(Sexp sexp) {
+    private Optional<Exp> isZeroShortcut(Sexp sexp) {
         if (sexp.size() != 2) {
             return Optional.empty();
         }
