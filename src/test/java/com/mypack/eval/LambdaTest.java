@@ -22,9 +22,6 @@ class LambdaTest {
     void setUp() throws IOException {
         env = new Environment(new PrintStream(new FileOutputStream(Paths.get("/tmp/foo.txt").toFile())));
         env.load(Path.of("src/clj/fact.clj"));
-        Exp yfact = env.eval("((fn [x] (fact_ (x x))) (fn [x] (fact_ (x x))))", 0);
-        Exp def = env.eval("(Y fact_)", 0);
-        env.addSubstitution(yfact, def);
     }
 
     @Test
