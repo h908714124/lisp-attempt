@@ -40,9 +40,12 @@ public class Environment implements ExpVisitor<Exp, Void> {
     }
 
     public Exp eval(String exp) {
-        return eval(LispParser.parse(exp), 10000);
+        return eval(LispParser.parse(exp));
     }
 
+    public Exp eval(Exp exp) {
+        return eval(exp, 10000);
+    }
 
     public void load(Path path) {
         try {
@@ -71,11 +74,7 @@ public class Environment implements ExpVisitor<Exp, Void> {
         return lookup(Symbol.of(symbol));
     }
 
-    public Exp lookup(Exp exp) {
-        return exp.accept(this, null);
-    }
-
-    Exp lookup(Symbol symbol) {
+    public Exp lookup(Symbol symbol) {
         Exp definition = definitions.get(symbol);
         if (definition != null) {
             return definition;

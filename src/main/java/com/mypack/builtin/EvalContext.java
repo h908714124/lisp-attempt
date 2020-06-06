@@ -59,7 +59,8 @@ public class EvalContext {
 
     private Optional<Exp> checkBuiltIns(Sexp sexp) {
         Exp head = sexp.head();
-        if (IsSymbol.test(head, "I") && sexp.size() == 2) {
+        int size = sexp.size();
+        if (IsSymbol.test(head, "I") && size == 2) {
             return Optional.of(sexp.get(1));
         }
         if (IsSymbol.test(head, "pred")) {
@@ -68,20 +69,24 @@ public class EvalContext {
         if (IsSymbol.test(head, "zero?")) {
             return isZeroShortcut(sexp);
         }
-        if (IsSymbol.test(head, "0") && sexp.size() == 2) {
+        if (IsSymbol.test(head, "0") && size == 2) {
             return Optional.of(TRUE);
         }
-        if (IsSymbol.test(head, "1") && sexp.size() == 2) {
+        if (IsSymbol.test(head, "1") && size == 2) {
             return Optional.of(sexp.get(1));
         }
-        if (IsSymbol.test(head, NUMBER_PATTERN) && sexp.size() == 3) {
-            return Optional.of(nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
-                    sexp.get(1), sexp.get(2)));
+        if (IsSymbol.test(head, NUMBER_PATTERN) && size >= 3) {
+            Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
+                    sexp.get(1), sexp.get(2));
+            if (size == 3) {
+                return Optional.of(invocations);
+            }
+            return Optional.of(Sexp.create(invocations, sexp.subList(3)));
         }
-        if (IsFalse.test(head) && sexp.size() == 3) {
+        if (IsFalse.test(head) && size == 3) {
             return Optional.of(sexp.get(2));
         }
-        if (IsTrue.test(head) && sexp.size() == 3) {
+        if (IsTrue.test(head) && size == 3) {
             return Optional.of(sexp.get(1));
         }
         if (IsSexp.test(head)) {
