@@ -10,4 +10,5 @@ Puede imprimar los pasos de los evaluaciones.
 * [Evaluation of (fact 2)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact2.clj)
 * [Evaluation of (fact 3)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact3.clj)
 * [Evaluation of (fact 4)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact4.clj)
+* [Evaluation of (- 5 4)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/5minus4.clj)
 
