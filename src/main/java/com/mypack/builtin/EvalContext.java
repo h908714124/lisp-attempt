@@ -77,14 +77,10 @@ public class EvalContext {
             return Optional.of(sexp.get(1));
         }
         if (IsSymbol.test(head, "*")) {
-            BigInteger current = BigInteger.ONE;
-            for (Exp exp : sexp.tail()) {
-                if (!IsSymbol.test(exp, NUMBER_PATTERN)) {
-                    return Optional.empty();
-                }
-                current = current.multiply(new BigInteger(AsSymbol.get(exp).value()));
-            }
-            return Optional.of(Symbol.of(current.toString()));
+            return multBuiltIn(sexp);
+        }
+        if (IsSymbol.test(head, "+")) {
+            return plusBuiltIn(sexp);
         }
         if (IsSymbol.test(head, NUMBER_PATTERN) && size >= 3) {
             Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
@@ -116,6 +112,28 @@ public class EvalContext {
             return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)));
         }
         return Optional.empty();
+    }
+
+    private Optional<Exp> multBuiltIn(Sexp sexp) {
+        BigInteger current = BigInteger.ONE;
+        for (Exp exp : sexp.tail()) {
+            if (!IsSymbol.test(exp, NUMBER_PATTERN)) {
+                return Optional.empty();
+            }
+            current = current.multiply(new BigInteger(AsSymbol.get(exp).value()));
+        }
+        return Optional.of(Symbol.of(current.toString()));
+    }
+
+    private Optional<Exp> plusBuiltIn(Sexp sexp) {
+        BigInteger current = BigInteger.ZERO;
+        for (Exp exp : sexp.tail()) {
+            if (!IsSymbol.test(exp, NUMBER_PATTERN)) {
+                return Optional.empty();
+            }
+            current = current.add(new BigInteger(AsSymbol.get(exp).value()));
+        }
+        return Optional.of(Symbol.of(current.toString()));
     }
 
     private Optional<Exp> headSexpShortcut(Sexp sexp) {
