@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestInstance(Lifecycle.PER_CLASS)
 class TestMinus {
 
-    private Environment env = new Environment();
+    private Environment env;
 
     @BeforeAll
     void setUp() throws IOException {
