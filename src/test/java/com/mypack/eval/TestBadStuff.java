@@ -76,4 +76,28 @@ class TestBadStuff {
         Exp exp = env.eval("(fn [f x] ((false f) x 1))", 1);
         Assertions.assertEquals("(fn [f x] (x 1))", exp.toString());
     }
+
+    @Test
+    void testY1() {
+        Exp exp = env.eval("(Y 2)", 1);
+        Assertions.assertEquals("(2 (Y 2))", exp.toString());
+    }
+
+    @Test
+    void testYNested1() {
+        Exp exp = env.eval("((Y 2) 3)", 1);
+        Assertions.assertEquals("(2 (Y 2) 3)", exp.toString());
+    }
+
+    @Test
+    void testYNested2() {
+        Exp exp = env.eval("((Y 2) 3 4)", 1);
+        Assertions.assertEquals("(2 (Y 2) 3 4)", exp.toString());
+    }
+
+    @Test
+    void testY3() {
+        Exp exp = env.eval("(Y 2 3)", 1);
+        Assertions.assertEquals("(2 (Y 2) 3)", exp.toString());
+    }
 }

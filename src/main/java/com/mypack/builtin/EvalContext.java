@@ -102,7 +102,7 @@ public class EvalContext {
             if (sexp.size() == 2) {
                 return Optional.of(Sexp.create(sexp.get(1), sexp));
             }
-            return Optional.of(Sexp.create(sexp.get(1), sexp, sexp.subList(2)));
+            return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)));
         }
         return Optional.empty();
     }
@@ -128,6 +128,9 @@ public class EvalContext {
                 return Optional.of(invocations);
             }
             return Optional.of(invocations.accept(Splicing.get(), sexp));
+        }
+        if (IsSymbol.test(head.head(), "Y") && head.size() == 2 && sexp.size() >= 1) {
+            return Optional.of(Sexp.create(head.get(1), head, sexp.subList(1)));
         }
         return Optional.empty();
     }
