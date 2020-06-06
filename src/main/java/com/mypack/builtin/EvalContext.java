@@ -58,20 +58,6 @@ public class EvalContext {
         return Optional.empty();
     }
 
-    private Optional<Exp> recurseTail(Sexp sexp) {
-        List<? extends Exp> exps = sexp.asList();
-        for (int i = 1; i < exps.size(); i++) {
-            Exp exp = exps.get(i);
-            Exp newExp = exp.accept(Eval.get(), this);
-            if (newExp != exp) {
-                List<Exp> result = new ArrayList<>(exps);
-                result.set(i, newExp);
-                return Optional.of(Sexp.create(result));
-            }
-        }
-        return Optional.empty();
-    }
-
     private Optional<Exp> checkBuiltIns(Sexp sexp) {
         Exp head = sexp.head();
         int size = sexp.size();
@@ -244,10 +230,7 @@ public class EvalContext {
         if (definition == null) {
             return Optional.empty();
         }
-        if (!symbol.value().endsWith("_")) {
-            return Optional.of(recurseTail(sexp).orElseGet(
-                    () -> insertDefinition(sexp, symbol, definition)));
-        }
+        // We found a user defined symbol. No eval on its args! -> normal order
         return Optional.of(insertDefinition(sexp, symbol, definition));
     }
 

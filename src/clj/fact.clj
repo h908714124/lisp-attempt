@@ -1,7 +1,6 @@
-;; This method's name MUST end with an underscore,
-;; to get evaluated in normal order.
-;; Otherwise, it would be evaluated in applicative order,
-;; resulting in an infinite expansion.
+;; User-defined functions are always evaluated in normal order,
+;; to prevent infinite expansions.
+;; However some built-ins may use applicative order.
 ;; See: https://en.wikipedia.org/wiki/Evaluation_strategy
 (defn fact_ [f n]
   ((zero? n)
