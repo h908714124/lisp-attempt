@@ -1,7 +1,9 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
@@ -11,7 +13,6 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.mypack.test.TestUtil.assertEq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -25,41 +26,43 @@ class LambdaTest {
         env.load(Path.of("src/clj/fact.clj"));
     }
 
+    @BeforeEach
+    void setUpEach() {
+        env.setPrinting(true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        env.setPrinting(false);
+    }
+
     @Test
     void testFact0() {
-        env.setPrinting(true);
         Exp exp = env.eval("(fact 0)");
-        env.setPrinting(false);
         assertEquals("1", exp.toString());
     }
 
     @Test
     void testFact1() {
-        env.setPrinting(true);
         Exp exp = env.eval("(fact 1)");
-        env.setPrinting(false);
-        assertEq(env, "1", exp);
+        assertEquals("1", exp.toString());
     }
 
     @Test
     void testFact2() {
-        env.setPrinting(true);
         Exp exp = env.eval("(fact 2)");
-        env.setPrinting(false);
-        assertEq(env, "2", exp);
+        assertEquals("2", exp.toString());
     }
 
     @Test
     void testFact3() {
-        env.setPrinting(true);
         Exp exp = env.eval("(fact 3)");
-        env.setPrinting(false);
-        assertEq(env, "6", exp);
+        assertEquals("6", exp.toString());
     }
 
     @Test
     void testFact4() {
         Exp exp = env.eval("(fact 4)");
-        assertEq(env, "24", exp);
+        assertEquals("24", exp.toString());
     }
 }

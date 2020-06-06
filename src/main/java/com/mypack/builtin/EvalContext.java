@@ -14,6 +14,7 @@ import com.mypack.util.IsSexp;
 import com.mypack.util.IsSymbol;
 import com.mypack.vars.AnalysisVisitor;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,20 @@ public class EvalContext {
         return Optional.empty();
     }
 
+    private Optional<Exp> recurseTail(Sexp sexp) {
+        List<? extends Exp> exps = sexp.asList();
+        for (int i = 1; i < exps.size(); i++) {
+            Exp exp = exps.get(i);
+            Exp newExp = exp.accept(Eval.get(), this);
+            if (newExp != exp) {
+                List<Exp> result = new ArrayList<>(exps);
+                result.set(i, newExp);
+                return Optional.of(Sexp.create(result));
+            }
+        }
+        return Optional.empty();
+    }
+
     private Optional<Exp> checkBuiltIns(Sexp sexp) {
         Exp head = sexp.head();
         int size = sexp.size();
@@ -74,6 +89,16 @@ public class EvalContext {
         }
         if (IsSymbol.test(head, "1") && size == 2) {
             return Optional.of(sexp.get(1));
+        }
+        if (IsSymbol.test(head, "*")) {
+            BigInteger current = BigInteger.ONE;
+            for (Exp exp : sexp.tail()) {
+                if (!IsSymbol.test(exp, NUMBER_PATTERN)) {
+                    return Optional.empty();
+                }
+                current = current.multiply(new BigInteger(AsSymbol.get(exp).value()));
+            }
+            return Optional.of(Symbol.of(current.toString()));
         }
         if (IsSymbol.test(head, NUMBER_PATTERN) && size >= 3) {
             Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
@@ -218,6 +243,10 @@ public class EvalContext {
         Exp definition = env.lookup(symbol);
         if (definition == null) {
             return Optional.empty();
+        }
+        if (!symbol.value().endsWith("_")) {
+            return Optional.of(recurseTail(sexp).orElseGet(
+                    () -> insertDefinition(sexp, symbol, definition)));
         }
         return Optional.of(insertDefinition(sexp, symbol, definition));
     }
