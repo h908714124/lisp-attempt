@@ -32,7 +32,7 @@ public class IsDefExpression implements ExpVisitor<Optional<DefExpression>, Void
     }
 
     @Override
-    public Optional<DefExpression> visitSymbol(Symbol symbol) {
+    public Optional<DefExpression> visitSymbol(Symbol symbol, Void _null) {
         return Optional.empty();
     }
 

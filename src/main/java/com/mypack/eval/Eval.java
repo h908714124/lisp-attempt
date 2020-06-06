@@ -24,7 +24,7 @@ public class Eval implements ExpVisitor<Exp, EvalContext> {
     }
 
     @Override
-    public Exp visitSymbol(Symbol symbol) {
+    public Exp visitSymbol(Symbol symbol, EvalContext context) {
         return symbol;
     }
 

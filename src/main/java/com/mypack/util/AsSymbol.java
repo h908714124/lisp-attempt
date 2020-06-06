@@ -20,7 +20,7 @@ public class AsSymbol implements ExpVisitor<Symbol, Void> {
     }
 
     @Override
-    public Symbol visitSymbol(Symbol symbol) {
+    public Symbol visitSymbol(Symbol symbol, Void _null) {
         return symbol;
     }
 

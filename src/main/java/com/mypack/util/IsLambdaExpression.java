@@ -32,7 +32,7 @@ public class IsLambdaExpression implements ExpVisitor<Optional<LambdaExpression>
     }
 
     @Override
-    public Optional<LambdaExpression> visitSymbol(Symbol symbol) {
+    public Optional<LambdaExpression> visitSymbol(Symbol symbol, Void _null) {
         return Optional.empty();
     }
 

@@ -20,7 +20,7 @@ public class AsSexp implements ExpVisitor<Sexp, Void> {
     }
 
     @Override
-    public Sexp visitSymbol(Symbol symbol) {
+    public Sexp visitSymbol(Symbol symbol, Void _null) {
         throw new IllegalArgumentException("sexp expected but found symbol " + symbol);
     }
 

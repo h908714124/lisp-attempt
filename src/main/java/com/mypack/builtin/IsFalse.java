@@ -26,7 +26,7 @@ public class IsFalse implements ExpVisitor<Boolean, Void> {
     }
 
     @Override
-    public Boolean visitSymbol(Symbol symbol) {
+    public Boolean visitSymbol(Symbol symbol, Void _null) {
         return symbol.equals(FALSE) || symbol.equals(ZERO);
     }
 

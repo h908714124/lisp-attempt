@@ -20,7 +20,7 @@ public class IsSexp implements ExpVisitor<Boolean, Void> {
     }
 
     @Override
-    public Boolean visitSymbol(Symbol symbol) {
+    public Boolean visitSymbol(Symbol symbol, Void _null) {
         return false;
     }
 

@@ -20,7 +20,7 @@ public class AsParamBlock implements ExpVisitor<ParamBlock, Void> {
     }
 
     @Override
-    public ParamBlock visitSymbol(Symbol symbol) {
+    public ParamBlock visitSymbol(Symbol symbol, Void _null) {
         throw new IllegalArgumentException("param block expected but found symbol " + symbol);
     }
 

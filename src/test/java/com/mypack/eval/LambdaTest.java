@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.mypack.test.TestUtil.assertEq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LambdaTest {
@@ -29,7 +30,7 @@ class LambdaTest {
         env.setPrinting(true);
         Exp exp = env.eval("(fact 0)");
         env.setPrinting(false);
-        assertEq(env, "1", exp);
+        assertEquals("1", exp.toString());
     }
 
     @Test

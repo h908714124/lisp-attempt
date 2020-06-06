@@ -143,7 +143,7 @@ public class Environment implements ExpVisitor<Exp, Void> {
 
     // lookup
     @Override
-    public Exp visitSymbol(Symbol symbol) {
+    public Exp visitSymbol(Symbol symbol, Void _null) {
         return lookup(symbol);
     }
 

@@ -55,7 +55,7 @@ public class Freshness implements ExpVisitor<Optional<Symbol>, Void> {
     }
 
     @Override
-    public Optional<Symbol> visitSymbol(Symbol symbol) {
+    public Optional<Symbol> visitSymbol(Symbol symbol, Void _null) {
         return Optional.empty();
     }
 

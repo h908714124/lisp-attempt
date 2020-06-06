@@ -36,7 +36,7 @@ public class AnalysisVisitor implements ExpVisitor<Void, Void> {
     }
 
     @Override
-    public Void visitSymbol(Symbol symbol) {
+    public Void visitSymbol(Symbol symbol, Void _null) {
         if (!bound.contains(symbol)) {
             unbound.add(symbol);
         }

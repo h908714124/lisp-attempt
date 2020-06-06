@@ -38,7 +38,7 @@ public class BetaVisitor implements ExpVisitor<Exp, Void> {
     }
 
     @Override
-    public Exp visitSymbol(Symbol symbol) {
+    public Exp visitSymbol(Symbol symbol, Void _null) {
         if (this.symbol.equals(symbol)) {
             return value;
         }

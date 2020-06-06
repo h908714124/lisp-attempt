@@ -26,7 +26,7 @@ public class IsTrue implements ExpVisitor<Boolean, Void> {
     }
 
     @Override
-    public Boolean visitSymbol(Symbol symbol) {
+    public Boolean visitSymbol(Symbol symbol, Void _null) {
         return symbol.equals(K) || symbol.equals(TRUE);
     }
 

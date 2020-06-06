@@ -33,7 +33,7 @@ public class IsDefnExpression implements ExpVisitor<Optional<DefnExpression>, Vo
     }
 
     @Override
-    public Optional<DefnExpression> visitSymbol(Symbol symbol) {
+    public Optional<DefnExpression> visitSymbol(Symbol symbol, Void _null) {
         return Optional.empty();
     }
 

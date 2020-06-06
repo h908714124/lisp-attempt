@@ -19,7 +19,7 @@ final class IsSpecificSymbolVisitor implements ExpVisitor<Boolean, Void> {
     }
 
     @Override
-    public final Boolean visitSymbol(Symbol symbol) {
+    public final Boolean visitSymbol(Symbol symbol, Void _null) {
         return symbol.equals(test);
     }
 
