@@ -3,7 +3,7 @@
 Un calculador de lambdaos.
 Puede imprimar los pasos de los evaluaciones.
 
-* built-ins: {`true`, `false`, `K`, `I`, `*`, `zero?`, `pred`, `0`, `1`, `2` etc}
+* built-ins: {`true`, `false`, `K`, `I`, `Y`, `*`, `zero?`, `pred`, `0`, `1`, `2` etc}
 * [Definitions of basic functions and the factorial function](https://github.com/h908714124/lisp-attempt/blob/master/src/clj/fact.clj)
 * [Evaluation of (fact 0)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact0.clj)
 * [Evaluation of (fact 1)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact1.clj)
