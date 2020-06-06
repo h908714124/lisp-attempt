@@ -8,8 +8,6 @@ Puede imprimar los pasos de los evaluaciones.
 * [Evaluation of (fact 0)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact0.clj)
 * [Evaluation of (fact 1)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact1.clj)
 * [Evaluation of (fact 2)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact2.clj)
-* [Evaluation (fact 3)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact3.clj)
+* [Evaluation of (fact 3)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact3.clj)
+* [Evaluation of (fact 4)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact4.clj)
 
-````
-fgrep -n -A1 '(fn [f x] (1 (((Y fact_) (pred 1)) f) x))' showcase/fact1.clj
-````
