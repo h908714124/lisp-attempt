@@ -156,7 +156,7 @@ public class EvalContext {
             if (outer.size() == 2) {
                 return Optional.of(invocations);
             }
-            return Optional.of(invocations.accept(new Splicing(2), outer));
+            return Optional.of(invocations.accept(Splicing.get(2), outer));
         }
         if (IsSymbol.test(head.head(), "Y") && head.size() == 2 && outer.size() >= 1) {
             return Optional.of(Sexp.create(head.get(1), head, outer.subList(1)));

@@ -13,8 +13,17 @@ class Splicing implements ExpVisitor<Sexp, Sexp> {
 
     private final int cut;
 
-    Splicing(int cut) {
+    private static final Splicing[] CACHE = new Splicing[10];
+
+    private Splicing(int cut) {
         this.cut = cut;
+    }
+
+    static Splicing get(int cut) {
+        if (CACHE[cut] == null) {
+            CACHE[cut] = new Splicing(cut);
+        }
+        return CACHE[cut];
     }
 
     @Override
