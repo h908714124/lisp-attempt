@@ -1,24 +1,17 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import java.nio.file.Path;
-
 import static com.mypack.test.TestUtil.assertEq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class TestIsZero {
 
     private final Environment env = new Environment();
-
-    @BeforeAll
-    void setUp() {
-        env.load(Path.of("src/clj/fact.clj"));
-    }
 
     @Test
     void testCheckZero0() {
@@ -34,8 +27,8 @@ class TestIsZero {
 
     @Test
     void testDef() {
-        assertEq(env, "true", env.eval("(zero? 0)"));
-        assertEq(env, "false", env.eval("(zero? 1)"));
-        assertEq(env, "false", env.eval("(zero? 2)"));
+        assertEquals("true", env.eval("(zero? 0)").toString());
+        assertEquals("false", env.eval("(zero? 1)").toString());
+        assertEquals("false", env.eval("(zero? 2)").toString());
     }
 }

@@ -8,39 +8,34 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import java.nio.file.Path;
 
-import static com.mypack.test.TestUtil.assertEq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class TestPredecessor {
 
     private final Environment env = new Environment();
 
-    @BeforeAll
-    void setUp() {
-        env.load(Path.of("src/clj/fact.clj"));
-    }
-
     @Test
     void testPredecessorOfZero() {
         Exp result = env.eval("(pred 0)");
-        assertEq(env, "0", result);
+        assertEquals("0", result.toString());
     }
 
     @Test
     void testPredecessorOfOne() {
         Exp result = env.eval("(pred 1)");
-        assertEq(env, "0", result);
+        assertEquals("0", result.toString());
     }
 
     @Test
     void testPredecessorOfTwo() {
         Exp result = env.eval("(pred 2)");
-        assertEq(env, "1", result);
+        assertEquals("1", result.toString());
     }
 
     @Test
     void testK() {
         Exp result = env.eval("((K 2) 1)");
-        assertEq(env, "2", result);
+        assertEquals("2", result.toString());
     }
 }

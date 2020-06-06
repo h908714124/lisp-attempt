@@ -1,35 +1,8 @@
-;; Most of these definitions are from here:
-;; https://en.wikipedia.org/wiki/Church_encoding
-(defn true [a b] a)
-
-(defn false [a b] b)
-
-(defn K [x]
-  (fn [u] x))
-
-(defn I [x] x)
-
-(defn extract [k]
-  (k I))
-
-(defn inc [f]
-  (fn [g h] (h (g f))))
-
-(defn zero? [n]
-  (n (K false) true))
-
-(defn * [m n]
-  (fn [f x] (m (n f) x)))
-
-;; Predecessor function, returns (n - 1), or 0 if n == 0,
-(defn pred [n]
-  (fn [f x]
-    (extract (n (inc f) (K x)))))
-
-(defn Y [f]
-  ((fn [x] (f (x x)))
-    (fn [x] (f (x x)))))
-
+;; This method's name MUST end with an underscore,
+;; to get evaluated in normal order.
+;; Otherwise, it would be evaluated in applicative order,
+;; resulting in an infinite expansion.
+;; See: https://en.wikipedia.org/wiki/Evaluation_strategy
 (defn fact_ [f n]
   ((zero? n)
     1
