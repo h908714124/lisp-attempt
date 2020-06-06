@@ -6,29 +6,32 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-class Splicing implements ExpVisitor<Exp, Sexp> {
+import java.util.ArrayList;
+import java.util.List;
 
-    private Splicing() {
-    }
+class Splicing implements ExpVisitor<Sexp, Sexp> {
 
-    private static final Splicing INSTANCE = new Splicing();
+    private final int cut;
 
-    static Splicing get() {
-        return INSTANCE;
-    }
-
-    @Override
-    public Exp visitSexp(Sexp sexp, Sexp outer) {
-        return Sexp.create(sexp.get(0), sexp.get(1), outer.subList(2));
+    Splicing(int cut) {
+        this.cut = cut;
     }
 
     @Override
-    public Exp visitSymbol(Symbol symbol, Sexp outer) {
-        return Sexp.create(symbol, outer.subList(2));
+    public Sexp visitSexp(Sexp sexp, Sexp outer) {
+        List<Exp> result = new ArrayList<>(sexp.size() + outer.size() - cut);
+        result.addAll(sexp.asList());
+        result.addAll(outer.subList(cut));
+        return Sexp.create(result);
     }
 
     @Override
-    public Exp visitParamBlock(ParamBlock paramBlock) {
+    public Sexp visitSymbol(Symbol symbol, Sexp outer) {
+        return Sexp.create(symbol, outer.subList(cut));
+    }
+
+    @Override
+    public Sexp visitParamBlock(ParamBlock paramBlock) {
         throw new IllegalArgumentException();
     }
 }

@@ -136,30 +136,30 @@ public class EvalContext {
         return Optional.of(Symbol.of(current.toString()));
     }
 
-    private Optional<Exp> headSexpShortcut(Sexp sexp) {
-        Sexp head = AsSexp.get(sexp.head());
-        if (IsFalse.test(head.head()) && head.size() == 2 && sexp.size() >= 2) {
-            if (sexp.size() == 2) {
-                return Optional.of(sexp.get(1));
+    private Optional<Exp> headSexpShortcut(Sexp outer) {
+        Sexp head = AsSexp.get(outer.head());
+        if (IsFalse.test(head.head()) && head.size() == 2 && outer.size() >= 2) {
+            if (outer.size() == 2) {
+                return Optional.of(outer.get(1));
             }
-            return Optional.of(Sexp.create(sexp.get(1), sexp.subList(2)));
+            return Optional.of(Sexp.create(outer.get(1), outer.subList(2)));
         }
-        if (IsTrue.test(head.head()) && head.size() == 2 && sexp.size() >= 2) {
-            if (sexp.size() == 2) {
+        if (IsTrue.test(head.head()) && head.size() == 2 && outer.size() >= 2) {
+            if (outer.size() == 2) {
                 return Optional.of(head.get(1));
             }
-            return Optional.of(Sexp.create(head.get(1), sexp.subList(2)));
+            return Optional.of(Sexp.create(head.get(1), outer.subList(2)));
         }
-        if (IsSymbol.test(head.head(), NUMBER_PATTERN) && head.size() == 2 && sexp.size() >= 2) {
+        if (IsSymbol.test(head.head(), NUMBER_PATTERN) && head.size() == 2 && outer.size() >= 2) {
             Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head.head()).value()),
-                    head.get(1), sexp.get(1));
-            if (sexp.size() == 2) {
+                    head.get(1), outer.get(1));
+            if (outer.size() == 2) {
                 return Optional.of(invocations);
             }
-            return Optional.of(invocations.accept(Splicing.get(), sexp));
+            return Optional.of(invocations.accept(new Splicing(2), outer));
         }
-        if (IsSymbol.test(head.head(), "Y") && head.size() == 2 && sexp.size() >= 1) {
-            return Optional.of(Sexp.create(head.get(1), head, sexp.subList(1)));
+        if (IsSymbol.test(head.head(), "Y") && head.size() == 2 && outer.size() >= 1) {
+            return Optional.of(Sexp.create(head.get(1), head, outer.subList(1)));
         }
         return Optional.empty();
     }
