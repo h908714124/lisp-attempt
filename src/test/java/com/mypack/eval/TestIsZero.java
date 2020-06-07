@@ -27,8 +27,8 @@ class TestIsZero {
 
     @Test
     void testDef() {
-        assertEquals("true", env.eval("(zero? 0)").toString());
-        assertEquals("false", env.eval("(zero? 1)").toString());
-        assertEquals("false", env.eval("(zero? 2)").toString());
+        assertEquals("y", env.eval("(zero? 0 y n)").toString());
+        assertEquals("n", env.eval("(zero? 1 y n)").toString());
+        assertEquals("n", env.eval("(zero? 2 y n)").toString());
     }
 }

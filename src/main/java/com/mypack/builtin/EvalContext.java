@@ -60,6 +60,10 @@ public class EvalContext {
         return Optional.empty();
     }
 
+    private Optional<Exp> checkBuiltIns(Exp exp) {
+        return IsSexp.test(exp) ? checkBuiltIns(AsSexp.get(exp)) : Optional.empty();
+    }
+
     private Optional<Exp> checkBuiltIns(Sexp sexp) {
         Exp head = sexp.head();
         int size = sexp.size();
@@ -85,12 +89,7 @@ public class EvalContext {
             return plusBuiltIn(sexp);
         }
         if (IsSymbol.test(head, NUMBER_PATTERN) && size >= 3) {
-            Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head).value()),
-                    sexp.get(1), sexp.get(2));
-            if (size == 3) {
-                return Optional.of(invocations);
-            }
-            return Optional.of(Sexp.create(invocations, sexp.subList(3)));
+            return applyNumberBuiltIn(sexp);
         }
         if (IsFalse.test(head) && size >= 3) {
             if (size == 3) {
@@ -111,6 +110,12 @@ public class EvalContext {
             return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)));
         }
         return Optional.empty();
+    }
+
+    private static Optional<Exp> applyNumberBuiltIn(Sexp sexp) {
+        Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(sexp.head()).value()),
+                sexp.get(1), sexp.get(2));
+        return Optional.of(HeadSplicing.trySplicing(Sexp.create(invocations, sexp.subList(3))).orElse(invocations));
     }
 
     private Optional<Exp> multBuiltIn(Sexp sexp) {
@@ -136,43 +141,28 @@ public class EvalContext {
     }
 
     private Optional<Exp> isZeroShortcut(Sexp sexp) {
-        if (sexp.size() != 4) {
+        if (sexp.size() < 4) {
             return Optional.empty();
         }
-        if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
-            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
-            return Optional.of(i == 0 ? sexp.get(2) : sexp.get(3));
-        } else if (IsSexp.test(sexp.get(1))) {
-            Optional<Exp> arg = checkBuiltIns(AsSexp.get(sexp.get(1)));
-            if (arg.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.of(Sexp.create(Symbol.of("zero?"), arg.get(), sexp.subList(2)));
-        } else {
-            return Optional.empty();
+        Exp arg = checkBuiltIns(sexp.get(1)).orElse(sexp.get(1));
+        if (IsSymbol.test(arg, NUMBER_PATTERN)) {
+            int i = Integer.parseInt(AsSymbol.get(arg).value());
+            Exp newHead = i == 0 ? sexp.get(2) : sexp.get(3);
+            return Optional.of(HeadSplicing.trySplicing(Sexp.create(newHead, sexp.subList(4))).orElse(newHead));
         }
+        return Optional.empty();
     }
 
     private Optional<Exp> predShortcut(Sexp sexp) {
-        if (sexp.size() != 2) {
+        if (sexp.size() < 2) {
             return Optional.empty();
         }
-        if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
-            int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
+        Exp arg = checkBuiltIns(sexp.get(1)).orElse(sexp.get(1));
+        if (IsSymbol.test(arg, NUMBER_PATTERN)) {
+            int i = Integer.parseInt(AsSymbol.get(arg).value());
             return Optional.of(Symbol.of(Integer.toString(i - 1)));
-        } else if (IsSexp.test(sexp.get(1))) {
-            Optional<Exp> arg = checkBuiltIns(AsSexp.get(sexp.get(1)));
-            if (arg.isEmpty()) {
-                return Optional.empty();
-            }
-            if (IsSymbol.test(arg.get(), NUMBER_PATTERN)) {
-                int i = Integer.parseInt(AsSymbol.get(arg.get()).value());
-                return Optional.of(Symbol.of(Integer.toString(i - 1)));
-            }
-            return Optional.of(Sexp.create(Symbol.of("pred"), arg.get()));
-        } else {
-            return Optional.empty();
         }
+        return Optional.empty();
     }
 
     private Optional<Exp> checkRegularApplication(Sexp sexp) {

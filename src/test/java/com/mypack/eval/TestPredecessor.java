@@ -18,7 +18,7 @@ class TestPredecessor {
     @Test
     void testPredecessorOfZero() {
         Exp result = env.eval("(pred 0)");
-        assertEquals("0", result.toString());
+        assertEquals("-1", result.toString());
     }
 
     @Test
