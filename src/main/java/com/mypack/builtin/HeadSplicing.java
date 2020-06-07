@@ -11,33 +11,26 @@ import java.util.List;
 
 class HeadSplicing implements ExpVisitor<Sexp, Sexp> {
 
-    // how many parts to remove from outer to make room for the new head
-    private final int cut;
-
-    private static final HeadSplicing[] CACHE = new HeadSplicing[10];
-
-    private HeadSplicing(int cut) {
-        this.cut = cut;
+    private HeadSplicing() {
     }
 
-    static HeadSplicing get(int cut) {
-        if (CACHE[cut] == null) {
-            CACHE[cut] = new HeadSplicing(cut);
-        }
-        return CACHE[cut];
+    private static final HeadSplicing INSTANCE = new HeadSplicing();
+
+    static HeadSplicing get() {
+        return INSTANCE;
     }
 
     @Override
     public Sexp visitSexp(Sexp head, Sexp outer) {
-        List<Exp> result = new ArrayList<>(head.size() + outer.size() - cut);
+        List<Exp> result = new ArrayList<>(head.size() + outer.size() - 1);
         result.addAll(head.asList());
-        result.addAll(outer.subList(cut));
+        result.addAll(outer.tail());
         return Sexp.create(result);
     }
 
     @Override
     public Sexp visitSymbol(Symbol head, Sexp outer) {
-        return Sexp.create(head, outer.subList(cut));
+        return Sexp.create(head, outer.subList(1));
     }
 
     @Override
