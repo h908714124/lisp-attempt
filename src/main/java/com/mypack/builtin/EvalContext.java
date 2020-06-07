@@ -167,11 +167,15 @@ public class EvalContext {
         }
         if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
             int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
-            return Optional.of(Symbol.of(i == 0 ? "0" : Integer.toString(i - 1)));
+            return Optional.of(Symbol.of(Integer.toString(i - 1)));
         } else if (IsSexp.test(sexp.get(1))) {
             Optional<Exp> arg = checkBuiltIns(AsSexp.get(sexp.get(1)));
             if (arg.isEmpty()) {
                 return Optional.empty();
+            }
+            if (IsSymbol.test(arg.get(), NUMBER_PATTERN)) {
+                int i = Integer.parseInt(AsSymbol.get(arg.get()).value());
+                return Optional.of(Symbol.of(Integer.toString(i - 1)));
             }
             return Optional.of(Sexp.create(Symbol.of("pred"), arg.get()));
         } else {

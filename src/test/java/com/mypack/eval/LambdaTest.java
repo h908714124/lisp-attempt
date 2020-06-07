@@ -38,7 +38,7 @@ class LambdaTest {
 
     @Test
     void testFact0() {
-        Exp exp = env.eval("(fact 0)", 10);
+        Exp exp = env.eval("(fact 0)");
         assertEquals("1", exp.toString());
     }
 
