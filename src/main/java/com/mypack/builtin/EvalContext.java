@@ -180,9 +180,25 @@ public class EvalContext {
     }
 
     private Optional<Exp> checkRegularApplication(Sexp sexp) {
+        Exp result = sexp;
+        Exp newSexp;
+        while ((newSexp = apply(result)) != result) {
+            result = newSexp;
+        }
+        if (newSexp == sexp) {
+            return Optional.empty();
+        }
+        return Optional.of(result);
+    }
+
+    private Exp apply(Exp exp) {
+        if (!IsSexp.test(exp)) {
+            return exp;
+        }
+        Sexp sexp = AsSexp.get(exp);
         Optional<LambdaExpression> isHeadLambda = IsLambdaExpression.test(sexp.head());
         if (isHeadLambda.isEmpty() || sexp.tail().isEmpty()) {
-            return Optional.empty();
+            return sexp;
         }
         LambdaExpression lambda = isHeadLambda.get();
         List<? extends Exp> args = sexp.tail();
@@ -191,16 +207,16 @@ public class EvalContext {
         List<Symbol> newSymbols = lambda.symbols().tail();
         if (newSymbols.isEmpty()) {
             if (newArgs.isEmpty()) {
-                return Optional.of(newBody);
+                return newBody;
             } else {
-                return Optional.of(Sexp.create(newBody, newArgs));
+                return Sexp.create(newBody, newArgs);
             }
         }
         Exp newLambda = new LambdaExpression(ParamBlock.create(newSymbols), newBody).toExp();
         if (newArgs.isEmpty()) {
-            return Optional.of(newLambda);
+            return newLambda;
         } else {
-            return Optional.of(Sexp.create(newLambda, newArgs));
+            return Sexp.create(newLambda, newArgs);
         }
     }
 
