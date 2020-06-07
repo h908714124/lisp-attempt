@@ -10,6 +10,8 @@ import com.mypack.util.AsSymbol;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.mypack.builtin.EvalContext.trySplicing;
+
 public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
     private final Symbol symbol;
@@ -30,11 +32,23 @@ public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
     @Override
     public Exp visitSexp(Sexp sexp, Void _null) {
-        List<Exp> result = new ArrayList<>(sexp.size());
-        for (Exp exp : sexp.asList()) {
-            result.add(exp.accept(this, _null));
+        List<? extends Exp> exps = sexp.asList();
+        List<Exp> result = null;
+        for (int i = 0; i < exps.size(); i++) {
+            Exp exp = exps.get(i);
+            Exp newExp = exp.accept(this, _null);
+            if (newExp != exp) {
+                if (result == null) {
+                    result = new ArrayList<>(exps);
+                }
+                result.set(i, newExp);
+            }
         }
-        return Sexp.create(result);
+        if (result == null) {
+            return sexp;
+        }
+        Sexp newSexp = Sexp.create(result);
+        return trySplicing(newSexp).orElse(newSexp);
     }
 
     @Override
@@ -47,14 +61,17 @@ public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
     @Override
     public Exp visitParamBlock(ParamBlock paramBlock) {
-        List<Symbol> result = new ArrayList<>(paramBlock.size());
-        for (Symbol s : paramBlock.symbols()) {
+        List<Symbol> result = null;
+        List<Symbol> symbols = paramBlock.symbols();
+        for (int i = 0; i < symbols.size(); i++) {
+            Symbol s = symbols.get(i);
             if (symbol.equals(s)) {
-                result.add(AsSymbol.get(value));
-            } else {
-                result.add(s);
+                if (result == null) {
+                    result = new ArrayList<>(symbols);
+                }
+                result.set(i, AsSymbol.get(value));
             }
         }
-        return ParamBlock.create(result);
+        return result == null ? paramBlock : ParamBlock.create(result);
     }
 }

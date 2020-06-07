@@ -37,7 +37,7 @@ public class EvalContext {
     }
 
     public Exp eval(Sexp sexp) {
-        return trySplicing(sexp)
+        return trySplicing(sexp).map(s -> (Exp) s)
                 .or(() -> checkBuiltIns(sexp))
                 .or(() -> checkRegularApplication(sexp))
                 .or(() -> checkEnvLookup(sexp))
@@ -46,7 +46,7 @@ public class EvalContext {
                 .orElse(sexp);
     }
 
-    private Optional<Exp> trySplicing(Sexp sexp) {
+    public static Optional<Sexp> trySplicing(Sexp sexp) {
         if (sexp.size() >= 2
                 && IsSexp.test(sexp.head())
                 && IsLambdaExpression.test(sexp.head()).isEmpty()) {
@@ -238,6 +238,7 @@ public class EvalContext {
             newSymbol = Symbol.of(newSymbol.value() + "_");
         }
         Sexp newSexp = Sexp.create(newSymbol, sexp.tail());
-        return new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
+        Exp result = new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
+        return trySplicing(AsSexp.get(result)).map(s -> (Exp) s).orElse(result);
     }
 }
