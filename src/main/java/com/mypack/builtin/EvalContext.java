@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.mypack.builtin.Constants.TRUE;
 import static com.mypack.builtin.HeadSplicing.trySplicing;
@@ -107,7 +108,10 @@ public class EvalContext {
             if (sexp.size() == 2) {
                 return Optional.of(Sexp.create(sexp.get(1), sexp));
             }
-            return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)));
+            return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)
+                    .stream()
+                    .map(e -> checkBuiltIns(e).orElse(e))
+                    .collect(Collectors.toList())));
         }
         return Optional.empty();
     }
