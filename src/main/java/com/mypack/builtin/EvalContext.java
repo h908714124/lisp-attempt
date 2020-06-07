@@ -121,10 +121,11 @@ public class EvalContext {
     private Optional<Exp> multBuiltIn(Sexp sexp) {
         BigInteger current = BigInteger.ONE;
         for (Exp exp : sexp.tail()) {
-            if (!IsSymbol.test(exp, NUMBER_PATTERN)) {
+            Exp e = checkBuiltIns(exp).orElse(exp);
+            if (!IsSymbol.test(e, NUMBER_PATTERN)) {
                 return Optional.empty();
             }
-            current = current.multiply(new BigInteger(AsSymbol.get(exp).value()));
+            current = current.multiply(new BigInteger(AsSymbol.get(e).value()));
         }
         return Optional.of(Symbol.of(current.toString()));
     }

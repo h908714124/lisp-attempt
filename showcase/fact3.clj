@@ -17,7 +17,4 @@
 (* 3 (* 2 (* 1 (fact_ (Y fact_) (pred (pred (pred 3)))))))
 (* 3 (* 2 (* 1 ((fn [f n] (zero? n 1 (* n (f (pred n))))) (Y fact_) (pred (pred (pred 3)))))))
 (* 3 (* 2 (* 1 (zero? (pred (pred (pred 3))) 1 (* (pred (pred (pred 3))) (Y fact_ (pred (pred (pred (pred 3))))))))))
-(* 3 (* 2 (* 1 1)))
-(* 3 (* 2 1))
-(* 3 2)
 6

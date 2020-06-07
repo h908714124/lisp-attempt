@@ -22,8 +22,4 @@
 (* 4 (* 3 (* 2 (* 1 (fact_ (Y fact_) (pred (pred (pred (pred 4)))))))))
 (* 4 (* 3 (* 2 (* 1 ((fn [f n] (zero? n 1 (* n (f (pred n))))) (Y fact_) (pred (pred (pred (pred 4)))))))))
 (* 4 (* 3 (* 2 (* 1 (zero? (pred (pred (pred (pred 4)))) 1 (* (pred (pred (pred (pred 4)))) (Y fact_ (pred (pred (pred (pred (pred 4))))))))))))
-(* 4 (* 3 (* 2 (* 1 1))))
-(* 4 (* 3 (* 2 1)))
-(* 4 (* 3 2))
-(* 4 6)
 24
