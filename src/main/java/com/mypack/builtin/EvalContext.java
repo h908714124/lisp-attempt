@@ -50,7 +50,7 @@ public class EvalContext {
         if (sexp.size() >= 2
                 && IsSexp.test(sexp.head())
                 && IsLambdaExpression.test(sexp.head()).isEmpty()) {
-            return Optional.of(sexp.head().accept(Splicing.get(1), sexp));
+            return Optional.of(sexp.head().accept(HeadSplicing.get(1), sexp));
         }
         return Optional.empty();
     }

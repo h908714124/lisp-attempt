@@ -9,34 +9,35 @@ import com.mypack.exp.Symbol;
 import java.util.ArrayList;
 import java.util.List;
 
-class Splicing implements ExpVisitor<Sexp, Sexp> {
+class HeadSplicing implements ExpVisitor<Sexp, Sexp> {
 
+    // how many parts to remove from outer to make room for the new head
     private final int cut;
 
-    private static final Splicing[] CACHE = new Splicing[10];
+    private static final HeadSplicing[] CACHE = new HeadSplicing[10];
 
-    private Splicing(int cut) {
+    private HeadSplicing(int cut) {
         this.cut = cut;
     }
 
-    static Splicing get(int cut) {
+    static HeadSplicing get(int cut) {
         if (CACHE[cut] == null) {
-            CACHE[cut] = new Splicing(cut);
+            CACHE[cut] = new HeadSplicing(cut);
         }
         return CACHE[cut];
     }
 
     @Override
-    public Sexp visitSexp(Sexp sexp, Sexp outer) {
-        List<Exp> result = new ArrayList<>(sexp.size() + outer.size() - cut);
-        result.addAll(sexp.asList());
+    public Sexp visitSexp(Sexp head, Sexp outer) {
+        List<Exp> result = new ArrayList<>(head.size() + outer.size() - cut);
+        result.addAll(head.asList());
         result.addAll(outer.subList(cut));
         return Sexp.create(result);
     }
 
     @Override
-    public Sexp visitSymbol(Symbol symbol, Sexp outer) {
-        return Sexp.create(symbol, outer.subList(cut));
+    public Sexp visitSymbol(Symbol head, Sexp outer) {
+        return Sexp.create(head, outer.subList(cut));
     }
 
     @Override
