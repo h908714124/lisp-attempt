@@ -5,19 +5,27 @@ import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
+import com.mypack.util.IsLambdaExpression;
+import com.mypack.util.IsSexp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-class HeadSplicing implements ExpVisitor<Sexp, Sexp> {
+public class HeadSplicing implements ExpVisitor<Sexp, Sexp> {
 
     private HeadSplicing() {
     }
 
     private static final HeadSplicing INSTANCE = new HeadSplicing();
 
-    static HeadSplicing get() {
-        return INSTANCE;
+    public static Optional<Exp> trySplicing(Sexp sexp) {
+        if (sexp.size() >= 2
+                && IsSexp.test(sexp.head())
+                && IsLambdaExpression.test(sexp.head()).isEmpty()) {
+            return Optional.of(sexp.head().accept(INSTANCE, sexp));
+        }
+        return Optional.empty();
     }
 
     @Override

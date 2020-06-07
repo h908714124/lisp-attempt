@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.mypack.builtin.Constants.TRUE;
+import static com.mypack.builtin.HeadSplicing.trySplicing;
 import static com.mypack.eval.Environment.NUMBER_PATTERN;
 import static com.mypack.eval.Environment.nestedInvocations;
 import static com.mypack.util.SetUtil.union;
@@ -37,22 +38,13 @@ public class EvalContext {
     }
 
     public Exp eval(Sexp sexp) {
-        return trySplicing(sexp).map(s -> (Exp) s)
+        return HeadSplicing.trySplicing(sexp)
                 .or(() -> checkBuiltIns(sexp))
                 .or(() -> checkRegularApplication(sexp))
                 .or(() -> checkEnvLookup(sexp))
                 .or(() -> recurseLambda(sexp))
                 .or(() -> recurseParts(sexp.asList()))
                 .orElse(sexp);
-    }
-
-    public static Optional<Sexp> trySplicing(Sexp sexp) {
-        if (sexp.size() >= 2
-                && IsSexp.test(sexp.head())
-                && IsLambdaExpression.test(sexp.head()).isEmpty()) {
-            return Optional.of(sexp.head().accept(HeadSplicing.get(1), sexp));
-        }
-        return Optional.empty();
     }
 
     private Optional<Exp> recurseParts(List<? extends Exp> exps) {
@@ -259,6 +251,6 @@ public class EvalContext {
         }
         Sexp newSexp = Sexp.create(newSymbol, sexp.tail());
         Exp result = new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
-        return trySplicing(AsSexp.get(result)).map(s -> (Exp) s).orElse(result);
+        return trySplicing(AsSexp.get(result)).orElse(result);
     }
 }

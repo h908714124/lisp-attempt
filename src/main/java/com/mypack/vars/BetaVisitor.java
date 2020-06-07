@@ -10,7 +10,7 @@ import com.mypack.util.AsSymbol;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mypack.builtin.EvalContext.trySplicing;
+import static com.mypack.builtin.HeadSplicing.trySplicing;
 
 public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
