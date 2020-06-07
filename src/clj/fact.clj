@@ -5,7 +5,7 @@
 
 ;; Defining the factorial function.
 (defn fact_ [f n]
-  ((zero? n)
+  (zero? n
     1
     (* n (f (pred n)))))
 
@@ -15,7 +15,7 @@
 ;; If the subtrahend is larger than the minuend,
 ;; the result will be 0.
 (defn -_ [f m s]
-  ((zero? s)
+  (zero? s
     m
     (f (pred m) (pred s))))
 

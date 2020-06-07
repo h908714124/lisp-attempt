@@ -37,12 +37,22 @@ public class EvalContext {
     }
 
     public Exp eval(Sexp sexp) {
-        return checkBuiltIns(sexp)
+        return trySplicing(sexp)
+                .or(() -> checkBuiltIns(sexp))
                 .or(() -> checkRegularApplication(sexp))
                 .or(() -> checkEnvLookup(sexp))
                 .or(() -> recurseLambda(sexp))
                 .or(() -> recurseParts(sexp.asList()))
                 .orElse(sexp);
+    }
+
+    private Optional<Exp> trySplicing(Sexp sexp) {
+        if (sexp.size() >= 2
+                && IsSexp.test(sexp.head())
+                && IsLambdaExpression.test(sexp.head()).isEmpty()) {
+            return Optional.of(sexp.head().accept(Splicing.get(1), sexp));
+        }
+        return Optional.empty();
     }
 
     private Optional<Exp> recurseParts(List<? extends Exp> exps) {
@@ -102,9 +112,6 @@ public class EvalContext {
             }
             return Optional.of(Sexp.create(sexp.get(1), sexp.subList(3)));
         }
-        if (IsSexp.test(head)) {
-            return headSexpShortcut(sexp);
-        }
         if (IsSymbol.test(head, "Y") && sexp.size() >= 2) {
             if (sexp.size() == 2) {
                 return Optional.of(Sexp.create(sexp.get(1), sexp));
@@ -136,47 +143,19 @@ public class EvalContext {
         return Optional.of(Symbol.of(current.toString()));
     }
 
-    private Optional<Exp> headSexpShortcut(Sexp outer) {
-        Sexp head = AsSexp.get(outer.head());
-        if (IsFalse.test(head.head()) && head.size() == 2 && outer.size() >= 2) {
-            if (outer.size() == 2) {
-                return Optional.of(outer.get(1));
-            }
-            return Optional.of(Sexp.create(outer.get(1), outer.subList(2)));
-        }
-        if (IsTrue.test(head.head()) && head.size() == 2 && outer.size() >= 2) {
-            if (outer.size() == 2) {
-                return Optional.of(head.get(1));
-            }
-            return Optional.of(Sexp.create(head.get(1), outer.subList(2)));
-        }
-        if (IsSymbol.test(head.head(), NUMBER_PATTERN) && head.size() == 2 && outer.size() >= 2) {
-            Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(head.head()).value()),
-                    head.get(1), outer.get(1));
-            if (outer.size() == 2) {
-                return Optional.of(invocations);
-            }
-            return Optional.of(invocations.accept(Splicing.get(2), outer));
-        }
-        if (IsSymbol.test(head.head(), "Y") && head.size() == 2 && outer.size() >= 1) {
-            return Optional.of(Sexp.create(head.get(1), head, outer.subList(1)));
-        }
-        return Optional.empty();
-    }
-
     private Optional<Exp> isZeroShortcut(Sexp sexp) {
-        if (sexp.size() != 2) {
+        if (sexp.size() != 4) {
             return Optional.empty();
         }
         if (IsSymbol.test(sexp.get(1), NUMBER_PATTERN)) {
             int i = Integer.parseInt(AsSymbol.get(sexp.get(1)).value());
-            return Optional.of(i == 0 ? Symbol.of("true") : Symbol.of("false"));
+            return Optional.of(i == 0 ? sexp.get(2) : sexp.get(3));
         } else if (IsSexp.test(sexp.get(1))) {
             Optional<Exp> arg = checkBuiltIns(AsSexp.get(sexp.get(1)));
             if (arg.isEmpty()) {
                 return Optional.empty();
             }
-            return Optional.of(Sexp.create(Symbol.of("zero?"), arg.get()));
+            return Optional.of(Sexp.create(Symbol.of("zero?"), arg.get(), sexp.subList(2)));
         } else {
             return Optional.empty();
         }
