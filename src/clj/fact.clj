@@ -20,3 +20,11 @@
     (f (pred m) (pred s))))
 
 (def - (Y -_))
+
+;; Ackermann function
+(defn ack_ [f m n]
+  (zero? m (+ 1 n)
+    (zero? n (f (pred m) 1)
+      (f (pred m) (f m (pred n))))))
+
+(def ack (Y ack_))
