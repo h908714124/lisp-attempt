@@ -1,5 +1,6 @@
 package com.mypack.util;
 
+import com.mypack.builtin.Applicative;
 import com.mypack.exp.Exp;
 import com.mypack.exp.Symbol;
 
@@ -9,7 +10,7 @@ public class DefExpression {
     private final Exp definition;
 
     DefExpression(Symbol name, Exp definition) {
-        this.name = name;
+        this.name = Applicative.checkName(name);
         this.definition = definition;
     }
 

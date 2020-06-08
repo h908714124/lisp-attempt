@@ -59,14 +59,11 @@ public class Environment implements ExpVisitor<Exp, Void> {
         }
     }
 
-    public void load(String definition) {
-        load(LispParser.parse(definition));
-    }
-
     private void load(Exp exp) {
         IsDefExpression.test(exp).ifPresent(defExpression -> {
             Exp definition = defExpression.definition();
-            definitions.put(defExpression.name(), definition);
+            Symbol name = defExpression.name();
+            definitions.put(name, definition);
         });
         IsDefnExpression.test(exp).ifPresent(defnExpression -> {
             LambdaExpression lambda = new LambdaExpression(defnExpression.params(), defnExpression.body());
@@ -155,9 +152,5 @@ public class Environment implements ExpVisitor<Exp, Void> {
     @Override
     public Exp visitParamBlock(ParamBlock paramBlock) {
         return paramBlock;
-    }
-
-    public Set<Symbol> keySet() {
-        return definitions.keySet();
     }
 }

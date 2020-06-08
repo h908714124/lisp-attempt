@@ -1,5 +1,6 @@
 package com.mypack.util;
 
+import com.mypack.builtin.Applicative;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Symbol;
@@ -11,7 +12,7 @@ public class DefnExpression {
     private final Exp body;
 
     DefnExpression(Symbol name, ParamBlock params, Exp body) {
-        this.name = name;
+        this.name = Applicative.checkName(name);
         this.params = params;
         this.body = body;
     }

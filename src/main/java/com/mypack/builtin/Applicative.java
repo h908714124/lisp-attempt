@@ -17,7 +17,7 @@ import java.util.function.Function;
 import static com.mypack.eval.Environment.NUMBER_PATTERN;
 import static com.mypack.eval.Environment.nestedInvocations;
 
-class Applicative {
+public class Applicative {
 
     private static final Applicative INSTANCE = new Applicative();
 
@@ -25,6 +25,15 @@ class Applicative {
 
     static Applicative get() {
         return INSTANCE;
+    }
+
+    public static Symbol checkName(Symbol symbol) {
+        if (symbol.equals(Symbol.of("Y"))
+                || NUMBER_PATTERN.matcher(symbol.value()).matches()
+                || INSTANCE.map.containsKey(symbol)) {
+            throw new IllegalArgumentException("Reserved: " + symbol);
+        }
+        return symbol;
     }
 
     private Applicative() {
