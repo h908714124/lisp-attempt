@@ -23,7 +23,7 @@ public class Applicative {
 
     private final Map<Symbol, Function<Sexp, Optional<Exp>>> map;
 
-    static Applicative get() {
+    public static Applicative get() {
         return INSTANCE;
     }
 
@@ -108,7 +108,7 @@ public class Applicative {
         return eval(exp).orElse(exp);
     }
 
-    Optional<Exp> eval(Exp exp) {
+    public Optional<Exp> eval(Exp exp) {
         return IsSexp.test(exp) ? eval(AsSexp.get(exp)) : Optional.empty();
     }
 

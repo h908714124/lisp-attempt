@@ -1,5 +1,6 @@
 package com.mypack.vars;
 
+import com.mypack.builtin.Applicative;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
@@ -33,22 +34,23 @@ public class BetaVisitor implements ExpVisitor<Exp, Void> {
     @Override
     public Exp visitSexp(Sexp sexp, Void _null) {
         List<? extends Exp> exps = sexp.asList();
-        List<Exp> result = null;
+        List<Exp> parts = null;
         for (int i = 0; i < exps.size(); i++) {
             Exp exp = exps.get(i);
             Exp newExp = exp.accept(this, _null);
             if (newExp != exp) {
-                if (result == null) {
-                    result = new ArrayList<>(exps);
+                if (parts == null) {
+                    parts = new ArrayList<>(exps);
                 }
-                result.set(i, newExp);
+                parts.set(i, newExp);
             }
         }
-        if (result == null) {
+        if (parts == null) {
             return sexp;
         }
-        Sexp newSexp = Sexp.create(result);
-        return trySplicing(newSexp).orElse(newSexp);
+        Sexp newSexp = Sexp.create(parts);
+        Exp result = trySplicing(newSexp).orElse(newSexp);
+        return Applicative.get().eval(result).orElse(result);
     }
 
     @Override
