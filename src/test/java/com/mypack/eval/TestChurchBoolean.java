@@ -6,6 +6,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import static com.mypack.test.TestUtil.assertEq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class TestChurchBoolean {
@@ -34,5 +35,17 @@ class TestChurchBoolean {
     void testFPChurchTrue4() {
         Exp result = env.eval("(fn [x] ((fn [a b] a) x x))");
         assertEq(env, env.eval("(fn [x] x)"), result);
+    }
+
+    @Test
+    void testTrueBuiltin() {
+        Exp result = env.eval("((true 2) 1)");
+        assertEquals("2", result.toString());
+    }
+
+    @Test
+    void testFalseBuiltin() {
+        Exp result = env.eval("((false 2) 1)");
+        assertEquals("1", result.toString());
     }
 }

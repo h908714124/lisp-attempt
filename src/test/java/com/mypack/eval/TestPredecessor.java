@@ -1,12 +1,9 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -31,11 +28,5 @@ class TestPredecessor {
     void testPredecessorOfTwo() {
         Exp result = env.eval("(pred 2)");
         assertEquals("1", result.toString());
-    }
-
-    @Test
-    void testK() {
-        Exp result = env.eval("((K 2) 1)");
-        assertEquals("2", result.toString());
     }
 }
