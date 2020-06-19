@@ -4,8 +4,7 @@ Un calculador de lambdaos.
 Puede imprimar los pasos de los evaluaciones.
 
 * built-in functions: {`true`, `false`, `K`, `I`, `Y`, `+`, `*`, `zero?`, `pred`, `0`, `1`, `2`}
-* built-in numbers: non-negative integers
-* non-negative numbers can act as church numerals
+* built-in numbers: non-negative integers, can act as church numerals
 * [Definitions of fact and ack](https://github.com/h908714124/lisp-attempt/blob/master/src/clj/fact.clj)
 * [Evaluation of (fact 0)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact0.clj)
 * [Evaluation of (fact 1)](https://github.com/h908714124/lisp-attempt/blob/master/showcase/fact1.clj)
