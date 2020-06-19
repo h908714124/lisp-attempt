@@ -55,6 +55,10 @@ public class Sexp implements Exp {
         return tail;
     }
 
+    public List<? extends Exp> tail(int cut) {
+        return tail.subList(cut, tail.size());
+    }
+
     public List<? extends Exp> asList() {
         return asList;
     }

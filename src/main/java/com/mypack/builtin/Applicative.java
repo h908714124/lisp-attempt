@@ -13,11 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
-import static com.mypack.eval.Environment.NUMBER_PATTERN;
 import static com.mypack.eval.Environment.nestedInvocations;
 
 public class Applicative {
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
     private static final Applicative INSTANCE = new Applicative();
 
@@ -45,6 +47,7 @@ public class Applicative {
             Exp arg = tryEval(sexp.get(1));
             if (IsSymbol.test(arg, NUMBER_PATTERN)) {
                 int i = Integer.parseInt(AsSymbol.get(arg).value());
+                i = Math.max(0, i); // numbers act as church numerals, so don't allow negative here
                 return Optional.of(Symbol.of(Integer.toString(i - 1)));
             }
             return Optional.empty();
@@ -80,6 +83,27 @@ public class Applicative {
                     return Optional.empty();
                 }
                 current = current.add(new BigInteger(AsSymbol.get(e).value()));
+            }
+            return Optional.of(Symbol.of(current.toString()));
+        }));
+        m.put(Symbol.of("-"), (sexp -> {
+            if (sexp.size() == 1) {
+                return Optional.empty();
+            }
+            Exp current2 = tryEval(sexp.tail().get(0));
+            if (!IsSymbol.test(current2, NUMBER_PATTERN)) {
+                return Optional.empty();
+            }
+            BigInteger current = new BigInteger(AsSymbol.get(current2).value());
+            for (Exp exp : sexp.tail(1)) { // fix me, only applicative for first 2 args
+                Exp e = tryEval(exp);
+                if (!IsSymbol.test(e, NUMBER_PATTERN)) {
+                    return Optional.empty();
+                }
+                current = current.subtract(new BigInteger(AsSymbol.get(e).value()));
+            }
+            if (current.signum() == -1) {
+                current = BigInteger.ZERO; // help
             }
             return Optional.of(Symbol.of(current.toString()));
         }));

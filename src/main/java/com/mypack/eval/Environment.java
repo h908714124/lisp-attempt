@@ -19,13 +19,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public class Environment implements ExpVisitor<Exp, Void> {
 
     private final Map<Symbol, Exp> definitions = new LinkedHashMap<>();
-
-    public static final Pattern NUMBER_PATTERN = Pattern.compile("0|[-]?[1-9]\\d*");
 
     private final PrintStream out;
 
@@ -80,9 +77,6 @@ public class Environment implements ExpVisitor<Exp, Void> {
         if (definition != null) {
             return definition;
         }
-        if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
-            return Environment.churchNumeral(Integer.parseInt(symbol.value()));
-        }
         return null;
     }
 
@@ -99,13 +93,6 @@ public class Environment implements ExpVisitor<Exp, Void> {
             out.flush();
         }
         return result;
-    }
-
-    static Exp churchNumeral(int n) {
-        Symbol x = Symbol.of("x");
-        Symbol f = Symbol.of("f");
-        Exp result = nestedInvocations(n, f, x);
-        return new LambdaExpression(ParamBlock.create(f, x), result).toExp();
     }
 
     public static Exp nestedInvocations(int n, Exp f, Exp x) {
