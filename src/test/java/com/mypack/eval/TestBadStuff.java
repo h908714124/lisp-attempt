@@ -18,12 +18,6 @@ class TestBadStuff {
     }
 
     @Test
-    void testNumWith1Arg() {
-        Exp exp = env.eval("(fn [f x] (2 f))", 1);
-        TestUtil.assertEq(env, env.eval("(fn [f x] (fn [x1] (f (f x1))))"), exp);
-    }
-
-    @Test
     void test1() {
         Exp exp = env.eval("(fn [f x] (1 f x))", 1);
         Assertions.assertEquals("(fn [f x] (f x))", exp.toString());
