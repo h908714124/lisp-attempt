@@ -1,9 +1,14 @@
 ;; User-defined functions are always evaluated in normal order,
 ;; to prevent infinite expansions.
-;; However some built-ins may use applicative order.
-;; See: https://en.wikipedia.org/wiki/Evaluation_strategy
+;;
+;; List of built-ins using applicative order:
+;; + (both arguments)
+;; - (both arguments)
+;; * (both arguments)
+;; pred
+;; (zero? n a b) (first argument)
 
-;; Defining the factorial function.
+;; == Factorial ==
 (defn fact_ [f n]
   (zero? n
     1
@@ -11,17 +16,7 @@
 
 (def fact (Y fact_))
 
-;; Defining subtraction.
-;; If the subtrahend is larger than the minuend,
-;; the result will be 0.
-(defn -_ [f m s]
-  (zero? s
-    m
-    (f (pred m) (pred s))))
-
-(def - (Y -_))
-
-;; Ackermann function
+;; == Ackermann ==
 (defn ack_ [f m n]
   (zero? m (+ 1 n)
     (zero? n (f (pred m) 1)
