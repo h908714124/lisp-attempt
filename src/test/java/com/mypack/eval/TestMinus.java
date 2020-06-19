@@ -39,13 +39,13 @@ class TestMinus {
 
     @Test
     void test5minus4() {
-        Exp result = env.eval("(- 5 4 10 20)");
-        assertEquals("(10 20)", result.toString());
+        Exp result = env.eval("(- 5 4 0 2 3)");
+        assertEquals("3", result.toString());
     }
 
     @Test
     void test4minus5() {
         Exp result = env.eval("(- 4 5 10 20)");
-        assertEquals("0", result.toString());
+        assertEquals("(- 4 5 10 20)", result.toString());
     }
 }

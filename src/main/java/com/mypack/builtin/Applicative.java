@@ -44,68 +44,65 @@ public class Applicative {
             if (sexp.size() < 2) {
                 return Optional.empty();
             }
-            Exp arg = tryEval(sexp.get(1));
-            if (IsSymbol.test(arg, NUMBER_PATTERN)) {
-                int i = Integer.parseInt(AsSymbol.get(arg).value());
-                i = Math.max(0, i); // numbers act as church numerals, so don't allow negative here
-                return Optional.of(Symbol.of(Integer.toString(i - 1)));
-            }
-            return Optional.empty();
+            return tryEval(sexp.get(1)).flatMap(i -> {
+                i = i.subtract(BigInteger.ONE);
+                if (i.signum() == -1) {
+                    return Optional.<Exp>empty(); // no negative numbers
+                }
+                return Optional.of(Symbol.of(i.toString()));
+            });
         }));
         m.put(Symbol.of("zero?"), (sexp -> {
             if (sexp.size() < 4) {
                 return Optional.empty();
             }
-            Exp arg = tryEval(sexp.get(1));
-            if (IsSymbol.test(arg, NUMBER_PATTERN)) {
-                int i = Integer.parseInt(AsSymbol.get(arg).value());
-                Exp newHead = i == 0 ? sexp.get(2) : sexp.get(3);
-                return Optional.of(HeadSplicing.trySplicing(Sexp.create(newHead, sexp.subList(4))).orElse(newHead));
-            }
-            return Optional.empty();
+            return tryEval(sexp.get(1)).map(i -> {
+                Exp newHead = i.equals(BigInteger.ZERO) ? sexp.get(2) : sexp.get(3);
+                return HeadSplicing.trySplicing(Sexp.create(newHead, sexp.subList(4))).orElse(newHead);
+            });
         }));
         m.put(Symbol.of("*"), (sexp -> {
             BigInteger current = BigInteger.ONE;
             for (Exp exp : sexp.tail()) {
-                Exp e = tryEval(exp);
-                if (!IsSymbol.test(e, NUMBER_PATTERN)) {
+                Optional<BigInteger> e = tryEval(exp);
+                if (e.isEmpty()) {
                     return Optional.empty();
                 }
-                current = current.multiply(new BigInteger(AsSymbol.get(e).value()));
+                current = current.multiply(e.get());
             }
             return Optional.of(Symbol.of(current.toString()));
         }));
         m.put(Symbol.of("+"), (sexp -> {
             BigInteger current = BigInteger.ZERO;
             for (Exp exp : sexp.tail()) {
-                Exp e = tryEval(exp);
-                if (!IsSymbol.test(e, NUMBER_PATTERN)) {
+                Optional<BigInteger> e = tryEval(exp);
+                if (e.isEmpty()) {
                     return Optional.empty();
                 }
-                current = current.add(new BigInteger(AsSymbol.get(e).value()));
+                current = current.add(e.get());
             }
             return Optional.of(Symbol.of(current.toString()));
         }));
         m.put(Symbol.of("-"), (sexp -> {
-            if (sexp.size() == 1) {
+            if (sexp.tail().size() < 2) {
                 return Optional.empty();
             }
-            Exp current2 = tryEval(sexp.tail().get(0));
-            if (!IsSymbol.test(current2, NUMBER_PATTERN)) {
-                return Optional.empty();
-            }
-            BigInteger current = new BigInteger(AsSymbol.get(current2).value());
-            for (Exp exp : sexp.tail(1)) { // fix me, only applicative for first 2 args
-                Exp e = tryEval(exp);
-                if (!IsSymbol.test(e, NUMBER_PATTERN)) {
-                    return Optional.empty();
-                }
-                current = current.subtract(new BigInteger(AsSymbol.get(e).value()));
-            }
-            if (current.signum() == -1) {
-                current = BigInteger.ZERO; // help
-            }
-            return Optional.of(Symbol.of(current.toString()));
+            Exp q = sexp.tail().get(0);
+            Optional<BigInteger> p = tryEval(q);
+            return p.flatMap(mn -> {
+                Exp exp = sexp.tail().get(1);
+                return tryEval(exp).flatMap(s -> {
+                    BigInteger current = mn.subtract(s);
+                    if (current.signum() == -1) {
+                        return Optional.<Exp>empty(); // no negative numbers yet
+                    }
+                    Symbol r = Symbol.of(current.toString());
+                    if (sexp.tail().size() == 2) {
+                        return Optional.of(r);
+                    }
+                    return Optional.of(Sexp.create(r, sexp.tail(2)));
+                });
+            });
         }));
         m.put(Symbol.of("false"), (sexp -> {
             if (sexp.size() < 3) {
@@ -128,11 +125,16 @@ public class Applicative {
         this.map = Map.copyOf(m);
     }
 
-    Exp tryEval(Exp exp) {
-        return eval(exp).orElse(exp);
+    Optional<BigInteger> tryEval(Exp exp) {
+        return eval(exp)
+                .filter(x -> IsSymbol.test(x, NUMBER_PATTERN))
+                .map(x -> new BigInteger(AsSymbol.get(x).value()));
     }
 
     public Optional<Exp> eval(Exp exp) {
+        if (IsSymbol.test(exp, NUMBER_PATTERN)) {
+            return Optional.of(exp);
+        }
         return IsSexp.test(exp) ? eval(AsSexp.get(exp)) : Optional.empty();
     }
 
