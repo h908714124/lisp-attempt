@@ -3,6 +3,7 @@
 Un calculador de lambdaos.
 Puede imprimar los pasos de los evaluaciones.
 
+* launch repl: `./repl`
 * built ins: {`true`, `false`, `K`, `I`, `Y`, `+`, `*`, `zero?`, `pred`}
 * non-negative integers act as powers: `(m n) = exp n m`
 * [Definitions of fact and ack](https://github.com/h908714124/lisp-attempt/blob/master/src/clj/fact.clj)
