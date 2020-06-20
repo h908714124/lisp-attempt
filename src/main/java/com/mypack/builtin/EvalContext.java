@@ -68,7 +68,7 @@ public class EvalContext {
             }
             return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)
                     .stream()
-                    .map(x -> Applicative.get().tryEval(x)
+                    .map(x -> Applicative.get().evalNumber(x)
                             .map(y -> Symbol.of(y.toString()))
                             .map(y -> (Exp) y)
                             .orElse(x))

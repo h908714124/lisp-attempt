@@ -19,25 +19,31 @@ class TestBadStuff {
     @Test
     void test1() {
         Exp exp = env.eval("(1 f x)", 1);
-        Assertions.assertEquals("(1 f x)", exp.toString());
+        Assertions.assertEquals("(f x)", exp.toString());
     }
 
     @Test
     void test2() {
         Exp exp = env.eval("(2 f x)", 1);
-        Assertions.assertEquals("(2 f x)", exp.toString());
+        Assertions.assertEquals("(f (f x))", exp.toString());
     }
 
     @Test
     void test1with3Args() {
         Exp exp = env.eval("(1 f x x)", 1);
-        Assertions.assertEquals("(1 f x x)", exp.toString());
+        Assertions.assertEquals("(f x x)", exp.toString());
     }
 
     @Test
     void test2with3Args() {
         Exp exp = env.eval("(2 f x x)", 1);
-        Assertions.assertEquals("(2 f x x)", exp.toString());
+        Assertions.assertEquals("(f (f x) x)", exp.toString());
+    }
+
+    @Test
+    void test3with3Args() {
+        Exp exp = env.eval("(3 f x x)", 1);
+        Assertions.assertEquals("(f (f (f x)) x)", exp.toString());
     }
 
     @Test

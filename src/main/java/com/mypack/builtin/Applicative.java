@@ -43,7 +43,7 @@ public class Applicative {
             if (tail.isEmpty()) {
                 return Optional.empty();
             }
-            return tryEval(tail.get(0)).flatMap(i -> {
+            return evalNumber(tail.get(0)).flatMap(i -> {
                 i = i.subtract(BigInteger.ONE);
                 if (i.signum() == -1) {
                     return Optional.<Exp>empty(); // no negative numbers
@@ -55,7 +55,7 @@ public class Applicative {
             if (tail.size() < 3) {
                 return Optional.empty();
             }
-            return tryEval(tail.get(0)).flatMap(i -> {
+            return evalNumber(tail.get(0)).flatMap(i -> {
                 Exp newHead = i.equals(BigInteger.ZERO) ? tail.get(1) : tail.get(2);
                 return HeadSplicing.assemble(newHead, tail.subList(3, tail.size()));
             });
@@ -63,7 +63,7 @@ public class Applicative {
         m.put(Symbol.of("*"), (tail -> {
             BigInteger current = BigInteger.ONE;
             for (Exp exp : tail) {
-                Optional<BigInteger> e = tryEval(exp);
+                Optional<BigInteger> e = evalNumber(exp);
                 if (e.isEmpty()) {
                     return Optional.empty();
                 }
@@ -74,7 +74,7 @@ public class Applicative {
         m.put(Symbol.of("+"), (tail -> {
             BigInteger current = BigInteger.ZERO;
             for (Exp exp : tail) {
-                Optional<BigInteger> e = tryEval(exp);
+                Optional<BigInteger> e = evalNumber(exp);
                 if (e.isEmpty()) {
                     return Optional.empty();
                 }
@@ -86,9 +86,9 @@ public class Applicative {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
-            return tryEval(tail.get(0)).flatMap(mn -> {
+            return evalNumber(tail.get(0)).flatMap(mn -> {
                 Exp exp = tail.get(1);
-                return tryEval(exp).flatMap(s -> {
+                return evalNumber(exp).flatMap(s -> {
                     BigInteger r = mn.subtract(s);
                     if (r.signum() == -1) {
                         return Optional.<Exp>empty(); // no negative numbers yet
@@ -112,7 +112,7 @@ public class Applicative {
         this.map = Map.copyOf(m);
     }
 
-    Optional<BigInteger> tryEval(Exp exp) {
+    Optional<BigInteger> evalNumber(Exp exp) {
         return eval(exp)
                 .filter(x -> IsSymbol.test(x, NUMBER_PATTERN))
                 .map(x -> new BigInteger(AsSymbol.get(x).value()));
@@ -144,9 +144,24 @@ public class Applicative {
         if (tail.isEmpty()) {
             return Optional.empty();
         }
-        return tryEval(tail.get(0)).flatMap(n -> {
+        Optional<BigInteger> _n_ = evalNumber(tail.get(0));
+        if (tail.size() >= 2
+                && IsSymbol.test(tail.get(0))
+                && _n_.isEmpty()) {
+            Exp hewHead = nestedInvocations(m.intValue(), tail.get(0), tail.get(1));
+            return HeadSplicing.assemble(hewHead, tail.subList(2, tail.size()));
+        }
+        return _n_.flatMap(n -> {
             BigInteger r = n.pow(m.intValue());
             return HeadSplicing.assemble(Symbol.of(r), tail.subList(1, tail.size()));
         });
+    }
+
+    private static Exp nestedInvocations(int n, Exp f, Exp x) {
+        Exp result = x;
+        for (int i = 0; i < n; i++) {
+            result = Sexp.create(f, result);
+        }
+        return result;
     }
 }

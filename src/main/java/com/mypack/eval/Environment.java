@@ -95,14 +95,6 @@ public class Environment implements ExpVisitor<Exp, Void> {
         return result;
     }
 
-    public static Exp nestedInvocations(int n, Exp f, Exp x) {
-        Exp result = x;
-        for (int i = 0; i < n; i++) {
-            result = Sexp.create(f, result);
-        }
-        return result;
-    }
-
     private Exp internalIterEval(Exp exp, int max) {
         int n = 0;
         while (n < max) {
