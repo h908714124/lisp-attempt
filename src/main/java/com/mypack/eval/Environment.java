@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class Environment implements ExpVisitor<Exp, Void> {
@@ -49,23 +50,11 @@ public class Environment implements ExpVisitor<Exp, Void> {
             String data = Files.readString(path);
             List<Exp> expressions = LispParser.parseList(data);
             for (Exp expression : expressions) {
-                load(expression);
+                eval(expression);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void load(Exp exp) {
-        IsDefExpression.test(exp).ifPresent(defExpression -> {
-            Exp definition = defExpression.definition();
-            Symbol name = defExpression.name();
-            definitions.put(name, definition);
-        });
-        IsDefnExpression.test(exp).ifPresent(defnExpression -> {
-            LambdaExpression lambda = new LambdaExpression(defnExpression.params(), defnExpression.body());
-            definitions.put(defnExpression.name(), lambda.toExp());
-        });
     }
 
     public Exp lookup(String symbol) {
@@ -73,11 +62,7 @@ public class Environment implements ExpVisitor<Exp, Void> {
     }
 
     public Exp lookup(Symbol symbol) {
-        Exp definition = definitions.get(symbol);
-        if (definition != null) {
-            return definition;
-        }
-        return null;
+        return definitions.get(symbol);
     }
 
     public Exp eval(String unresolvedExp, int maxSteps) {
@@ -95,7 +80,24 @@ public class Environment implements ExpVisitor<Exp, Void> {
         return result;
     }
 
+    private Optional<Exp> checkDef(Exp exp) {
+        return IsDefExpression.test(exp).map(defExpression -> {
+            Exp definition = defExpression.definition();
+            Symbol name = defExpression.name();
+            definitions.put(name, definition);
+            return definition;
+        }).or(() -> IsDefnExpression.test(exp).map(defnExpression -> {
+            LambdaExpression lambda = new LambdaExpression(defnExpression.params(), defnExpression.body());
+            definitions.put(defnExpression.name(), lambda.toExp());
+            return lambda.toExp();
+        }));
+    }
+
     private Exp internalIterEval(Exp exp, int max) {
+        Optional<Exp> definition = checkDef(exp);
+        if (definition.isPresent()) {
+            return definition.get();
+        }
         int n = 0;
         while (n < max) {
             if (printing) {
