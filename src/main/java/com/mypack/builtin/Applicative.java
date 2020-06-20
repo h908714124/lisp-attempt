@@ -133,7 +133,7 @@ public class Applicative {
         }
         Symbol symbol = AsSymbol.get(sexp.head());
         if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
-            return applyNumberBuiltIn(sexp);
+            return applyNumberBuiltIn(symbol, sexp.tail());
         }
         Function<List<? extends Exp>, Optional<Exp>> builtin = map.get(symbol);
         if (builtin == null) {
@@ -142,12 +142,12 @@ public class Applicative {
         return builtin.apply(sexp.tail());
     }
 
-    private static Optional<Exp> applyNumberBuiltIn(Sexp sexp) {
-        if (sexp.size() < 3) {
+    private Optional<Exp> applyNumberBuiltIn(Symbol n, List<? extends Exp> tail) {
+        if (tail.size() < 2) {
             return Optional.empty();
         }
-        Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(sexp.head()).value()),
-                sexp.get(1), sexp.get(2));
-        return Optional.of(HeadSplicing.simplify(Sexp.create(invocations, sexp.subList(3))).orElse(invocations));
+        Exp invocations = nestedInvocations(Integer.parseInt(n.value()),
+                tail.get(0), tail.get(1));
+        return HeadSplicing.assemble(invocations, tail.subList(2, tail.size()));
     }
 }
