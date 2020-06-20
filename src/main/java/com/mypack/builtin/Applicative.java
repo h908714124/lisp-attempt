@@ -148,7 +148,7 @@ public class Applicative {
         if (tail.size() >= 2
                 && IsSymbol.test(tail.get(0))
                 && _n_.isEmpty()) {
-            Exp hewHead = nestedInvocations(m.intValue(), tail.get(0), tail.get(1));
+            Exp hewHead = nestedInvocations(m.intValue(), AsSymbol.get(tail.get(0)), tail.get(1));
             return HeadSplicing.assemble(hewHead, tail.subList(2, tail.size()));
         }
         return _n_.flatMap(n -> {
@@ -157,7 +157,7 @@ public class Applicative {
         });
     }
 
-    private static Exp nestedInvocations(int n, Exp f, Exp x) {
+    private static Exp nestedInvocations(int n, Symbol f, Exp x) {
         Exp result = x;
         for (int i = 0; i < n; i++) {
             result = Sexp.create(f, result);
