@@ -1,7 +1,6 @@
 ## Lisp attempt
 
-Un calculador de lambdaos.
-Puede imprimar los pasos de los evaluaciones.
+A lambda calculator
 
 * launch repl: `./repl`
 * built ins: {`true`, `false`, `K`, `I`, `Y`, `+`, `*`, `zero?`, `pred`}
