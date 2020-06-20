@@ -59,8 +59,7 @@ public class EvalContext {
 
     private Optional<Exp> checkBuiltIns(Sexp sexp) {
         Exp head = sexp.head();
-        Applicative applicative = Applicative.get();
-        Optional<Exp> result = applicative.eval(sexp);
+        Optional<Exp> result = Applicative.get().eval(sexp);
         if (result.isPresent()) {
             return result;
         }
@@ -70,7 +69,7 @@ public class EvalContext {
             }
             return Optional.of(Sexp.create(sexp.get(1), Sexp.create(Symbol.of("Y"), sexp.get(1)), sexp.subList(2)
                     .stream()
-                    .map(x -> applicative.tryEval(x)
+                    .map(x -> Applicative.get().tryEval(x)
                             .map(y -> Symbol.of(y.toString()))
                             .map(y -> (Exp) y)
                             .orElse(x))
