@@ -1,7 +1,6 @@
 package com.mypack.eval;
 
 import com.mypack.exp.Exp;
-import com.mypack.test.TestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -13,44 +12,44 @@ class TestBadStuff {
 
     @Test
     void testExtraParens() {
-        String irreducible = "((fn [f x] (f x)))";
+        String irreducible = "((f x))";
         Assertions.assertEquals(irreducible, env.eval(irreducible).toString());
     }
 
     @Test
     void test1() {
-        Exp exp = env.eval("(fn [f x] (1 f x))", 1);
-        Assertions.assertEquals("(fn [f x] (f x))", exp.toString());
+        Exp exp = env.eval("(1 f x)", 1);
+        Assertions.assertEquals("(f x)", exp.toString());
     }
 
     @Test
     void test2() {
-        Exp exp = env.eval("(fn [f x] (2 f x))", 1);
-        Assertions.assertEquals("(fn [f x] (f (f x)))", exp.toString());
+        Exp exp = env.eval("(2 f x)", 1);
+        Assertions.assertEquals("(f (f x))", exp.toString());
     }
 
     @Test
     void test1with3Args() {
-        Exp exp = env.eval("(fn [f x] (1 f x x))", 1);
-        Assertions.assertEquals("(fn [f x] (f x x))", exp.toString());
+        Exp exp = env.eval("(1 f x x)", 1);
+        Assertions.assertEquals("(f x x)", exp.toString());
     }
 
     @Test
     void test2with3Args() {
-        Exp exp = env.eval("(fn [f x] (2 f x x))", 1);
-        Assertions.assertEquals("(fn [f x] (f (f x) x))", exp.toString());
+        Exp exp = env.eval("(2 f x x)", 1);
+        Assertions.assertEquals("(f (f x) x)", exp.toString());
     }
 
     @Test
     void testFalse2args() {
-        Exp exp = env.eval("(fn [f x] (false f x))", 1);
-        Assertions.assertEquals("(fn [f x] x)", exp.toString());
+        Exp exp = env.eval("(false f x)", 1);
+        Assertions.assertEquals("x", exp.toString());
     }
 
     @Test
     void testFalse3args() {
-        Exp exp = env.eval("(fn [f x] (false f x 1))", 1);
-        Assertions.assertEquals("(fn [f x] (x 1))", exp.toString());
+        Exp exp = env.eval("(false f x 1)", 1);
+        Assertions.assertEquals("(x 1)", exp.toString());
     }
 
     @Test

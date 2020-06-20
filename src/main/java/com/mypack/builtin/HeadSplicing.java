@@ -6,6 +6,7 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.IsLambdaExpression;
+import com.mypack.util.IsSexp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +19,24 @@ public class HeadSplicing implements ExpVisitor<Optional<Exp>, List<? extends Ex
 
     private static final HeadSplicing INSTANCE = new HeadSplicing();
 
-    public static Optional<Exp> trySplicing(Exp head, List<? extends Exp> tail) {
-        if (tail.isEmpty() || IsLambdaExpression.test(head).isPresent()) {
+    public static Optional<Exp> assemble(Exp head, List<? extends Exp> tail) {
+        if (tail.isEmpty()) {
+            return Optional.of(head);
+        }
+        if (IsLambdaExpression.test(head).isPresent()) {
             return Optional.empty();
         }
         return head.accept(INSTANCE, tail);
     }
 
-    public static Optional<Exp> trySplicing(Sexp sexp) {
-        return trySplicing(sexp.head(), sexp.tail());
+    public static Optional<Exp> simplify(Sexp sexp) {
+        if (sexp.tail().isEmpty()) {
+            return Optional.empty();
+        }
+        if (!IsSexp.test(sexp.head())) {
+            return Optional.empty();
+        }
+        return assemble(sexp.head(), sexp.tail());
     }
 
     @Override
@@ -39,7 +49,7 @@ public class HeadSplicing implements ExpVisitor<Optional<Exp>, List<? extends Ex
 
     @Override
     public Optional<Exp> visitSymbol(Symbol newHead, List<? extends Exp> tail) {
-        return Optional.empty();
+        return Optional.of(Sexp.create(newHead, tail));
     }
 
     @Override

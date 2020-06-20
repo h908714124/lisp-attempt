@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.mypack.builtin.HeadSplicing.trySplicing;
 import static com.mypack.util.SetUtil.union;
 
 public class EvalContext {
@@ -35,7 +34,7 @@ public class EvalContext {
     }
 
     public Exp eval(Sexp sexp) {
-        return HeadSplicing.trySplicing(sexp)
+        return HeadSplicing.simplify(sexp)
                 .or(() -> checkBuiltIns(sexp))
                 .or(() -> checkRegularApplication(sexp))
                 .or(() -> checkEnvLookup(sexp))
@@ -154,6 +153,6 @@ public class EvalContext {
         }
         Sexp newSexp = Sexp.create(newSymbol, sexp.tail());
         Exp result = new LambdaExpression(ParamBlock.create(newSymbol), newSexp).apply(definition, reserved);
-        return trySplicing(AsSexp.get(result)).orElse(result);
+        return HeadSplicing.simplify(AsSexp.get(result)).orElse(result);
     }
 }

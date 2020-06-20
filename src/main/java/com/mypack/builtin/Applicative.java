@@ -34,7 +34,7 @@ public class Applicative {
         if (symbol.equals(Symbol.of("Y"))
                 || NUMBER_PATTERN.matcher(symbol.value()).matches()
                 || INSTANCE.map.containsKey(symbol)) {
-            throw new IllegalArgumentException("Reserved: " + symbol);
+            throw new IllegalArgumentException("This symbol is reserved: " + symbol);
         }
         return symbol;
     }
@@ -57,9 +57,9 @@ public class Applicative {
             if (tail.size() < 3) {
                 return Optional.empty();
             }
-            return tryEval(tail.get(0)).map(i -> {
+            return tryEval(tail.get(0)).flatMap(i -> {
                 Exp newHead = i.equals(BigInteger.ZERO) ? tail.get(1) : tail.get(2);
-                return HeadSplicing.trySplicing(Sexp.create(newHead, tail.subList(3, tail.size()))).orElse(newHead);
+                return HeadSplicing.assemble(newHead, tail.subList(3, tail.size()));
             });
         }));
         m.put(Symbol.of("*"), (tail -> {
@@ -91,15 +91,11 @@ public class Applicative {
             return tryEval(tail.get(0)).flatMap(mn -> {
                 Exp exp = tail.get(1);
                 return tryEval(exp).flatMap(s -> {
-                    BigInteger current = mn.subtract(s);
-                    if (current.signum() == -1) {
+                    BigInteger r = mn.subtract(s);
+                    if (r.signum() == -1) {
                         return Optional.<Exp>empty(); // no negative numbers yet
                     }
-                    Symbol r = Symbol.of(current.toString());
-                    if (tail.size() == 2) {
-                        return Optional.of(r);
-                    }
-                    return Optional.of(Sexp.create(r, tail.subList(2, tail.size())));
+                    return HeadSplicing.assemble(Symbol.of(r.toString()), tail.subList(2, tail.size()));
                 });
             });
         }));
@@ -107,19 +103,13 @@ public class Applicative {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
-            if (tail.size() == 2) {
-                return Optional.of(tail.get(1));
-            }
-            return Optional.of(Sexp.create(tail.get(1), tail.subList(2, tail.size())));
+            return HeadSplicing.assemble(tail.get(1), tail.subList(2, tail.size()));
         }));
         m.put(Symbol.of("true"), (tail -> {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
-            if (tail.size() == 2) {
-                return Optional.of(tail.get(0));
-            }
-            return Optional.of(Sexp.create(tail.get(0), tail.subList(2, tail.size())));
+            return HeadSplicing.assemble(tail.get(0), tail.subList(2, tail.size()));
         }));
         this.map = Map.copyOf(m);
     }
@@ -158,6 +148,6 @@ public class Applicative {
         }
         Exp invocations = nestedInvocations(Integer.parseInt(AsSymbol.get(sexp.head()).value()),
                 sexp.get(1), sexp.get(2));
-        return Optional.of(HeadSplicing.trySplicing(Sexp.create(invocations, sexp.subList(3))).orElse(invocations));
+        return Optional.of(HeadSplicing.simplify(Sexp.create(invocations, sexp.subList(3))).orElse(invocations));
     }
 }

@@ -1,6 +1,7 @@
 package com.mypack.vars;
 
 import com.mypack.builtin.Applicative;
+import com.mypack.builtin.HeadSplicing;
 import com.mypack.exp.Exp;
 import com.mypack.exp.ExpVisitor;
 import com.mypack.exp.ParamBlock;
@@ -10,8 +11,6 @@ import com.mypack.util.AsSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mypack.builtin.HeadSplicing.trySplicing;
 
 public class BetaVisitor implements ExpVisitor<Exp, Void> {
 
@@ -49,7 +48,7 @@ public class BetaVisitor implements ExpVisitor<Exp, Void> {
             return sexp;
         }
         Sexp newSexp = Sexp.create(parts);
-        Exp result = trySplicing(newSexp).orElse(newSexp);
+        Exp result = HeadSplicing.simplify(newSexp).orElse(newSexp);
         return Applicative.get().eval(result).orElse(result);
     }
 
