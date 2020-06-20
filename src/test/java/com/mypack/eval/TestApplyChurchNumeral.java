@@ -12,18 +12,12 @@ class TestApplyChurchNumeral {
     @Test
     void test10appliedTo20() {
         Exp result = env.eval("(10 20)");
-        assertEquals("(10 20)", result.toString());
+        assertEquals("10240000000000", result.toString());
     }
 
     @Test
-    void test1appliedTo20and30() {
-        Exp result = env.eval("(1 10 20)");
-        assertEquals("(10 20)", result.toString());
-    }
-
-    @Test
-    void test10appliedTo20and30() {
-        Exp result = env.eval("(10 20 30)");
-        assertEquals("(20 (20 (20 (20 (20 (20 (20 (20 (20 (20 30))))))))))", result.toString());
+    void test333() {
+        Exp result = env.eval("(3 3 3)");
+        assertEquals("7625597484987", result.toString());
     }
 }

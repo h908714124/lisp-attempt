@@ -16,8 +16,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static com.mypack.eval.Environment.nestedInvocations;
-
 public class Applicative {
 
     private static final Pattern NUMBER_PATTERN = Pattern.compile("0|[1-9]\\d*");
@@ -133,7 +131,7 @@ public class Applicative {
         }
         Symbol symbol = AsSymbol.get(sexp.head());
         if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
-            return applyNumberBuiltIn(symbol, sexp.tail());
+            return applyNumberBuiltIn(new BigInteger(symbol.value()), sexp.tail());
         }
         Function<List<? extends Exp>, Optional<Exp>> builtin = map.get(symbol);
         if (builtin == null) {
@@ -142,12 +140,13 @@ public class Applicative {
         return builtin.apply(sexp.tail());
     }
 
-    private Optional<Exp> applyNumberBuiltIn(Symbol n, List<? extends Exp> tail) {
-        if (tail.size() < 2) {
+    private Optional<Exp> applyNumberBuiltIn(BigInteger m, List<? extends Exp> tail) {
+        if (tail.isEmpty()) {
             return Optional.empty();
         }
-        Exp invocations = nestedInvocations(Integer.parseInt(n.value()),
-                tail.get(0), tail.get(1));
-        return HeadSplicing.assemble(invocations, tail.subList(2, tail.size()));
+        return tryEval(tail.get(0)).flatMap(n -> {
+            BigInteger r = n.pow(m.intValue());
+            return HeadSplicing.assemble(Symbol.of(r), tail.subList(1, tail.size()));
+        });
     }
 }

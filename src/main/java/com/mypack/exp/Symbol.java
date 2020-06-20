@@ -1,5 +1,6 @@
 package com.mypack.exp;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,10 @@ public final class Symbol implements Exp {
 
     public static Symbol of(String value) {
         return SYMBOLS.computeIfAbsent(value, Symbol::new);
+    }
+
+    public static Symbol of(BigInteger value) {
+        return of(value.toString());
     }
 
     public static Symbol fn() {
