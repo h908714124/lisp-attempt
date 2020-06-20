@@ -1,0 +1,3 @@
+#!/bin/bash
+./gradlew -q jar
+java -jar build/libs/lisp-attempt.jar
