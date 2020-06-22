@@ -19,7 +19,8 @@ public class HeadSplicing implements ExpVisitor<Optional<Exp>, List<? extends Ex
 
     private static final HeadSplicing INSTANCE = new HeadSplicing();
 
-    public static Optional<Exp> assemble(Exp head, List<? extends Exp> tail) {
+    public static Optional<Exp> assemble(Exp head, List<? extends Exp> tail, int cut) {
+        tail = tail.subList(cut, tail.size());
         if (tail.isEmpty()) {
             return Optional.of(head);
         }
@@ -36,7 +37,7 @@ public class HeadSplicing implements ExpVisitor<Optional<Exp>, List<? extends Ex
         if (!IsSexp.test(sexp.head())) {
             return Optional.empty();
         }
-        return assemble(sexp.head(), sexp.tail());
+        return assemble(sexp.head(), sexp.tail(), 0);
     }
 
     @Override

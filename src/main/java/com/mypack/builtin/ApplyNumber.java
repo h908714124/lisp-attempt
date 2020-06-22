@@ -27,7 +27,7 @@ class ApplyNumber implements ExpVisitor<Optional<Exp>, List<? extends Exp>> {
             return Optional.empty();
         }
         Exp hewHead = nestedInvocations(m.intValue(), sexp, tail.get(1));
-        return assemble(hewHead, tail.subList(2, tail.size()));
+        return assemble(hewHead, tail, 2);
     }
 
     @Override
@@ -35,13 +35,13 @@ class ApplyNumber implements ExpVisitor<Optional<Exp>, List<? extends Exp>> {
         if (NUMBER_PATTERN.matcher(symbol.value()).matches()) {
             BigInteger n = new BigInteger(symbol.value());
             BigInteger r = n.pow(m.intValue());
-            return assemble(Symbol.of(r), tail.subList(1, tail.size()));
+            return assemble(Symbol.of(r), tail, 1);
         }
         if (tail.size() <= 1) {
             return Optional.empty();
         }
         Exp hewHead = nestedInvocations(m.intValue(), symbol, tail.get(1));
-        return assemble(hewHead, tail.subList(2, tail.size()));
+        return assemble(hewHead, tail, 2);
     }
 
     @Override

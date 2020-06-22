@@ -50,7 +50,7 @@ public class Applicative {
                 if (i.signum() == -1) {
                     return Optional.<Exp>empty(); // no negative numbers
                 }
-                return Optional.of(Symbol.of(i.toString()));
+                return assemble(Symbol.of(i.toString()), tail, 1);
             });
         }));
         m.put(Symbol.of("zero?"), (tail -> {
@@ -59,7 +59,7 @@ public class Applicative {
             }
             return evalNumber(tail.get(0)).flatMap(i -> {
                 Exp newHead = i.equals(BigInteger.ZERO) ? tail.get(1) : tail.get(2);
-                return assemble(newHead, tail.subList(3, tail.size()));
+                return assemble(newHead, tail, 3);
             });
         }));
         m.put(Symbol.of("*"), (tail -> {
@@ -95,7 +95,7 @@ public class Applicative {
                     if (r.signum() == -1) {
                         return Optional.<Exp>empty(); // no negative numbers yet
                     }
-                    return assemble(Symbol.of(r.toString()), tail.subList(2, tail.size()));
+                    return assemble(Symbol.of(r.toString()), tail, 2);
                 });
             });
         }));
@@ -103,13 +103,13 @@ public class Applicative {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
-            return assemble(tail.get(1), tail.subList(2, tail.size()));
+            return assemble(tail.get(1), tail, 2);
         }));
         m.put(Symbol.of("true"), (tail -> {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
-            return assemble(tail.get(0), tail.subList(2, tail.size()));
+            return assemble(tail.get(0), tail, 2);
         }));
         this.map = Map.copyOf(m);
     }
