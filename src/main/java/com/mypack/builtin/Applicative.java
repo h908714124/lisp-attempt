@@ -41,7 +41,7 @@ public class Applicative {
 
     private Applicative() {
         Map<Symbol, Function<List<? extends Exp>, Optional<Exp>>> m = new HashMap<>();
-        m.put(Symbol.of("pred"), (tail -> {
+        m.put(Symbol.of("pred"), tail -> {
             if (tail.isEmpty()) {
                 return Optional.empty();
             }
@@ -52,8 +52,8 @@ public class Applicative {
                 }
                 return assemble(Symbol.of(i.toString()), tail, 1);
             });
-        }));
-        m.put(Symbol.of("zero?"), (tail -> {
+        });
+        m.put(Symbol.of("zero?"), tail -> {
             if (tail.size() < 3) {
                 return Optional.empty();
             }
@@ -61,8 +61,8 @@ public class Applicative {
                 Exp newHead = i.equals(BigInteger.ZERO) ? tail.get(1) : tail.get(2);
                 return assemble(newHead, tail, 3);
             });
-        }));
-        m.put(Symbol.of("*"), (tail -> {
+        });
+        m.put(Symbol.of("*"), tail -> {
             BigInteger current = BigInteger.ONE;
             for (Exp exp : tail) {
                 Optional<BigInteger> e = evalNumber(exp);
@@ -72,8 +72,8 @@ public class Applicative {
                 current = current.multiply(e.get());
             }
             return Optional.of(Symbol.of(current.toString()));
-        }));
-        m.put(Symbol.of("+"), (tail -> {
+        });
+        m.put(Symbol.of("+"), tail -> {
             BigInteger current = BigInteger.ZERO;
             for (Exp exp : tail) {
                 Optional<BigInteger> e = evalNumber(exp);
@@ -83,8 +83,8 @@ public class Applicative {
                 current = current.add(e.get());
             }
             return Optional.of(Symbol.of(current.toString()));
-        }));
-        m.put(Symbol.of("-"), (tail -> {
+        });
+        m.put(Symbol.of("-"), tail -> {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
@@ -98,19 +98,19 @@ public class Applicative {
                     return assemble(Symbol.of(r.toString()), tail, 2);
                 });
             });
-        }));
-        m.put(Symbol.of("false"), (tail -> {
+        });
+        m.put(Symbol.of("false"), tail -> {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
             return assemble(tail.get(1), tail, 2);
-        }));
-        m.put(Symbol.of("true"), (tail -> {
+        });
+        m.put(Symbol.of("true"), tail -> {
             if (tail.size() < 2) {
                 return Optional.empty();
             }
             return assemble(tail.get(0), tail, 2);
-        }));
+        });
         this.map = Map.copyOf(m);
     }
 
