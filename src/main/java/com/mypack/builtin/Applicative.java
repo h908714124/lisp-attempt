@@ -5,8 +5,10 @@ import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 import com.mypack.util.AsSexp;
 import com.mypack.util.AsSymbol;
+import com.mypack.util.IsChurchNumeral;
 import com.mypack.util.IsSexp;
 import com.mypack.util.IsSymbol;
+import com.mypack.vars.AlphaEquivalence;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -53,6 +55,17 @@ public class Applicative {
                 return assemble(Symbol.of(i.toString()), tail, 1);
             });
         });
+        Function<List<? extends Exp>, Optional<Exp>> inc = tail -> {
+            if (tail.isEmpty()) {
+                return Optional.empty();
+            }
+            return evalNumber(tail.get(0)).flatMap(i -> {
+                i = i.add(BigInteger.ONE);
+                return assemble(Symbol.of(i.toString()), tail, 1);
+            });
+        };
+        m.put(Symbol.of("succ"), inc);
+        m.put(Symbol.of("inc"), inc);
         m.put(Symbol.of("zero?"), tail -> {
             if (tail.size() < 3) {
                 return Optional.empty();
@@ -72,6 +85,16 @@ public class Applicative {
                 current = current.multiply(e.get());
             }
             return Optional.of(Symbol.of(current.toString()));
+        });
+        m.put(Symbol.of("="), tail -> {
+            if (tail.size() < 2) {
+                return Optional.empty();
+            }
+            Optional<BigInteger> a = evalNumber(tail.get(0));
+            Optional<BigInteger> b = evalNumber(tail.get(1));
+            boolean eq = eq(tail.get(0), tail.get(1), a, b);
+            Symbol r = Symbol.of(Boolean.toString(eq));
+            return assemble(r, tail, 2);
         });
         m.put(Symbol.of("+"), tail -> {
             BigInteger current = BigInteger.ZERO;
@@ -112,6 +135,23 @@ public class Applicative {
             return assemble(tail.get(0), tail, 2);
         });
         this.map = Map.copyOf(m);
+    }
+
+    private boolean eq(Exp tail0, Exp tail1, Optional<BigInteger> a, Optional<BigInteger> b) {
+        if (a.isPresent() && b.isPresent()) {
+            return a.get().equals(b.get());
+        }
+        if (a.isPresent()) {
+            return eq(tail1, tail0, b, a);
+        }
+        if (b.isPresent()) {
+            Optional<BigInteger> aa = IsChurchNumeral.test(tail0);
+            if (aa.isEmpty()) {
+                return false;
+            }
+            return aa.get().equals(b.get());
+        }
+        return AlphaEquivalence.eq(tail0, tail1);
     }
 
     Optional<BigInteger> evalNumber(Exp exp) {

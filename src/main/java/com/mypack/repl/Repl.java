@@ -2,6 +2,7 @@ package com.mypack.repl;
 
 import com.mypack.eval.Environment;
 import com.mypack.exp.Exp;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -12,8 +13,13 @@ import java.util.Objects;
 
 public class Repl {
 
-    public static void main(String[] args) throws IOException {
-        Environment env = new Environment();
+    private final Environment env;
+
+    public Repl(Environment env) {
+        this.env = env;
+    }
+
+    private void doMain() throws IOException {
         Terminal terminal = TerminalBuilder.terminal();
         LineReader lineReader = LineReaderBuilder.builder()
                 .terminal(terminal)
@@ -22,6 +28,14 @@ public class Repl {
         while (!Objects.toString(line = lineReader.readLine("$ "), "").trim().isEmpty()) {
             Exp exp = env.eval(line);
             terminal.writer().println(exp.toString());
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        try {
+            new Repl(new Environment()).doMain();
+        } catch (EndOfFileException e) {
+            // ignore
         }
     }
 }
