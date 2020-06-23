@@ -5,12 +5,12 @@ import com.mypack.exp.ParamBlock;
 import com.mypack.exp.Sexp;
 import com.mypack.exp.Symbol;
 
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +24,7 @@ class LispParser {
 
     static List<Exp> parseList(String input) {
         List<Exp> result = new ArrayList<>();
-        for (List<Token> tokens : tokens(input)) {
+        for (List<Token> tokens : allTokens(input)) {
             result.add(group(tokens));
         }
         return result;
@@ -86,24 +86,34 @@ class LispParser {
         return result;
     }
 
-    static List<List<Token>> tokens(String input) {
+    static List<List<Token>> allTokens(String input) {
         List<List<Token>> result = new ArrayList<>();
         while (!input.isEmpty()) {
-            List<Token> exp = new ArrayList<>();
-            int height = 0;
-            do {
-                Map.Entry<Token, String> next = readNextToken(input);
-                Token t = next.getKey();
-                exp.add(t);
-                height += t.height();
-                input = next.getValue();
-            } while (height > 0);
-            result.add(exp);
+            Entry<List<Token>, String> e = tokens(input);
+            result.add(e.getKey());
+            input = e.getValue();
         }
         return result;
     }
 
-    static Map.Entry<Token, String> readNextToken(String input) {
+    static Entry<List<Token>, String> tokens(String input) {
+        List<Token> result = new ArrayList<>();
+        int height = 0;
+        do {
+            Entry<String, String> next = readNextToken(input);
+            String key = next.getKey();
+            if (key.isEmpty()) {
+                throw new ParserException("unmatched parentheses");
+            }
+            Token token = new Token(key);
+            result.add(token);
+            height += token.height();
+            input = next.getValue();
+        } while (height > 0);
+        return new SimpleImmutableEntry<>(result, input);
+    }
+
+    static Entry<String, String> readNextToken(String input) {
         input = input.trim();
         if (input.startsWith(";")) {
             Matcher matcher = NEWLINE_PATTERN.matcher(input);
@@ -112,23 +122,31 @@ class LispParser {
                 input = input.substring(linebreak).trim();
             }
         }
-        if (isBrace(input.charAt(0))) {
-            return new AbstractMap.SimpleImmutableEntry<>(new Token(Character.toString(input.charAt(0))), input.substring(1));
+        if (isBrace(input, 0)) {
+            return new SimpleImmutableEntry<>(Character.toString(input.charAt(0)), input.substring(1));
         }
         StringBuilder result = new StringBuilder();
         int i = 0;
-        while (input.length() > i && !isWhitespace(input.charAt(i)) && !isBrace(input.charAt(i))) {
+        while (input.length() > i && !isWhitespace(input, i) && !isBrace(input, i)) {
             result.append(input.charAt(i));
             i++;
         }
-        return new AbstractMap.SimpleImmutableEntry<>(new Token(result.toString()), input.substring(i));
+        return new SimpleImmutableEntry<>(result.toString(), input.substring(i));
     }
 
-    private static boolean isBrace(char c) {
+    private static boolean isBrace(String input, int i) {
+        if (input.length() <= i) {
+            return false;
+        }
+        char c = input.charAt(i);
         return c == '(' || c == ')' || c == '[' || c == ']';
     }
 
-    private static boolean isWhitespace(char c) {
+    private static boolean isWhitespace(String input, int i) {
+        if (input.length() <= i) {
+            return false;
+        }
+        char c = input.charAt(i);
         return c == ' ' || c == '\t' || c == '\n' || c == '\r';
     }
 }

@@ -5,6 +5,9 @@ class Token {
     private final String value;
 
     Token(String value) {
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException("empty");
+        }
         this.value = value;
     }
 
