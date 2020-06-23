@@ -30,6 +30,6 @@ public class Eval implements ExpVisitor<Exp, EvalContext> {
 
     @Override
     public Exp visitParamBlock(ParamBlock paramBlock) {
-        return paramBlock;
+        throw new ParserException("floating param block");
     }
 }

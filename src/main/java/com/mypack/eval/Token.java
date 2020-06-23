@@ -19,6 +19,14 @@ class Token {
         return '(' == value.charAt(0);
     }
 
+    boolean isOpening() {
+        return isOpeningBracket() || isOpeningParentheses();
+    }
+
+    boolean isClosing() {
+        return isClosingBracket() || isClosingParentheses();
+    }
+
     boolean isOpeningBracket() {
         return '[' == value.charAt(0);
     }

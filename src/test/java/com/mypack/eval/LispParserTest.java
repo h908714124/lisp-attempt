@@ -24,19 +24,19 @@ class LispParserTest {
 
     @Test
     void testSegments() {
-        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.allTokens("(car (cdr))").get(0));
+        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.readAll("(car (cdr))").get(0));
         Assertions.assertEquals(2, structure.size());
     }
 
     @Test
     void testStructureEmpty() {
-        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.allTokens("()").get(0));
+        List<List<Token>> structure = LispParser.getSexpSegments(LispParser.readAll("()").get(0));
         Assertions.assertTrue(structure.isEmpty());
     }
 
     @Test
     void testTokens() {
-        List<Token> tokens = LispParser.allTokens("(car (cdr))").get(0);
+        List<Token> tokens = LispParser.readAll("(car (cdr))").get(0);
         Assertions.assertEquals(6, tokens.size());
         Assertions.assertEquals("(", tokens.get(0).value());
         Assertions.assertEquals("car", tokens.get(1).value());
@@ -48,7 +48,7 @@ class LispParserTest {
 
     @Test
     void testTokensEmpty() {
-        List<Token> tokens = LispParser.allTokens("()").get(0);
+        List<Token> tokens = LispParser.readAll("()").get(0);
         Assertions.assertEquals(2, tokens.size());
         Assertions.assertEquals("(", tokens.get(0).value());
         Assertions.assertEquals(")", tokens.get(1).value());

@@ -2,7 +2,7 @@ package com.mypack.eval;
 
 public class ParserException extends RuntimeException {
 
-    ParserException(String message) {
+    public ParserException(String message) {
         super(message);
     }
 }

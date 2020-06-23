@@ -1,6 +1,7 @@
 package com.mypack.repl;
 
 import com.mypack.eval.Environment;
+import com.mypack.eval.LispParser;
 import com.mypack.eval.ParserException;
 import com.mypack.exp.Exp;
 import org.jline.reader.EndOfFileException;
@@ -26,12 +27,13 @@ public class Repl {
                 .terminal(terminal)
                 .build();
         String line;
-        while (!Objects.toString(line = lineReader.readLine("$ "), "").trim().isEmpty()) {
+        while (!Objects.toString(line = lineReader.readLine("$ "), "").trim().equals("q")) {
             try {
-                Exp exp = env.eval(line);
-                terminal.writer().println(exp.toString());
+                Exp exp = LispParser.parse(line);
+                Exp result = env.eval(exp);
+                terminal.writer().println(result.toString());
             } catch (ParserException e) {
-                terminal.writer().println(e.getMessage());
+                terminal.writer().println("Error: " + e.getMessage());
             }
         }
     }

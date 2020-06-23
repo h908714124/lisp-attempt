@@ -14,17 +14,21 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class LispParser {
+public class LispParser {
 
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\R");
 
-    static Exp parse(String input) {
-        return parseList(input).get(0);
+    public static Exp parse(String input) {
+        Entry<List<Token>, String> result = read(input);
+        if (!result.getValue().trim().isEmpty()) {
+            throw new ParserException("trailing tokens");
+        }
+        return group(result.getKey());
     }
 
     static List<Exp> parseList(String input) {
         List<Exp> result = new ArrayList<>();
-        for (List<Token> tokens : allTokens(input)) {
+        for (List<Token> tokens : readAll(input)) {
             result.add(group(tokens));
         }
         return result;
@@ -32,17 +36,20 @@ class LispParser {
 
     static Exp group(List<Token> input) {
         if (input.isEmpty()) {
-            throw new IllegalArgumentException("no tokens in group");
+            throw new ParserException("no tokens in group");
         }
-        if (!input.get(0).isOpeningParentheses() && !input.get(0).isOpeningBracket()) {
+        if (!input.get(0).isOpening()) {
             if (input.size() != 1) {
-                throw new IllegalArgumentException("group of more than one symbol");
+                throw new ParserException("group of more than one symbol");
+            }
+            if (input.get(0).isClosing()) {
+                throw new ParserException("unmatched parentheses");
             }
             String value = input.get(0).value();
             return Symbol.of(value);
         }
         if (input.size() == 2) {
-            throw new IllegalArgumentException("empty sexp");
+            throw new ParserException("empty group");
         }
         if (input.get(0).isOpeningBracket()) {
             return ParamBlock.create(getParamBlockContents(input.subList(1, input.size() - 1)));
@@ -61,7 +68,7 @@ class LispParser {
         List<Symbol> result = new ArrayList<>(tokens.size());
         for (Token token : tokens) {
             if (token.isBrace()) {
-                throw new IllegalArgumentException("invalid param block");
+                throw new ParserException("invalid param block");
             }
             result.add(Symbol.of(token.value()));
         }
@@ -86,28 +93,35 @@ class LispParser {
         return result;
     }
 
-    static List<List<Token>> allTokens(String input) {
+    static List<List<Token>> readAll(String input) {
         List<List<Token>> result = new ArrayList<>();
         while (!input.isEmpty()) {
-            Entry<List<Token>, String> e = tokens(input);
+            Entry<List<Token>, String> e = read(input);
             result.add(e.getKey());
             input = e.getValue();
         }
         return result;
     }
 
-    static Entry<List<Token>, String> tokens(String input) {
+    static Entry<List<Token>, String> read(String input) {
         List<Token> result = new ArrayList<>();
         int height = 0;
         do {
             Entry<String, String> next = readNextToken(input);
             String key = next.getKey();
             if (key.isEmpty()) {
-                throw new ParserException("unmatched parentheses");
+                if (height == 0) {
+                    throw new ParserException("empty input");
+                } else {
+                    throw new ParserException("unmatched parentheses");
+                }
             }
             Token token = new Token(key);
             result.add(token);
             height += token.height();
+            if (height < 0) {
+                throw new ParserException("unmatched parentheses");
+            }
             input = next.getValue();
         } while (height > 0);
         return new SimpleImmutableEntry<>(result, input);
